@@ -1,0 +1,892 @@
+/* Styling for the Turing Pattern */
+
+/* ==================================
+    Table of content
+    ----------------
+    1. Global
+        - Fonts
+        - Variables
+        - Selection
+        - Scrollbar
+    2. Components
+        2.1 Body
+        2.2 Grid Layouts, Images & Separators
+        2.3 Canvas
+        2.4 Presentation
+        2.5 Tooltip
+        2.6 Loaders
+        2.7 Input Boxes and Sliders
+        2.8 Math Environments
+        
+===================================== */
+
+/* ============================
+    1. Global
+    =============================== */
+
+/* -- Fonts -- */
+
+/* STIX Two Text & Robot Mono from Google Font */
+
+@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
+/* -- Variables -- */
+
+:root {
+    --background: #FFFFFF;
+    --hidden: #ffffff;
+    /* #686868 */
+    --accent: #1484E6;
+    --crimson-red: #B01A00;
+    --primary: #000000;
+    --dark-grey: #222222;
+    --secondary: #333333;
+    --thm-blue: #1484E6;
+    --thm-blue-rgb: 20, 132, 230;
+    --def-orange: #FD8B28;
+    --def-orange-rgb: 253, 139, 40;
+}
+
+/* -- Selection -- */
+
+/* Disable highlight rectangle on mobile */
+
+* {
+    -webkit-tap-highlight-color: #ffffff00;
+}
+
+/* -- Selection -- */
+
+::-moz-selection {
+    color: #eeeeee;
+    background: var(--accent);
+}
+
+::selection {
+    color: #eeeeee;
+    background: var(--accent);
+}
+
+/* -- Scrollbar -- */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #ffffff00;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #00000015;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #00000030;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--accent);
+}
+
+/* -- Focus -- */
+
+* {
+    -webkit-transition: all .3s ease-out;
+    -moz-transition: all .3s ease-out;
+    -ms-transition: all .3s ease-out;
+    -o-transition: all .3s ease-out;
+    transition: all .3s ease-in-out;
+}
+
+*:focus-visible:not(input.input-box) {
+    padding: 4px;
+    margin-right: 4px;
+    outline: none;
+    border-radius: 5px;
+    box-shadow: 0 0 20px #00000030;
+}
+
+/* ============================
+    2. Components
+=============================== */
+
+/* -- 2.1 Page container -- */
+
+.page-container {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(150px, 1fr) 4fr 1fr;
+}
+
+.page-content {
+    padding: 10px;
+    font-size: 14pt;
+}
+
+@media (max-width:1400px) {
+    .page-container {
+        grid-template-columns: minmax(150px, 1fr) 5fr 1fr;
+    }
+}
+
+@media (max-width: 768px), (orientation: portrait), (hover: none) {
+    .page-container {
+        grid-template-columns: none;
+    }
+
+    .page-content {
+        padding: 40px;
+    }
+}
+
+/* -- Spacing -- */
+
+.spaced {
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+.spaced-top {
+    margin-top: 5%;
+}
+
+.spaced-bottom {
+    margin-bottom: 5%;
+}
+
+/* -- 2.2 Body -- */
+
+body {
+    margin: 0;
+    background-color: var(--background);
+    font-family: 'STIX Two Text', serif;
+    color: var(--secondary);
+    counter-reset: chapter section subsection definition definition theorem;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    transition: all .3s ease-in-out;
+}
+
+/* -- 2.2.1 Text -- */
+
+/* -- Headers -- */
+
+/* Title */
+
+h1 {
+    margin-top: 80px;
+    font-size: 250%;
+    font-weight: bold;
+}
+
+/* Part */
+
+h2 {
+    margin-bottom: 30px;
+    font-size: 175%;
+    font-weight: bold;
+    padding-left: 85px;
+    text-indent: -85px;
+    counter-set: section subsection;
+}
+
+h2::before {
+    counter-increment: chapter;
+    content: counter(chapter);
+    margin-right: 60px;
+}
+
+/* Section */
+
+h3 {
+    margin-bottom: 30px;
+    font-size: 150%;
+    padding-left: 80px;
+    text-indent: -80px;
+    counter-set: subsection definition theorem;
+}
+
+h3::before {
+    counter-increment: section;
+    content: counter(chapter) "."counter(section);
+    margin-right: 30px;
+}
+
+/* Subsection */
+
+h4 {
+    font-size: 125%;
+}
+
+h4::before {
+    counter-increment: subsection;
+    content: counter(chapter) "."counter(section) "."counter(subsection);
+    margin-right: 18px;
+}
+
+h5 {
+    font-size: 110%;
+}
+
+/* -- Paragraphs -- */
+
+p {
+    font-size: 100%;
+    font-weight: normal;
+}
+
+li {
+    margin: 5px -5px;
+}
+
+/* -- Highlight -- */
+
+mark {
+    background-color: #00000020;
+}
+
+/* -- Links -- */
+
+a {
+    color: var(--accent);
+}
+
+/* -- 2.2 Grid Layouts, Images & Separators -- */
+
+/* -- Grid Layouts -- */
+
+.grid-2 {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.grid-2.right {
+    grid-template-columns: .5fr 1.5fr;
+}
+
+.grid-2.left {
+    grid-template-columns: 1.5fr .5fr;
+}
+
+.grid-2.centered {
+    place-items: center;
+}
+
+/* 3 Column Grid Layout */
+
+.grid-3 {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.grid-3.small-center {
+    grid-template-columns: 1fr 0.3fr 1fr;
+}
+
+.grid-3.centered {
+    place-items: center;
+}
+
+/* Grid element */
+
+.centered-element {
+    text-align: center;
+}
+
+/* -- Image Labels -- */
+
+span.img-label {
+    margin-right: 5px;
+}
+
+span.img-label.dash::before {
+    content: "━";
+    font-weight: bold;
+}
+
+span.img-label.dots::before {
+    content: "┈";
+}
+
+span.img-label.square::before {
+    content: "■";
+}
+
+span.img-label.light-blue {
+    color: var(--thm-blue);
+}
+
+span.img-label.orange {
+    color: var(--def-orange);
+}
+
+span.img-label.grey {
+    color: #555555;
+}
+
+/* -- Separators -- */
+
+div.separator {
+    margin-top: 5%;
+}
+
+div.medium-separator {
+    margin-top: 2%;
+}
+
+div.large-separator {
+    margin-top: 10%;
+}
+
+/* -- Bubble containers */
+
+.bubble-container {
+    display: -ms-inline-grid;
+    display: -moz-inline-grid;
+    display: inline-grid;
+    border-radius: 25pt;
+    padding-left: 5pt;
+    padding-right: 5pt;
+}
+
+.bubble-container.text {
+    place-items: center;
+}
+
+/* -- 2.3 Canvas -- */
+
+div.plot-container {
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+canvas {
+    -webkit-transition: all .2s ease-out;
+    -moz-transition: all .2s ease-out;
+    -ms-transition: all .2s ease-out;
+    -o-transition: all .2s ease-out;
+    transition: all .2s ease-in-out;
+}
+
+canvas.plot {
+    width: 100%;
+    height: 50%;
+    z-index: 9;
+    border-radius: 10px;
+    cursor: crosshair;
+}
+
+canvas.plot.stacked {
+    position: absolute;
+}
+
+/* Activate for focus outline */
+
+canvas.plot:focus {
+    outline: none;
+}
+
+canvas.plot.main:focus {
+    transform: translate(0px, -2px);
+    box-shadow: 0 0 20px #00000030;
+}
+
+canvas.focused {
+    /* transform: translate(0px, -2px); */
+    box-shadow: 0 0 20px #00000030;
+}
+
+/* -- 2.4 Presentation -- */
+
+div.plot-controls {
+    display: grid;
+    place-items: center;
+    transition: all .3s ease-in-out;
+    user-select: none;
+}
+
+div.play-pause-plot {
+    position: relative;
+}
+
+div.slide, div.slide.hidden {
+    padding: 5px 10px;
+    border-radius: 10px;
+    opacity: 1;
+    transition: all .3s ease-in-out;
+}
+
+#play-pause-controls {
+    position: fixed;
+    top: 10px;
+    right: 50px;
+    display: table-row;
+    user-select: none;
+    color: var(--dark-grey);
+}
+
+.material-symbols-sharp.button {
+    cursor: pointer;
+    user-select: none;
+    color: var(--dark-grey);
+}
+
+span.material-symbols-sharp.button.pause {
+    position: absolute;
+    visibility: collapse;
+    opacity: 0;
+}
+
+span.material-symbols-sharp.button.play {
+    position: absolute;
+}
+
+#presentation-controls {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    user-select: none;
+    color: var(--dark-grey);
+    opacity: 0;
+    transition: all .3s ease-in-out;
+}
+
+div.arrows {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: var(--dark-grey);
+    transition: all .3s ease-in-out;
+}
+
+div.progress-bar {
+    position: absolute;
+    display: block;
+    top: -5px;
+    width: 0%;
+    height: 5px;
+    background-color: var(--accent);
+    transition: all .4s ease-in-out;
+}
+
+/* -- 2.5 Tooltip -- */
+
+/* Tooltip container */
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    /* If you want dots under the hoverable text */
+    border-bottom: dotted var(--secondary) 1pt;
+    cursor: pointer;
+}
+
+/* Tooltip text */
+
+.tooltip .tooltip-text {
+    visibility: collapse;
+    width: auto;
+    background-color: var(--background);
+    color: var(--secondary);
+    box-shadow: #0000004a 0 0 20px;
+    text-align: center;
+    padding: 5px 15px;
+    border-radius: 10px;
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    transform: translateX(-50%);
+    /* Fade in tooltip */
+    opacity: 0;
+    transition: all 0.2s ease-in-out;
+}
+
+.tooltip-text.top {
+    bottom: 130%;
+}
+
+.tooltip-text.bottom {
+    top: 100%;
+}
+
+/* Tooltip arrow */
+
+.tooltip .tooltip-text::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    margin-left: -10px;
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent var(--background) transparent;
+}
+
+.tooltip-text.tooltip-text.top::after {
+    top: 98%;
+}
+
+.tooltip-text.tooltip-text.bottom::after {
+    bottom: 98%;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip:hover .tooltip-text.top {
+    transform: translate(-50%, -10px);
+}
+
+.tooltip:hover .tooltip-text.bottom {
+    transform: translate(-50%, 10px);
+}
+
+/* -- 2.6 Loaders -- */
+
+.loader, .loader:after {
+    border-radius: 50%;
+    width: 10em;
+    height: 10em;
+}
+
+.loader {
+    margin: 4px;
+    text-indent: 0em;
+    border-top: 1.75em solid #00000015;
+    border-right: 1.75em solid #00000015;
+    border-bottom: 1.75em solid #00000015;
+    transform: translateZ(0);
+    animation: load 1.1s infinite linear;
+    animation-play-state: paused;
+    visibility: collapse;
+}
+
+@keyframes load {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Plot loader */
+
+.loader.plot {
+    position: absolute;
+    z-index: 8;
+    font-size: 2px;
+    border-left: 1.75em solid #00000090;
+}
+
+/* General loader */
+
+.loader.general {
+    top: 6pt;
+    left: 2pt;
+    font-size: 3px;
+    border-left: 1.75em solid #00000090;
+    visibility: visible;
+    animation-play-state: running;
+}
+
+/* Loading container */
+
+div.loading-container {
+    position: absolute;
+    width: 100%;
+    top: 42%;
+    display: grid;
+    place-items: center;
+}
+
+/* -- 2.7 Input Boxes and Sliders -- */
+
+/* Input box */
+
+div.input-container {
+    display: grid;
+    place-items: center;
+    margin-top: 10px;
+    font-family: 'Roboto-Mono', monospace;
+    font-size: 10pt;
+    font-weight: 600;
+}
+
+input.input-box {
+    min-width: 10px;
+    width: 40px;
+    margin-left: -2px;
+    margin-right: -2px;
+    background-color: #00000000;
+    outline: none;
+    border-width: 0;
+    border-bottom: #00000050 solid 2px;
+    color: var(--secondary);
+    text-align: center;
+    font-family: 'Roboto-Mono', monospace;
+    font-weight: 600;
+    font-size: 10pt;
+    caret-color: #8d8d8d;
+    transition: all .3 ease-in-out;
+}
+
+input.input-box:active {
+    border-color: var(--thm-blue);
+}
+
+input.input-box:hover {
+    border-color: #3494e8;
+}
+
+/* Hides arrows of input box */
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Sliders */
+
+.slider {
+    -webkit-appearance: none;
+    /* Override default CSS styles */
+    appearance: none;
+    width: 100%;
+    height: 25px;
+    border-radius: 25px;
+    background: #83838317;
+    outline: none;
+    opacity: 0.5;
+    -webkit-transition: .2s ease-out;
+    -moz-transition: .2s ease-out;
+    -ms-transition: .2s ease-out;
+    -o-transition: .2s ease-out;
+    transition: .2s ease-in-out;
+    transform: translateY(-2px);
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider:active {
+    opacity: 1;
+}
+
+/* The slider handle  */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    /* Override default look */
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 25px;
+    background: #0000003b;
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb:active {
+    background: var(--accent);
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 25px;
+    border-color: #00000000;
+    background: #0000003b;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb:active {
+    background: var(--accent);
+    transition: ease-in-out 0.3s;
+}
+
+/* -- 2.8 Math Environments -- */
+
+/* Definition */
+
+div.definition {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding-left: 2%;
+    border-left: var(--def-orange) solid 5pt;
+    font-style: italic;
+}
+
+div.definition.highlighted {
+    padding: 1% 2% 1% 2%;
+    background-color: rgba(var(--def-orange-rgb), 0.1);
+}
+
+div.definition::before {
+    counter-increment: definition;
+    content: "Definition "counter(chapter) "."counter(section) "/"counter(definition) "\00a0\00a0—\00a0";
+    font-style: normal;
+    font-weight: bold;
+}
+
+div.definition.named::before {
+    content: "Definition "counter(chapter) "."counter(section) "/"counter(definition);
+}
+
+/* Definition Label */
+
+span.definition-label {
+    font-style: normal;
+    font-weight: bold;
+    color: var(--def-orange);
+}
+
+span.definition-label::before {
+    content: "\00a0(";
+    color: #000000;
+}
+
+span.definition-label::after {
+    content: ")\00a0 —";
+    color: #000000;
+}
+
+span.definition-label.no-dash::after {
+    content: ")\00a0";
+}
+
+
+/* Theorem */
+
+div.theorem {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding-left: 2%;
+    border-left: var(--thm-blue) solid 5pt;
+    font-style: italic;
+}
+
+div.theorem.highlighted {
+    padding: 1% 2% 1% 2%;
+    background-color: rgba(var(--thm-blue-rgb), 0.1);
+}
+
+div.theorem::before {
+    counter-increment: theorem;
+    content: "Teorema "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
+    font-style: normal;
+    font-weight: bold;
+}
+
+div.theorem.named::before {
+    content: "Teorema "counter(chapter) "."counter(section) "/"counter(theorem);
+}
+
+/* Theorem Label */
+
+span.theorem-label {
+    font-style: normal;
+    font-weight: bold;
+    color: var(--thm-blue);
+}
+
+span.theorem-label::before {
+    content: "\00a0(";
+    color: #000000;
+}
+
+span.theorem-label::after {
+    content: ")\00a0 —";
+    color: #000000;
+}
+
+/* Lemma */
+
+div.theorem.lemma::before {
+    content: "Lemma "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
+}
+
+div.theorem.lemma.named::before {
+    content: "Lemma "counter(chapter) "."counter(section) "/"counter(theorem);
+}
+
+/* Corollary */
+
+div.theorem.corollary::before {
+    content: "Corollario "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
+}
+
+/* Proposition */
+
+div.theorem.proposition::before {
+    content: "Proposizione "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
+}
+
+/* Property */
+
+div.theorem.property::before {
+    content: "Proprietà "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
+}
+
+div.theorem.property.named::before {
+    content: "Proprietà "counter(chapter) "."counter(section) "/"counter(theorem);
+}
+
+/* Properties */
+
+div.theorem.properties::before {
+    content: "Proprietà "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
+}
+
+/* -- Proof -- */
+
+div.proof {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 5px 10px 5px 10px;
+    font-size: 85%;
+    font-style: normal;
+    font-weight: normal;
+    background-color: rgba(var(--thm-blue-rgb), 0.1);
+}
+
+div.proof::before, span.proof-label {
+    margin-right: 10px;
+    font-size: 100%;
+    font-style: italic;
+    font-weight: bold;
+}
+
+div.proof::before {
+    content: "Dim.";
+}
+
+div.proof.named::before {
+    content: "";
+    margin-right: 0px;
+}
+
+div.proof::after {
+    content: "□";
+    margin-top: -.1em;
+    text-align: right;
+    float: right;
+    font-size: 110%;
+}
+
+div.proof.ending-formula::after {
+    margin-top: -1.1em;
+}
