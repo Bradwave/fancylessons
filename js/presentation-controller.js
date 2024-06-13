@@ -29,6 +29,8 @@ let presentationController = new function () {
     |   HTML elements
     */
 
+    /* ------ Page content and slides ------ */
+
     /**
      * Main with page content.
      */
@@ -44,27 +46,67 @@ let presentationController = new function () {
      */
     let hiddenSlides;
 
-    /**
-     * Play presentation button.
-     */
-    let presentationPlay;
+    /* ------ Presentation toggle ------ */
 
     /**
-     * Pause presentation button.
+     * Presentation toggle button.
      */
-    let presentationPause;
+    let presentationToggleButton;
+
+    /**
+     * Presentation toggle icon.
+     */
+    let presentationToggleIcon;
+
+    /* ------ Presentation navigation ------ */
 
     /**
      * Presentation controls panel.
      */
-    let presentationControls;
+    let presentationNavigation;
 
     /**
      * Progress bar div element.
      */
     let progressBar;
 
+    /* ------ Font size range slider ------ */
+
+    /**
+     * Font size range slider.
+     */
     let fontSizeSlider;
+
+    /**
+     * Progress bar for the font size slider.
+     */
+    let fontSizeSliderProgress;
+
+    /**
+     * Icon for the font size slider.
+     */
+    let fontSizeSliderIcon;
+
+    /* ------ Slide selection range slider ------ */
+
+    /**
+     * slide selection range slider.
+     */
+    let presentationSlider;
+
+    /**
+     * Progress bar for the slide selection slider.
+     */
+    let presentationSliderProgress;
+
+    /**
+     * Icon for the slide selection slider.
+     */
+    let presentationSliderIcon;
+
+    /*_______________________________________
+    |   Styles
+    */
 
     /**
      * String containing the non selected slide style.
@@ -76,15 +118,29 @@ let presentationController = new function () {
      */
     const selectedSlideStyle = "opacity: 1; filter: blur(0);";
 
+    /*_______________________________________
+    |   Methods
+    */
+
+    // On document content load
     document.addEventListener("DOMContentLoaded", function (e) {
         // Initializes HTML elements and listeners
         initHTMLComponents();
 
         // Gets the font size from local storage and sets the font size
-        let fontSize = 0 + localStorage.getItem("fontSize");
-        fontSize = fontSize < 12 ? 12 : (fontSize > 28 ? 28 : fontSize);
+        let fontSize = localStorage.getItem("fontSize");
+        // Min font size value
+        const min = fontSizeSlider.min;
+        // Max font size value
+        const max = fontSizeSlider.max;
+        // Checks if the font size is between the minimum and maximum value allowed
+        fontSize = fontSize < min ? max : (fontSize > max ? max : fontSize);
+
+        // Sets the font size
         pageContent.style = "font-size: " + fontSize + "pt";
         fontSizeSlider.value = fontSize;
+        // Resizes the progress bar for the font size slider
+        resizeSliderProgress(fontSizeSlider, fontSizeSliderProgress, fontSize);
 
         // Get the location hash property
         let hash = location.hash;
@@ -118,6 +174,8 @@ let presentationController = new function () {
      * Initializes the HTML elements and their listeners
      */
     function initHTMLComponents() {
+        /* ------ Page content and sliders ------ */
+
         // Gets the main element with the page content
         pageContent = document.getElementById("page-content");
 
@@ -127,22 +185,19 @@ let presentationController = new function () {
         // Gets the hidden slide div elements
         hiddenSlides = [...document.querySelectorAll(".slide.hidden")];
 
-        // Gets the presentation controls elements and the progress bar
-        presentationPlay = document.getElementById("presentation-play");
-        presentationPause = document.getElementById("presentation-pause");
-        presentationControls = document.getElementById("presentation-controls");
+        // Gets the presentation navigation elements
+        presentationNavigation = document.getElementById("presentation-navigation");
         progressBar = document.getElementById("progress-bar");
 
-        fontSizeSlider = document.getElementById("font-size-slider");
+        /* ------ Presentation toggle ------ */
 
-        presentationPlay.onclick = () => {
+        // Gets the presentation controls elements
+        presentationToggleButton = document.getElementById("presentation-toggle-button");
+        presentationToggleIcon = document.getElementById("presentation-toggle-icon");
+
+        presentationToggleButton.onclick = () => {
             // Starts the presentation
-            togglePresentation(true);
-        };
-
-        presentationPause.onclick = () => {
-            // Pauses the presentation
-            togglePresentation(false);
+            togglePresentation();
         };
 
         document.getElementById("next").onclick = () => {
@@ -154,6 +209,98 @@ let presentationController = new function () {
             // Moves to previous slide
             previousSlide();
         };
+
+        // Adds listeners to button to create ripple effect
+        // const buttons = document.getElementsByTagName("button");
+        // for (const button of buttons) {
+        //     button.onclick = (e) => {
+        //         createRipple(e)
+        //     };
+        // }
+
+        /* ------ Font size slider ------ */
+
+        // Gets the font size slider elements
+        fontSizeSlider = document.getElementById("font-size-slider");
+        fontSizeSliderProgress = document.getElementById("font-slider-progress");
+        fontSizeSliderIcon = document.getElementById("font-slider-icon");
+
+        fontSizeSlider.oninput = () => {
+            // Gets the font size from the slider
+            const fontSize = parseInt(fontSizeSlider.value);
+
+            // Sets the font size
+            pageContent.style = "font-size: " + fontSize + "pt";
+
+            // Styles the slider
+            resizeSliderProgress(fontSizeSlider, fontSizeSliderProgress, fontSize);
+            fontSizeSliderProgress.style.backgroundColor = "var(--accent)";
+            fontSizeSliderProgress.style.opacity = 1;
+            fontSizeSliderIcon.style.fill = "#ffffff";
+
+            // Stores the font size in the local storage
+            localStorage.setItem("fontSize", fontSize);
+        }
+
+        fontSizeSlider.onmouseover = () => {
+            styleSliderProgress(fontSizeSliderProgress, fontSizeSliderIcon, true);
+        }
+
+        fontSizeSlider.onmouseleave = () => {
+            styleSliderProgress(fontSizeSliderProgress, fontSizeSliderIcon, false);
+        }
+
+        fontSizeSlider.onchange = () => {
+            styleSliderProgress(fontSizeSliderProgress, fontSizeSliderIcon, false);
+        }
+
+        /* ------ Slide selection slider ------ */
+
+        // Gets the slide selection slider elements
+        presentationSlider = document.getElementById("presentation-slider");
+        presentationSliderProgress = document.getElementById("presentation-slider-progress");
+        presentationSliderIcon = document.getElementById("presentation-slider-icon");
+
+        // Sets max value for the slide selection slider
+        presentationSlider.max = slides.length - 1;
+
+        presentationSlider.oninput = () => {
+            // Gets the font size from the slider
+            const slideValue = parseInt(presentationSlider.value);
+
+            // Goes to the desired slide
+            goToSlide(slideValue);
+
+            // Styles the slider
+            presentationSliderProgress.style.backgroundColor = "var(--accent)";
+            presentationSliderProgress.style.opacity = 1;
+            presentationSliderIcon.style.fill = "#ffffff";
+        }
+
+        presentationSlider.onmouseover = () => {
+            styleSliderProgress(presentationSliderProgress, presentationSliderIcon, true);
+        }
+
+        presentationSlider.onmouseleave = () => {
+            styleSliderProgress(presentationSliderProgress, presentationSliderIcon, false);
+        }
+
+        presentationSlider.onchange = () => {
+            styleSliderProgress(presentationSliderProgress, presentationSliderIcon, false);
+        }
+
+        /**
+         * Resets the slider progress and icon style corresponding to the given key.
+         * @param {String} key Key of the slider.
+         */
+        function styleSliderProgress(sliderProgress, sliderIcon, isActive) {
+            sliderProgress.style.backgroundColor = isActive ? "var(--accent)" : "var(--light-grey)";
+            sliderProgress.style.opacity = isActive ? .9 : .7;
+            sliderIcon.style.fill = isActive ? "#ffffff" : "var(--dark-grey)";
+            sliderIcon.style.color = isActive ? "#ffffff" : "var(--dark-grey)";
+        }
+
+        /* ------ Hotkeys ------ */
 
         document.addEventListener('keydown', (e) => {
             switch (e.code) {
@@ -173,20 +320,62 @@ let presentationController = new function () {
                     break;
             }
         });
-
-        fontSizeSlider.oninput = () => {
-            const fontSize = parseInt(fontSizeSlider.value);
-            pageContent.style = "font-size: " + fontSize + "pt";
-            localStorage.setItem("fontSize", fontSize);
-        }
     }
+
+    /**
+     * Resizes the progress bar for the font size slider
+     * @param {*} slider 
+     * @param {*} sliderProgress 
+     * @param {Number} value Current slider value.
+     */
+    function resizeSliderProgress(slider, sliderProgress, value) {
+        // Slider min value
+        const min = slider.min;
+        // Slider max value
+        const max = slider.max;
+        // Slider width
+        const sliderWidth = slider.offsetWidth;
+        // Slider height
+        const sliderHeight = slider.offsetHeight;
+        // Computes the progress bar size
+        const progressSize = ((value - min) / (max - min) * (sliderWidth - sliderHeight) + sliderHeight);
+
+        // Resizes and styles the progress bar for the font size slider
+        sliderProgress.style.width = progressSize + "px";
+    }
+
+    /**
+     * Creates a ripple effect inside buttons when clicked.
+     * @param {Event} event 
+     */
+    // function createRipple(event) {
+    //     const button = event.currentTarget;
+
+    //     const circle = document.createElement("span");
+    //     const diameter = Math.max(button.clientWidth, button.clientHeight);
+    //     const radius = diameter / 2;
+
+    //     circle.style.width = diameter + "px";
+    //     circle.style.height = diameter + "px";
+    //     circle.style.left = event.clientX - (button.offsetLeft + radius) + "px";
+    //     circle.style.top = event.clientY - (button.offsetTop + radius) + "px";
+    //     circle.classList.add("ripple");
+
+    //     const ripple = button.getElementsByClassName("ripple")[0];
+
+    //     if (ripple) {
+    //         ripple.remove();
+    //     }
+
+    //     button.appendChild(circle);
+    // }
 
     /**
      * Starts or pauses the presentation.
      * @param {boolean} isActive Starts if true, pauses otherwise.
      */
-    function togglePresentation(isActive) {
-        presentationMode = isActive;
+    function togglePresentation(isActive = undefined) {
+        presentationMode = isActive !== undefined ? isActive : (presentationMode ? false : true);
 
         // Sets the opacity of the hidden slides div elements
         hiddenSlides.forEach(slide => {
@@ -194,10 +383,14 @@ let presentationController = new function () {
         })
 
         // Shows or hides the controls for the presentation
-        presentationControls.style.opacity = presentationMode ? "1" : "0";
-        presentationPlay.style.opacity = presentationMode ? "0" : "1";
-        presentationPause.style.opacity = presentationMode ? "1" : "0";
-        presentationPause.style.visibility = presentationMode ? "visible" : "collapse";
+        presentationNavigation.style.opacity = presentationMode ? "1" : "0";
+        progressBar.style.opacity = presentationMode ? "1" : "0";
+        presentationToggleButton.style = presentationMode ?
+            "background-color: var(--accent);" :
+            "background-color: var(--light-grey)";
+        presentationToggleIcon.style = presentationMode ?
+            "fill: #ffffff;" :
+            "fill: var(--dark-grey)";
 
         if (presentationMode) {
             // If presentation mode is active, updates the slides
@@ -245,6 +438,18 @@ let presentationController = new function () {
     }
 
     /**
+     * Goes to the desired slide.
+     * @param {Number} index Index of the slide.
+     */
+    function goToSlide(index) {
+        // When presentation mode is active, goes to the desired slide index
+        if (presentationMode) {
+            currentSlideIndex = index;
+            updateSlides();
+        }
+    }
+
+    /**
      * Updates the slides.
      */
     function updateSlides() {
@@ -258,6 +463,7 @@ let presentationController = new function () {
 
         // Updates the progress bar
         progressBar.style.width = currentSlideIndex / (slides.length - 1) * 100 + "%";
+        resizeSliderProgress(presentationSlider, presentationSliderProgress, currentSlideIndex);
 
         // Scrolls to the correct slide position
         setTimeout(() => {
