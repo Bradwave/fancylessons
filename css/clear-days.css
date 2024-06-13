@@ -33,15 +33,17 @@
 /* -- Variables -- */
 
 :root {
-    --background: #FFFFFF;
+    /* Colors */
+    --background: #ffffff;
     --hidden: #ffffff;
-    /* #686868 */
     --accent: #1484E6;
     --light-accent: #54a3e8;
     --very-transparent-accent: #1484e680;
     --transparent-accent: #1484e6cc;
     --crimson-red: #B01A00;
     --primary: #000000;
+    --primary-rbg: 0, 0, 0;
+    --highlight: #ffffff;
     --light-grey: #c8c8c8;
     --transparent-light-grey: #f2f2f278;
     --mid-grey: #555555;
@@ -52,6 +54,46 @@
     --thm-blue-rgb: 20, 132, 230;
     --def-orange: #FD8B28;
     --def-orange-rgb: 253, 139, 40;
+    /* Button background and button icon colors */
+    --button-inactive-color: var(--light-grey);
+    --button-hover-color: var(--accent);
+    --button-active-color: var(--accent);
+    --button-text-inactive-color: var(--dark-grey);
+    --button-text-hover-color: var(--highlight);
+    --button-text-active-color: var(--highlight);
+    /* Dimensions */
+    --lateral-column-width: 150px;
+    --small-gap-size: 10px;
+    --small-page-padding: 40px;
+    --large-page-padding: 40px;
+    --scrollbar-width: 10px;
+    --small-border-radius: 15px;
+    --large-border-radius: 30px;
+    --button-diameter: 30px;
+    --button-radius: calc(var(--button-diameter) / 2);
+    --controls-height: calc(var(--button-diameter) * 1.5);
+    --controls-border-radius: calc(var(--controls-height) / 2);
+    --controls-margin: 10px;
+    --controls-small-margin: 5px;
+    --controls-gap: 10px;
+    --font-size-slider-width: 150px;
+    --active-button-scale: 1.1;
+    --backdrop-blur: 10px;
+    /* Opacities */
+    --button-inactive-opacity: 0.7;
+    --button-hover-opacity: 0.8;
+    --button-active-opacity: 1;
+    /* Times */
+    --button-general-transition-time: 0.2s;
+    --button-active-transition-time: 0.01s;
+    --slider-general-transition-time: 0.1s;
+    /* Font sizes */
+    --default-font-size: 14pt;
+    --max-font-size: 12pt;
+    --min-font-size: 28pt;
+    --default-font-size-value: 14;
+    --max-font-size-value: 12;
+    --min-font-size-value: 28;
 }
 
 /* -- Selection -- */
@@ -59,37 +101,37 @@
 /* Disable highlight rectangle on mobile */
 
 * {
-    -webkit-tap-highlight-color: #ffffff00;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* -- Selection -- */
 
 ::-moz-selection {
-    color: #ffffff;
+    color: var(--highlight);
     background: var(--accent);
 }
 
 ::selection {
-    color: #ffffff;
+    color: var(--highlight);
     background: var(--accent);
 }
 
 /* -- Scrollbar -- */
 
 ::-webkit-scrollbar {
-    width: 10px;
+    width: var(--scrollbar-width);
 }
 
 ::-webkit-scrollbar-track {
-    background: #ffffff00;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #00000015;
+    background: rgba(var(--primary-rbg), 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #00000030;
+    background: rgba(var(--primary-rbg), 0.2);
 }
 
 ::-webkit-scrollbar-thumb:active {
@@ -112,18 +154,18 @@
 
 .page-container {
     display: grid;
-    gap: 10px;
-    grid-template-columns: minmax(150px, 1fr) 4fr 1fr;
+    gap: var(--small-gap-size);
+    grid-template-columns: minmax(var(--lateral-column-width), 1fr) 4fr 1fr;
 }
 
 .page-content {
-    padding: 10px;
-    font-size: 14pt;
+    padding: var(--small-page-padding);
+    font-size: var(--default-font-size);
 }
 
 @media (max-width:1400px) {
     .page-container {
-        grid-template-columns: minmax(150px, 1fr) 5fr 1fr;
+        grid-template-columns: minmax(var(--lateral-column-width), 1fr) 5fr 1fr;
     }
 }
 
@@ -133,7 +175,7 @@
     }
 
     .page-content {
-        padding: 40px;
+        padding: var(--large-page-padding);
     }
 }
 
@@ -343,9 +385,9 @@ div.large-separator {
     display: -ms-inline-grid;
     display: -moz-inline-grid;
     display: inline-grid;
-    border-radius: 25pt;
-    padding-left: 5pt;
-    padding-right: 5pt;
+    border-radius: var(--large-border-radius);
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .bubble-container.text {
@@ -372,7 +414,7 @@ canvas.plot {
     width: 100%;
     height: 50%;
     z-index: 9;
-    border-radius: 10px;
+    border-radius: var(--small-border-radius);
     cursor: crosshair;
 }
 
@@ -411,26 +453,26 @@ div.play-pause-plot {
 
 div.slide, div.slide.hidden {
     padding: 5px 10px;
-    border-radius: 10px;
+    border-radius: var(--button-radius);
     opacity: 1;
     transition: all .3s ease-in-out;
 }
 
 div.controls {
     display: flex;
-    height: 45px;
+    height: var(--controls-height);
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
     align-content: space-between;
-    gap: 10px;
-    margin: 10px;
+    gap: var(--controls-gap);
+    margin: var(--controls-margin);
     padding: 0;
-    border-radius: 22.5px;
+    border-radius: var(--controls-border-radius);
     vertical-align: middle;
     user-select: none;
     background-color: var(--transparent-light-grey);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(var(--backdrop-blur));
 }
 
 #view-controls {
@@ -444,29 +486,29 @@ div.controls {
     bottom: 0;
     right: 0;
     opacity: 0;
-    width: calc(100% - 20px);
+    width: calc(100% - var(--controls-margin) * 2);
 }
 
 div.controls-item {
     padding: 0;
     vertical-align: middle;
-    border-radius: 20px;
+    border-radius: var(--button-radius);
 }
 
 #font-selection {
     width: 150px;
-    margin-left: 10px;
+    margin-left: var(--controls-margin);
     background-color: transparent;
 }
 
 #slide-selection {
     flex-grow: 1;
-    margin-left: 10px;
+    margin-left: var(--controls-margin);
     background-color: transparent;
 }
 
 #presentation-toggle {
-    margin-right: 10px;
+    margin-right: var(--controls-margin);
     background-color: transparent;
 }
 
@@ -478,33 +520,36 @@ button.toggle-button {
     cursor: pointer;
 }
 
-#presentation-toggle-button {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+button.round-button {
+    width: var(--button-diameter);
+    height: var(--button-diameter);
     vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--button-radius);
     background-color: var(--light-grey);
-    backdrop-filter: blur(10px);
-    opacity: 0.7;
-    -webkit-transition: all .2s ease-in-out;
-    -moz-transition: all .2s ease-in-out;
-    -ms-transition: all .2s ease-in-out;
-    -o-transition: all .2s ease-in-out;
-    transition: all .2s ease-in-out;
+    opacity: var(--button-inactive-opacity);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-transition: all var(--button-general-transition-time) ease-in-out;
+    -moz-transition: all var(--button-general-transition-time) ease-in-out;
+    -ms-transition: all var(--button-general-transition-time) ease-in-out;
+    -o-transition: all var(--button-general-transition-time) ease-in-out;
+    transition: all var(--button-general-transition-time) ease-in-out;
 }
 
-#presentation-toggle-button:hover {
-    opacity: 0.9;
+button.round-button:hover {
+    opacity: var(--button-hover-opacity);
 }
 
-#presentation-toggle-button:active {
-    opacity: 1;
-    transform: scale(1.05);
-    -webkit-transition: transform .01s ease-in-out;
-    -moz-transition: transform .01s ease-in-out;
-    -ms-transition: transform .01s ease-in-out;
-    -o-transition: transform .01s ease-in-out;
-    transition: transform .01s ease-in-out;
+button.round-button:active {
+    opacity: var(--button-active-opacity);
+    transform: scale(var(--active-button-scale));
+    -webkit-transition: transform var(--button-active-transition-time) ease-in-out;
+    -moz-transition: transform var(--button-active-transition-time) ease-in-out;
+    -ms-transition: transform var(--button-active-transition-time) ease-in-out;
+    -o-transition: transform var(--button-active-transition-time) ease-in-out;
+    transition: transform var(--button-active-transition-time) ease-in-out;
 }
 
 svg.presentation-toggle-icon {
@@ -515,45 +560,18 @@ svg.presentation-toggle-icon {
 
 #arrows {
     position: relative;
-    height: 30px;
-    margin-right: 10px;
+    width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
+    height: var(--button-diameter);
+    margin-right: var(--controls-margin);
     padding: 0;
-    border-radius: 15px;
+    border-radius: var(--button-radius);
     background-color: transparent;
     user-select: none;
 }
 
-button.arrow-button {
-    height: 30px;
-    width: 30px;
-    padding: 0;
-    margin: 0;
-    border: none;
-    border-radius: 15px;
-    background-color: var(--light-grey);
-    opacity: .7;
-    vertical-align: middle;
-    -webkit-transition: all .2s ease-in-out;
-    -moz-transition: all .2s ease-in-out;
-    -ms-transition: all .2s ease-in-out;
-    -o-transition: all .2s ease-in-out;
-    transition: all .2s ease-in-out;
-}
-
-button.arrow-button:hover {
-    opacity: 0.9;
-}
-
 button.arrow-button:active {
-    opacity: 1;
-    transform: scale(1.05);
-    color: #ffffff;
+    color: var(--highlight);
     background-color: var(--accent);
-    -webkit-transition: transform .01s ease-in-out;
-    -moz-transition: transform .01s ease-in-out;
-    -ms-transition: transform .01s ease-in-out;
-    -o-transition: transform .01s ease-in-out;
-    transition: transform .01s ease-in-out;
 }
 
 svg.arrow-icon {
@@ -562,22 +580,11 @@ svg.arrow-icon {
 }
 
 #previous {
-    width: 30px;
+    width: var(--button-diameter);
 }
 
 #next {
-    width: 30px;
-}
-
-div.progress-bar {
-    position: fixed;
-    display: block;
-    left: 0;
-    bottom: 0;
-    width: 0%;
-    height: 5px;
-    background-color: var(--accent);
-    transition: all .4s ease-in-out;
+    width: var(--button-diameter);
 }
 
 /* -- 2.5 Tooltip -- */
@@ -770,16 +777,16 @@ input[type=number] {
 /* Sliders */
 
 div.slider-base {
-    height: 30px;
+    height: var(--button-diameter);
     margin: 0;
     padding: 0;
-    border-radius: 15px;
+    border-radius: var(--button-radius);
     background-color: var(--transparent-mid-grey);
     cursor: pointer;
 }
 
-#font-slider-base {
-    width: 150px;
+#font-size-slider-base {
+    width: var(--font-size-slider-width);
 }
 
 #presentation-slider-base {
@@ -788,27 +795,27 @@ div.slider-base {
 
 div.slider-progress {
     position: absolute;
-    height: 30px;
+    height: var(--button-diameter);
     margin: 0;
     padding: 0;
-    border-radius: 15px;
+    border-radius: var(--button-radius);
     background-color: var(--light-grey);
-    opacity: .7;
+    opacity: var(--button-inactive-opacity);
     cursor: pointer;
-    -webkit-transition: .2s ease-in-out;
-    -moz-transition: .2s ease-in-out;
-    -ms-transition: .2s ease-in-out;
-    -o-transition: .2s ease-in-out;
-    transition: .2s ease-in-out;
+    -webkit-transition: all var(--slider-general-transition-time) ease-in-out;
+    -moz-transition: all var(--slider-general-transition-time) ease-in-out;
+    -ms-transition: all var(--slider-general-transition-time) ease-in-out;
+    -o-transition: all var(--slider-general-transition-time) ease-in-out;
+    transition: all var(--slider-general-transition-time) ease-in-out;
     z-index: 0;
 }
 
-#font-slider-progress {
-    width: 50px;
+#font-size-slider-progress {
+    width: 45px;
 }
 
 #presentation-slider-progress {
-    width: 30px;
+    width: var(--button-diameter);
 }
 
 .slider {
@@ -817,27 +824,27 @@ div.slider-progress {
     /* Override default CSS styles */
     appearance: none;
     vertical-align: middle;
-    height: 30px;
+    height: var(--button-diameter);
     margin: 0;
     padding: 0;
-    border-radius: 15px;
+    border-radius: var(--button-radius);
     background: transparent;
     outline: none;
     cursor: pointer;
-    -webkit-transition: .1s ease-in-out;
-    -moz-transition: .1s ease-in-out;
-    -ms-transition: .1s ease-in-out;
-    -o-transition: .1s ease-in-out;
-    transition: .1s ease-in-out;
+    -webkit-transition: var(--slider-general-transition-time) ease-in-out;
+    -moz-transition: all var(--slider-general-transition-time) ease-in-out;
+    -ms-transition: all var(--slider-general-transition-time) ease-in-out;
+    -o-transition: all var(--slider-general-transition-time) ease-in-out;
+    transition: all var(--slider-general-transition-time) ease-in-out;
     z-index: 2;
 }
 
 #font-size-slider {
-    width: 150px;
+    width: var(--font-size-slider-width);
 }
 
 #presentation-slider {
-    width: calc(100% - 94px);
+    width: calc(100% - var(--controls-margin) * 4 - var(--controls-gap) - 2 * var(--button-diameter) + var(--controls-small-margin));
 }
 
 svg.slider-icon {
@@ -853,18 +860,18 @@ svg.slider-icon {
     -webkit-appearance: none;
     /* Override default look */
     appearance: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 15px;
+    width: var(--button-diameter);
+    height: var(--button-diameter);
+    border-radius: var(--button-radius);
     background: none;
     cursor: pointer;
     z-index: 2;
 }
 
 .slider::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
-    border-radius: 25px;
+    width: var(--button-diameter);
+    height: var(--button-diameter);
+    border-radius: var(--button-radius);
     border-color: transparent;
     background: none;
     cursor: pointer;

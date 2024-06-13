@@ -65,11 +65,6 @@ let presentationController = new function () {
      */
     let presentationNavigation;
 
-    /**
-     * Progress bar div element.
-     */
-    let progressBar;
-
     /* ------ Font size range slider ------ */
 
     /**
@@ -78,35 +73,9 @@ let presentationController = new function () {
     let fontSizeSlider;
 
     /**
-     * Progress bar for the font size slider.
+     * Map of sliders and respective progress bars and icons.
      */
-    let fontSizeSliderProgress;
-
-    /**
-     * Icon for the font size slider.
-     */
-    let fontSizeSliderIcon;
-
-    /* ------ Slide selection range slider ------ */
-
-    /**
-     * slide selection range slider.
-     */
-    let presentationSlider;
-
-    /**
-     * Progress bar for the slide selection slider.
-     */
-    let presentationSliderProgress;
-
-    /**
-     * Icon for the slide selection slider.
-     */
-    let presentationSliderIcon;
-
     let sliders = new Map();
-    let slidersProgress = new Map();
-    let slidersIcons = new Map();
 
     /*_______________________________________
     |   Styles
@@ -131,20 +100,8 @@ let presentationController = new function () {
         // Initializes HTML elements and listeners
         initHTMLComponents();
 
-        // Gets the font size from local storage and sets the font size
-        let fontSize = localStorage.getItem("fontSize");
-        // Min font size value
-        const min = fontSizeSlider.min;
-        // Max font size value
-        const max = fontSizeSlider.max;
-        // Checks if the font size is between the minimum and maximum value allowed
-        fontSize = fontSize < min ? max : (fontSize > max ? max : fontSize);
-
-        // Sets the font size
-        pageContent.style = "font-size: " + fontSize + "pt";
-        fontSizeSlider.value = fontSize;
-        // Resizes the progress bar for the font size slider
-        resizeSliderProgress(fontSizeSlider, fontSizeSliderProgress, fontSize);
+        // Sets the locally stored font size, if present
+        setFontSize(localStorage.getItem("fontSize"));
 
         // Get the location hash property
         let hash = location.hash;
@@ -191,7 +148,6 @@ let presentationController = new function () {
 
         // Gets the presentation navigation elements
         presentationNavigation = document.getElementById("presentation-navigation");
-        progressBar = document.getElementById("progress-bar");
 
         /* ------ Presentation toggle ------ */
 
@@ -214,90 +170,70 @@ let presentationController = new function () {
             previousSlide();
         };
 
-        /* ------ Font size slider ------ */
+        /* ------ Sliders ------ */
 
-        // Gets the font size slider elements
-        fontSizeSlider = document.getElementById("font-size-slider");
-        fontSizeSliderProgress = document.getElementById("font-slider-progress");
-        fontSizeSliderIcon = document.getElementById("font-slider-icon");
+        addSlider("font-size");
+        addSlider("presentation");
 
-        fontSizeSlider.oninput = () => {
+        /* -- Font size slider -- */
+
+        sliders.get("font-size").slider.addEventListener("input", () => {
             // Gets the font size from the slider
-            const fontSize = parseInt(fontSizeSlider.value);
-
+            const fontSize = parseInt(sliders.get("font-size").slider.value);
             // Sets the font size
-            pageContent.style = "font-size: " + fontSize + "pt";
-
-            // Styles the slider
-            resizeSliderProgress(fontSizeSlider, fontSizeSliderProgress, fontSize);
-            fontSizeSliderProgress.style.backgroundColor = "var(--accent)";
-            fontSizeSliderProgress.style.opacity = 1;
-            fontSizeSliderIcon.style.fill = "#ffffff";
-
+            setFontSize(fontSize);
             // Stores the font size in the local storage
             localStorage.setItem("fontSize", fontSize);
-        }
+        });
 
-        fontSizeSlider.onmouseover = () => {
-            styleSliderProgress(fontSizeSliderProgress, fontSizeSliderIcon, true);
-        }
-
-        fontSizeSlider.onmouseleave = () => {
-            styleSliderProgress(fontSizeSliderProgress, fontSizeSliderIcon, false);
-        }
-
-        fontSizeSlider.onchange = () => {
-            styleSliderProgress(fontSizeSliderProgress, fontSizeSliderIcon, false);
-        }
-
-        /* ------ Slide selection slider ------ */
-
-        // Gets the slide selection slider elements
-        presentationSlider = document.getElementById("presentation-slider");
-        presentationSliderProgress = document.getElementById("presentation-slider-progress");
-        presentationSliderIcon = document.getElementById("presentation-slider-icon");
+        /* -- Slide selection slider -- */
 
         // Sets max value for the slide selection slider
-        presentationSlider.max = slides.length - 1;
+        sliders.get("presentation").slider.max = slides.length - 1;
 
-        presentationSlider.oninput = () => {
+        // Resizes the slide selection progress bar on window resize.
+        window.addEventListener("resize", () => {
+            resizeSliderProgress("presentation", currentSlideIndex);
+        })
+
+        sliders.get("presentation").slider.oninput = () => {
             // Gets the font size from the slider
-            const slideValue = parseInt(presentationSlider.value);
-
+            const slideValue = parseInt(sliders.get("presentation").slider.value);
             // Goes to the desired slide
             goToSlide(slideValue);
-
-            // Styles the slider
-            presentationSliderProgress.style.backgroundColor = "var(--accent)";
-            presentationSliderProgress.style.opacity = 1;
-            presentationSliderIcon.style.fill = "#ffffff";
         }
 
-        presentationSlider.onmouseover = () => {
-            styleSliderProgress(presentationSliderProgress, presentationSliderIcon, true);
-        }
+        /* -- Common listeners -- */
 
-        presentationSlider.onmouseleave = () => {
-            styleSliderProgress(presentationSliderProgress, presentationSliderIcon, false);
-        }
+        sliders.forEach((s) => {
+            s.slider.addEventListener("oninput", () => {
+                styleSlider(s.progress, s.icon, "active");
+            })
 
-        presentationSlider.onchange = () => {
-            styleSliderProgress(presentationSliderProgress, presentationSliderIcon, false);
-        }
+            s.slider.addEventListener("mouseover", () => {
+                styleSlider(s.progress, s.icon, "hover");
+            })
 
-        window.addEventListener("resize", () => {
-            resizeSliderProgress(presentationSlider, presentationSliderProgress, currentSlideIndex);
+            s.slider.addEventListener("mouseleave", () => {
+                styleSlider(s.progress, s.icon, "inactive");
+            })
+
+            s.slider.addEventListener("change", () => {
+                styleSlider(s.progress, s.icon, "inactive");
+            })
         })
 
         /**
-         * Resets the slider progress and icon style corresponding to the given key.
-         * @param {String} key Key of the slider.
+         * Styles the slider according to its status (active, hover, inactive).
+         * @param {*} sliderProgress 
+         * @param {*} sliderIcon 
+         * @param {*} status Can be "active", "inactive" or "hover".
          */
-        function styleSliderProgress(sliderProgress, sliderIcon, isActive) {
-            sliderProgress.style.backgroundColor = isActive ? "var(--accent)" : "var(--light-grey)";
-            sliderProgress.style.opacity = isActive ? .9 : .7;
-            sliderIcon.style.fill = isActive ? "#ffffff" : "var(--dark-grey)";
-            sliderIcon.style.color = isActive ? "#ffffff" : "var(--dark-grey)";
+        function styleSlider(sliderProgress, sliderIcon, status) {
+            sliderProgress.style.backgroundColor = "var(--button-" + status + "-color)";
+            sliderProgress.style.opacity = "var(--button-" + status + "-opacity)";
+            sliderIcon.style.color = "var(--button-text-" + status + "-color)";
+            sliderIcon.style.fill = "var(--button-text-" + status + "-color)";
         }
 
         /* ------ Hotkeys ------ */
@@ -323,12 +259,45 @@ let presentationController = new function () {
     }
 
     /**
+     * Adds the slider, its progress bar and its icon to the map.
+     * @param {String} key Keyword of the slider.
+     */
+    function addSlider(key) {
+        sliders.set(key, {
+            slider: document.getElementById(key + "-slider"),
+            progress: document.getElementById(key + "-slider-progress"),
+            icon: document.getElementById(key + "-slider-icon")
+        })
+    }
+
+    /**
+     * Sets the font size.
+     * @param {Number} fontSize 
+     */
+    function setFontSize(fontSize) {
+        // Min font size value
+        const min = sliders.get("font-size").slider.min;
+        // Max font size value
+        const max = sliders.get("font-size").slider.max;
+        // Checks if the font size is between the minimum and maximum value allowed
+        fontSize = fontSize < min ? min : (fontSize > max ? max : fontSize);
+
+        // Sets the font size
+        pageContent.style = "font-size: " + fontSize + "pt";
+        // Changes the font size slider value if necessary
+        sliders.get("font-size").slider.value = fontSize;
+        // Resizes the progress bar for the font size slider
+        resizeSliderProgress("font-size", fontSize);
+    }
+
+    /**
      * Resizes the progress bar for the font size slider
-     * @param {*} slider 
-     * @param {*} sliderProgress 
+     * @param {String} key Keyword of the slider.
      * @param {Number} value Current slider value.
      */
-    function resizeSliderProgress(slider, sliderProgress, value) {
+    function resizeSliderProgress(key, value) {
+        // Gets the slider
+        const slider = sliders.get(key).slider;
         // Slider min value
         const min = slider.min;
         // Slider max value
@@ -341,7 +310,7 @@ let presentationController = new function () {
         const progressSize = ((value - min) / (max - min) * (sliderWidth - sliderHeight) + sliderHeight);
 
         // Resizes and styles the progress bar for the font size slider
-        sliderProgress.style.width = progressSize + "px";
+        sliders.get(key).progress.style.width = progressSize + "px";
     }
 
     /**
@@ -358,12 +327,11 @@ let presentationController = new function () {
 
         // Shows or hides the controls for the presentation
         presentationNavigation.style.opacity = presentationMode ? "1" : "0";
-        progressBar.style.opacity = presentationMode ? "1" : "0";
         presentationToggleButton.style = presentationMode ?
             "background-color: var(--accent);" :
             "background-color: var(--light-grey)";
         presentationToggleIcon.style = presentationMode ?
-            "fill: #ffffff;" :
+            "fill: var(--highlight);" :
             "fill: var(--dark-grey)";
 
         if (presentationMode) {
@@ -436,8 +404,7 @@ let presentationController = new function () {
         }
 
         // Updates the progress bar
-        progressBar.style.width = currentSlideIndex / (slides.length - 1) * 100 + "%";
-        resizeSliderProgress(presentationSlider, presentationSliderProgress, currentSlideIndex);
+        resizeSliderProgress("presentation", currentSlideIndex);
 
         // Scrolls to the correct slide position
         setTimeout(() => {
