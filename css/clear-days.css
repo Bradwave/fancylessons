@@ -28,8 +28,6 @@
 
 /* STIX Two Text & Robot Mono from Google Font */
 
-@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
-
 /* -- Variables -- */
 
 :root {
@@ -54,6 +52,16 @@
     --thm-blue-rgb: 20, 132, 230;
     --def-orange: #FD8B28;
     --def-orange-rgb: 253, 139, 40;
+    /* Font sizes */
+    --default-font-size: 14pt;
+    --max-font-size: 12pt;
+    --min-font-size: 28pt;
+    --default-font-size-value: 14;
+    --min-font-size-value: 12;
+    --max-font-size-value: 28;
+    /* Font weights */
+    --normal-weight: 400;
+    --bold-weight: 700;
     /* Button background and button icon colors */
     --button-inactive-color: var(--light-grey);
     --button-hover-color: var(--accent);
@@ -76,7 +84,7 @@
     --controls-margin: 10px;
     --controls-small-margin: 5px;
     --controls-gap: 10px;
-    --font-size-slider-width: 150px;
+    --font-size-slider-width: calc(8px * (var(--max-font-size-value) - var(--min-font-size-value)));
     --active-button-scale: 1.1;
     --backdrop-blur: 10px;
     /* Opacities */
@@ -87,13 +95,6 @@
     --button-general-transition-time: 0.2s;
     --button-active-transition-time: 0.01s;
     --slider-general-transition-time: 0.1s;
-    /* Font sizes */
-    --default-font-size: 14pt;
-    --max-font-size: 12pt;
-    --min-font-size: 28pt;
-    --default-font-size-value: 14;
-    --max-font-size-value: 12;
-    --min-font-size-value: 28;
 }
 
 /* -- Selection -- */
@@ -199,7 +200,8 @@
 body {
     margin: 0;
     background-color: var(--background);
-    font-family: 'STIX Two Text', serif;
+    /*font-family: 'STIX Two Text', serif;*/
+    font-family: 'Atkinson Hyperlegible', sans-serif;
     color: var(--secondary);
     counter-reset: chapter section subsection definition definition theorem;
     scroll-behavior: smooth;
@@ -215,7 +217,7 @@ body {
 h1 {
     margin-top: 80px;
     font-size: 250%;
-    font-weight: bold;
+    font-weight: var(--bold-weight);
 }
 
 /* Part */
@@ -223,7 +225,7 @@ h1 {
 h2 {
     margin-bottom: 30px;
     font-size: 175%;
-    font-weight: bold;
+    font-weight: var(--bold-weight);
     padding-left: 85px;
     text-indent: -85px;
     counter-set: section subsection;
@@ -271,7 +273,7 @@ h5 {
 
 p {
     font-size: 100%;
-    font-weight: normal;
+    font-weight: var(--normal-weight);
 }
 
 li {
@@ -342,7 +344,7 @@ span.img-label {
 
 span.img-label.dash::before {
     content: "━";
-    font-weight: bold;
+    font-weight: var(--bold-weight);
 }
 
 span.img-label.dots::before {
@@ -496,7 +498,7 @@ div.controls-item {
 }
 
 #font-selection {
-    width: 150px;
+    width: var(--font-size-slider-width);
     margin-left: var(--controls-margin);
     background-color: transparent;
 }
@@ -733,7 +735,7 @@ div.input-container {
     margin-top: 10px;
     font-family: 'Roboto-Mono', monospace;
     font-size: 10pt;
-    font-weight: 600;
+    font-weight: var(--bold-weight);
 }
 
 input.input-box {
@@ -748,7 +750,7 @@ input.input-box {
     color: var(--secondary);
     text-align: center;
     font-family: 'Roboto-Mono', monospace;
-    font-weight: 600;
+    font-weight: var(--bold-weight);
     font-size: 10pt;
     caret-color: #8d8d8d;
     transition: all .3 ease-in-out;
@@ -898,7 +900,7 @@ div.definition::before {
     counter-increment: definition;
     content: "Definition "counter(chapter) "."counter(section) "/"counter(definition) "\00a0\00a0—\00a0";
     font-style: normal;
-    font-weight: bold;
+    font-weight: var(--bold-weight);
 }
 
 div.definition.named::before {
@@ -909,7 +911,7 @@ div.definition.named::before {
 
 span.definition-label {
     font-style: normal;
-    font-weight: bold;
+    font-weight: var(--bold-weight);
     color: var(--def-orange);
 }
 
@@ -947,7 +949,7 @@ div.theorem::before {
     counter-increment: theorem;
     content: "Teorema "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
     font-style: normal;
-    font-weight: bold;
+    font-weight: var(--bold-weight);
 }
 
 div.theorem.named::before {
@@ -958,7 +960,7 @@ div.theorem.named::before {
 
 span.theorem-label {
     font-style: normal;
-    font-weight: bold;
+    font-weight: var(--bold-weight);
     color: var(--thm-blue);
 }
 
@@ -1018,7 +1020,7 @@ div.proof {
     padding: 5px 10px 5px 10px;
     font-size: 85%;
     font-style: normal;
-    font-weight: normal;
+    font-weight: var(--bold-weight);
     background-color: rgba(var(--thm-blue-rgb), 0.1);
 }
 
@@ -1026,7 +1028,7 @@ div.proof::before, span.proof-label {
     margin-right: 10px;
     font-size: 100%;
     font-style: italic;
-    font-weight: bold;
+    font-weight: var(--bold-weight);
 }
 
 div.proof::before {
