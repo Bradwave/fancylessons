@@ -31,7 +31,7 @@ let plotsManager = new function () {
         });
     }
 
-    window.onresize = () => {
+    window.addEventListener("resize", () => {
         plots.forEach(plot => {
             // Clear the canvas
             plot.clearPlot();
@@ -68,7 +68,7 @@ let plotsManager = new function () {
                 plot.drawPlot();
             });
         }, waitTime);
-    }
+    });
 
     window.onclick = (e) => {
         e.target.focus();

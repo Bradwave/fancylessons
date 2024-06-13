@@ -104,6 +104,10 @@ let presentationController = new function () {
      */
     let presentationSliderIcon;
 
+    let sliders = new Map();
+    let slidersProgress = new Map();
+    let slidersIcons = new Map();
+
     /*_______________________________________
     |   Styles
     */
@@ -210,14 +214,6 @@ let presentationController = new function () {
             previousSlide();
         };
 
-        // Adds listeners to button to create ripple effect
-        // const buttons = document.getElementsByTagName("button");
-        // for (const button of buttons) {
-        //     button.onclick = (e) => {
-        //         createRipple(e)
-        //     };
-        // }
-
         /* ------ Font size slider ------ */
 
         // Gets the font size slider elements
@@ -289,6 +285,10 @@ let presentationController = new function () {
             styleSliderProgress(presentationSliderProgress, presentationSliderIcon, false);
         }
 
+        window.addEventListener("resize", () => {
+            resizeSliderProgress(presentationSlider, presentationSliderProgress, currentSlideIndex);
+        })
+
         /**
          * Resets the slider progress and icon style corresponding to the given key.
          * @param {String} key Key of the slider.
@@ -343,32 +343,6 @@ let presentationController = new function () {
         // Resizes and styles the progress bar for the font size slider
         sliderProgress.style.width = progressSize + "px";
     }
-
-    /**
-     * Creates a ripple effect inside buttons when clicked.
-     * @param {Event} event 
-     */
-    // function createRipple(event) {
-    //     const button = event.currentTarget;
-
-    //     const circle = document.createElement("span");
-    //     const diameter = Math.max(button.clientWidth, button.clientHeight);
-    //     const radius = diameter / 2;
-
-    //     circle.style.width = diameter + "px";
-    //     circle.style.height = diameter + "px";
-    //     circle.style.left = event.clientX - (button.offsetLeft + radius) + "px";
-    //     circle.style.top = event.clientY - (button.offsetTop + radius) + "px";
-    //     circle.classList.add("ripple");
-
-    //     const ripple = button.getElementsByClassName("ripple")[0];
-
-    //     if (ripple) {
-    //         ripple.remove();
-    //     }
-
-    //     button.appendChild(circle);
-    // }
 
     /**
      * Starts or pauses the presentation.
