@@ -7,12 +7,12 @@ seamless.polyfill();
 let dpi;
 
 /**
- * Presentation mode controller.
+ * slideshow mode controller.
  */
-let presentationController = new function () {
+let slideshowController = new function () {
 
     /*_______________________________________
-    |   Presentation config
+    |   slideshow config
     */
 
     /**
@@ -21,9 +21,9 @@ let presentationController = new function () {
     let currentSlideIndex = 0;
 
     /**
-     * Ture if presentation mode is active, false otherwise.
+     * Ture if slideshow mode is active, false otherwise.
      */
-    let presentationMode = false;
+    let slideshowMode = false;
 
     /**
      * True if the serif selection is ongoing, false otherwise.
@@ -60,24 +60,24 @@ let presentationController = new function () {
 
     let viewControlsCapsule;
 
-    /* ------ Presentation toggle ------ */
+    /* ------ slideshow toggle ------ */
 
     /**
-     * Presentation toggle button.
+     * slideshow toggle button.
      */
-    let presentationToggleButton;
+    let slideshowToggleButton;
 
     /**
-     * Presentation toggle icon.
+     * slideshow toggle icon.
      */
-    let presentationToggleIcon;
+    let slideshowToggleIcon;
 
-    /* ------ Presentation navigation ------ */
+    /* ------ slideshow navigation ------ */
 
     /**
-     * Presentation controls panel.
+     * slideshow controls panel.
      */
-    let presentationNavigation;
+    let slideshowNavigation;
 
     /* ------ Font size range slider ------ */
 
@@ -86,7 +86,7 @@ let presentationController = new function () {
      */
     let sliders = new Map();
 
-    /* ------ Font serif selection ------ */
+    /* ------ Font serif picker ------ */
 
     /**
      * Serif button.
@@ -101,12 +101,12 @@ let presentationController = new function () {
     /**
      * Selection circle for the serif/sans-serif toggle.
      */
-    let serifSelectionCircle;
+    let serifPickerSelectionCircle;
 
     /**
      * Container for the serif/sans-serif toggle.
      */
-    let serifSelectionCapsule;
+    let serifPickerCapsule;
 
     /*_______________________________________
     |   Styles
@@ -123,7 +123,7 @@ let presentationController = new function () {
     const selectedSlideStyle = "opacity: 1; filter: blur(0);";
 
     /*_______________________________________
-    |   Methods
+    |   HTML related methods
     */
 
     // On document content load
@@ -147,11 +147,11 @@ let presentationController = new function () {
         // Get the location hash property
         let hash = location.hash;
 
-        // Executes if the hash exists, meaning the presentation was ongoing
+        // Executes if the hash exists, meaning the slideshow was ongoing
         if (hash) {
             // Sets the current slide to the hash value
             currentSlideIndex = parseInt(hash.substring(1));
-            presentationMode = true;
+            slideshowMode = true;
         }
     });
 
@@ -167,9 +167,9 @@ let presentationController = new function () {
             document.getElementById("page-container").style.opacity = 1;
         }, 300);
 
-        if (presentationMode) {
-            // Start the presentation
-            togglePresentation(true, { timeout: 1000 });
+        if (slideshowMode) {
+            // Start the slideshow
+            toggleSlideshow(true, { timeout: 1000 });
         }
 
         // Get the device dpi
@@ -191,22 +191,22 @@ let presentationController = new function () {
         // Gets the hidden slide div elements
         hiddenSlides = [...document.querySelectorAll(".slide.hidden")];
 
-        // Gets the presentation navigation elements
-        presentationNavigation = document.getElementById("presentation-navigation");
+        // Gets the slideshow navigation elements
+        slideshowNavigation = document.getElementById("slideshow-navigation");
 
         /* ------ View controls ------ */
 
         viewControlsCapsule = document.getElementById("view-controls");
 
-        /* ------ Presentation toggle ------ */
+        /* ------ slideshow toggle ------ */
 
-        // Gets the presentation controls elements
-        presentationToggleButton = document.getElementById("presentation-toggle-button");
-        presentationToggleIcon = document.getElementById("presentation-toggle-icon");
+        // Gets the slideshow controls elements
+        slideshowToggleButton = document.getElementById("slideshow-toggle-button");
+        slideshowToggleIcon = document.getElementById("slideshow-toggle-icon");
 
-        presentationToggleButton.onclick = () => {
-            // Starts the presentation
-            togglePresentation();
+        slideshowToggleButton.onclick = () => {
+            // Starts the slideshow
+            toggleSlideshow();
         };
 
         document.getElementById("next").onclick = () => {
@@ -223,7 +223,7 @@ let presentationController = new function () {
 
         // Adds sliders and related elements to the sliders map
         addSlider("font-size");
-        addSlider("presentation");
+        addSlider("slideshow");
 
         /* -- Font size slider -- */
 
@@ -233,165 +233,179 @@ let presentationController = new function () {
             // Sets the font size
             setFontSize(fontSize);
             // After a certain interval, Scrolls the current slide into view if necessary
-            if (presentationMode) centerSlide(1000);
+            if (slideshowMode) centerSlide(1000);
             // Stores the font size in the local storage
             localStorage.setItem("fontSize", fontSize);
         });
 
-        /* -- Slide selection slider -- */
+        /* -- Slide picker slider -- */
 
-        // Sets max value for the slide selection slider
-        sliders.get("presentation").slider.max = slides.length - 1;
+        // Sets max value for the slide picker slider
+        sliders.get("slideshow").slider.max = slides.length - 1;
 
-        // Resizes the slide selection progress bar on window resize.
+        // Resizes the slide picker progress bar on window resize.
         window.addEventListener("resize", () => {
-            resizeSliderProgress("presentation", currentSlideIndex);
+            resizeSliderProgress("slideshow", currentSlideIndex);
         })
 
-        sliders.get("presentation").slider.oninput = () => {
+        sliders.get("slideshow").slider.oninput = () => {
             // Gets the font size from the slider
-            const slideValue = parseInt(sliders.get("presentation").slider.value);
+            const slideValue = parseInt(sliders.get("slideshow").slider.value);
             // Goes to the desired slide
             goToSlide(slideValue);
         }
 
         /* -- Common listeners -- */
 
+        // Styles the slide appropriately according to the current status (active/hover/inactive)
         sliders.forEach((s) => {
-            s.slider.addEventListener("oninput", () => {
-                styleSlider(s.progress, s.icon, "active");
+            s.slider.addEventListener("input", () => {
+                styleSlider(s, "active");
+            })
+
+            s.slider.addEventListener("touchstart", () => {
+                styleSlider(s, "active");
             })
 
             s.slider.addEventListener("mouseover", () => {
-                styleSlider(s.progress, s.icon, "hover");
+                styleSlider(s, "hover");
             })
 
             s.slider.addEventListener("mouseleave", () => {
-                styleSlider(s.progress, s.icon, "inactive");
+                styleSlider(s, "inactive");
             })
 
             s.slider.addEventListener("change", () => {
-                styleSlider(s.progress, s.icon, "inactive");
+                styleSlider(s, "inactive");
+            })
+
+            s.slider.addEventListener("touchend", () => {
+                styleSlider(s, "inactive");
             })
         })
 
         /**
-         * Styles the slider according to its status (active, hover, inactive).
-         * @param {*} sliderProgress 
-         * @param {*} sliderIcon 
-         * @param {*} status Can be "active", "inactive" or "hover".
+         * Styles the slider according to its status (active/hover/inactive).
+         * @param {*} slider Slider.
+         * @param {String} status Can be "active", "inactive" or "hover".
          */
-        function styleSlider(sliderProgress, sliderIcon, status) {
-            sliderProgress.style.backgroundColor = "var(--button-" + status + "-color)";
-            sliderProgress.style.opacity = "var(--button-" + status + "-opacity)";
-            sliderIcon.style.color = "var(--button-text-" + status + "-color)";
-            sliderIcon.style.fill = "var(--button-text-" + status + "-color)";
+        function styleSlider(slider, status) {
+            // Executes only if the status has changed
+            if (slider.status !== status) {
+                // Changes the status
+                slider.status = status;
+                // Styles the slider
+                slider.progress.style.backgroundColor = "var(--button-" + status + "-color)";
+                slider.progress.style.opacity = "var(--button-" + status + "-opacity)";
+                slider.icon.style.color = "var(--button-text-" + status + "-color)";
+                slider.icon.style.fill = "var(--button-text-" + status + "-color)";
+            }
         }
 
-        /* ------ Font serif selection ------ */
+        /* ------ Font serif picker ------ */
 
-        // Gets the serif selection elements
+        // Gets the serif picker elements
         serifButton = document.getElementById("serif-button");
         sansSerifButton = document.getElementById("sans-serif-button");
-        serifSelectionCircle = document.getElementById("serif-selection-circle");
-        serifSelectionCapsule = document.getElementById("serif-selection-capsule");
+        serifPickerSelectionCircle = document.getElementById("serif-picker-selection-circle");
+        serifPickerCapsule = document.getElementById("serif-picker-capsule");
 
-        // Toggles the selection when the serif button is clicked
+        // Toggles the picker when the serif button is clicked
         serifButton.onclick = () => {
-            toggleSerifSelection(true);
+            toggleSerifPicker(true);
         }
 
-        // Toggles the selection when the sans serif button is clicked
+        // Toggles the picker when the sans serif button is clicked
         sansSerifButton.onclick = () => {
-            toggleSerifSelection(false);
+            toggleSerifPicker(false);
         }
 
         /**
-         * Toggles the serif selection.
+         * Toggles the serif picker.
          * @param {Boolean} isSerifClicked True if serif is clicked, false otherwise.
          */
-        function toggleSerifSelection(isSerifClicked) {
-            // Flags the selection start/end
+        function toggleSerifPicker(isSerifClicked) {
+            // Flags the picker start/end
             isSerifSelecting = !isSerifSelecting;
 
             if (isSerifSelecting) {
-                // Expands the toggle if the selection started
-                expandSerifSelection();
+                // Expands the toggle if the picker started
+                expandSerifPicker();
             } else {
                 // If the selection was already ongoing...
                 if (isSerifClicked) {
                     if (!isSerif) {
                         isSerif = true;
-                        // Moves the selection circle
-                        serifSelectionCircle.style.transform = "translateX(calc(-1 * var(--font-serif-offset)))";
+                        // Moves the picker selection circle
+                        serifPickerSelectionCircle.style.transform = "translateX(calc(-1 * var(--serif-picker-offset)))";
                         // Shrinks the toggle after the selection circle is moved
                         setTimeout(() => {
-                            shrinkSerifSelection(true);
+                            shrinkSerifPicker(true);
                         }, 200);
                     } else {
-                        shrinkSerifSelection(true);
+                        shrinkSerifPicker(true);
                     }
                     // Sets the serif font style
                     setFontStyle("serif");
                     // After a certain interval, Scrolls the current slide into view if necessary
-                    if (presentationMode) centerSlide(500);
+                    if (slideshowMode) centerSlide(500);
                 } else {
                     if (isSerif) {
                         isSerif = false;
-                        // Moves the selection circle
-                        serifSelectionCircle.style = "transform: translateX(0)";
-                        // Shrinks the toggle after the selection circle is moved
+                        // Moves the picker selection circle
+                        serifPickerSelectionCircle.style = "transform: translateX(0)";
+                        // Shrinks the toggle after the picker selection circle is moved
                         setTimeout(() => {
-                            shrinkSerifSelection(false);
+                            shrinkSerifPicker(false);
                         }, 200);
                     } else {
-                        shrinkSerifSelection(false);
+                        shrinkSerifPicker(false);
                     }
                     // Sets the sans-serif font style
                     setFontStyle("sans-serif");
                     // After a certain interval, Scrolls the current slide into view if necessary
-                    if (presentationMode) centerSlide(500);
+                    if (slideshowMode) centerSlide(500);
                 }
             }
         }
 
         /**
-         * Expands the serif selection toggle.
+         * Expands the serif picker.
          */
-        function expandSerifSelection() {
+        function expandSerifPicker() {
             // Makes the buttons visible
             serifButton.style.opacity = 1;
             sansSerifButton.style.opacity = 1;
 
             // Expands the toggle
-            serifButton.style.transform = "translateX(calc(-1 * var(--font-serif-offset)))";
-            serifSelectionCircle.style.transform =
-                isSerif ? "translateX(calc(-1 * var(--font-serif-offset)))" : "transform: translateX(0)";
+            serifButton.style.transform = "translateX(calc(-1 * var(--serif-picker-offset)))";
+            serifPickerSelectionCircle.style.transform =
+                isSerif ? "translateX(calc(-1 * var(--serif-picker-offset)))" : "transform: translateX(0)";
             viewControlsCapsule.style.width = "var(--expanded-view-controls-width)"
-            serifSelectionCapsule.style.width = "var(--expanded-view-controls-width)";
+            serifPickerCapsule.style.width = "var(--expanded-view-controls-width)";
         }
 
         /**
-         * Shrinks the serif selection toggle.
+         * Shrinks the serif picker.
          * @param {Boolean} isSerifVisible True if the serif button is visible, false otherwise.
          */
-        function shrinkSerifSelection(isSerifVisible) {
+        function shrinkSerifPicker(isSerifVisible) {
             // Hides the serif or sans-serif button
             if (isSerifVisible) {
                 sansSerifButton.style.opacity = 0;
-                sansSerifButton.style.zIndex = "var(--font-serif-lower-index)"
-                serifButton.style.zIndex = "var(--font-serif-upper-index)"
+                sansSerifButton.style.zIndex = "var(--serif-picker-lower-index)"
+                serifButton.style.zIndex = "var(--serif-picker-upper-index)"
             } else {
                 serifButton.style.opacity = 0;
-                serifButton.style.zIndex = "var(--font-serif-lower-index)"
-                sansSerifButton.style.zIndex = "var(--font-serif-upper-index)"
+                serifButton.style.zIndex = "var(--serif-picker-lower-index)"
+                sansSerifButton.style.zIndex = "var(--serif-picker-upper-index)"
             }
 
             // Shrinks the toggle
             serifButton.style.transform = "translateX(0)"
-            serifSelectionCircle.style.transform = "translateX(0)"
+            serifPickerSelectionCircle.style.transform = "translateX(0)"
             viewControlsCapsule.style.width = "var(--view-controls-width)"
-            serifSelectionCapsule.style.width = "var(--view-controls-width)";
+            serifPickerCapsule.style.width = "var(--view-controls-width)";
         }
 
         /* ------ Hotkeys ------ */
@@ -399,8 +413,8 @@ let presentationController = new function () {
         document.addEventListener('keydown', (e) => {
             switch (e.code) {
                 case "KeyS":
-                    // Toggles the presentation on and off
-                    togglePresentation(!presentationMode);
+                    // Toggles the slideshow on and off
+                    toggleSlideshow(!slideshowMode);
                     break;
                 case "ArrowRight":
                     // Moves to next slide
@@ -424,7 +438,8 @@ let presentationController = new function () {
         sliders.set(key, {
             slider: document.getElementById(key + "-slider"),
             progress: document.getElementById(key + "-slider-progress"),
-            icon: document.getElementById(key + "-slider-icon")
+            icon: document.getElementById(key + "-slider-icon"),
+            status: "inactive"
         })
     }
 
@@ -480,29 +495,48 @@ let presentationController = new function () {
     }
 
     /**
-     * Starts or pauses the presentation.
-     * @param {boolean} isActive Starts if true, pauses otherwise.
-     * @param {*} options Toggle presentation options (timeout).
+     * Updates and animates the slide number.
+     * @param {Number} animationDuration Duration of the animation in ms.
      */
-    function togglePresentation(isActive = undefined, options = { timeout: 0 }) {
-        presentationMode = isActive !== undefined ? isActive : (presentationMode ? false : true);
+    function updateSlideNumber(animationDuration = 300) {
+        // Updates the slide number
+        document.getElementById("slide-number").innerText = currentSlideIndex;
+        // Animates the slider number
+        document.getElementById("slide-number-capsule").style.animation = "enlarge " + (animationDuration / 1000) + "s ease-in-out 1";
+        // Removes the animation (necessary to add the animation again at a later time)
+        setTimeout(() => {
+            document.getElementById("slide-number-capsule").style.animation = "none";
+        }, animationDuration);
+    }
+
+    /*_______________________________________
+    |   Slideshow related methods
+    */
+
+    /**
+     * Starts or pauses the slideshow.
+     * @param {boolean} isActive Starts if true, pauses otherwise.
+     * @param {*} options Toggle slideshow options (timeout).
+     */
+    function toggleSlideshow(isActive = undefined, options = { timeout: 0 }) {
+        slideshowMode = isActive !== undefined ? isActive : (slideshowMode ? false : true);
 
         // Sets the opacity of the hidden slides div elements
         hiddenSlides.forEach(slide => {
-            slide.style = presentationMode ? nonSelectedSlideStyle : selectedSlideStyle;
+            slide.style = slideshowMode ? nonSelectedSlideStyle : selectedSlideStyle;
         })
 
-        // Shows or hides the controls for the presentation
-        presentationNavigation.style.opacity = presentationMode ? "1" : "0";
-        presentationToggleButton.style = presentationMode ?
+        // Shows or hides the controls for the slideshow
+        slideshowNavigation.style.opacity = slideshowMode ? "1" : "0";
+        slideshowToggleButton.style = slideshowMode ?
             "background-color: var(--accent);" :
             "background-color: var(--light-grey)";
-        presentationToggleIcon.style = presentationMode ?
+        slideshowToggleIcon.style = slideshowMode ?
             "fill: var(--highlight);" :
             "fill: var(--dark-grey)";
 
-        if (presentationMode) {
-            // If presentation mode is active, updates the slides
+        if (slideshowMode) {
+            // If slideshow mode is active, updates the slides
             updateSlides(options.timeout);
 
             // Sets the hash as the currently selected slide index
@@ -522,8 +556,8 @@ let presentationController = new function () {
      * Moves to next slide.
      */
     function nextSlide() {
-        // When presentation mode is active, increases the slide index
-        if (presentationMode) {
+        // When slideshow mode is active, increases the slide index
+        if (slideshowMode) {
             // Loops through to first slide if necessary
             if (++currentSlideIndex > slides.length - 1) {
                 currentSlideIndex = 0;
@@ -536,8 +570,8 @@ let presentationController = new function () {
      * Moves to previous slide.
      */
     function previousSlide() {
-        // When presentation mode is active, decreases the slide index
-        if (presentationMode) {
+        // When slideshow mode is active, decreases the slide index
+        if (slideshowMode) {
             // Loops through to last slide if necessary
             if (--currentSlideIndex < 0) {
                 currentSlideIndex = slides.length - 1;
@@ -551,8 +585,8 @@ let presentationController = new function () {
      * @param {Number} index Index of the slide.
      */
     function goToSlide(index) {
-        // When presentation mode is active, goes to the desired slide index
-        if (presentationMode) {
+        // When slideshow mode is active, goes to the desired slide index
+        if (slideshowMode) {
             currentSlideIndex = index;
             updateSlides();
         }
@@ -572,8 +606,10 @@ let presentationController = new function () {
         }
 
         // Updates the progress bar
-        resizeSliderProgress("presentation", currentSlideIndex);
-        sliders.get("presentation").icon.innerText = currentSlideIndex;
+        resizeSliderProgress("slideshow", currentSlideIndex);
+
+        // Updates and animates the slide number
+        updateSlideNumber();
 
         // Scrolls to the correct slide position
         centerSlide(timeout)

@@ -1,6 +1,6 @@
 # Fancylessons
 
-Fancylessons is a system to create webpages that can be displayed as slideshow, specifically designed a didactical support for maths and physics lessons.
+Fancylessons is a system to create web pages that can be displayed as slideshows, specifically designed a didactical support for maths and physics lessons.
 
 ## How to use
 

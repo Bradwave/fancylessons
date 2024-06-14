@@ -12,7 +12,7 @@
         2.1 Body
         2.2 Grid Layouts, Images & Separators
         2.3 Canvas
-        2.4 Presentation
+        2.4 slideshow
         2.5 Tooltip
         2.6 Loaders
         2.7 Input Boxes and Sliders
@@ -26,12 +26,13 @@
 
 /* -- Fonts -- */
 
-/* STIX Two Text & Robot Mono from Google Font */
+/* STIX Two Text, AtkinsonHyperlegible and Robot Mono from Google Font */
+/* See "fonts" folder */
 
 /* -- Variables -- */
 
 :root {
-    /* Colors */
+    /* -- Colors -- */
     --background: #ffffff;
     --hidden: #ffffff;
     --accent: #1484E6;
@@ -43,7 +44,8 @@
     --primary-rbg: 0, 0, 0;
     --highlight: #ffffff;
     --light-grey: #c8c8c8;
-    --transparent-light-grey: #f2f2f278;
+    --transparent-light-grey: #ececec78;
+    /* alternative transparent light-grey color: #f2f2f278 */
     --light-mid-grey: #757575;
     --mid-grey: #555555;
     --transparent-mid-grey: #d7d7d778;
@@ -53,6 +55,14 @@
     --thm-blue-rgb: 20, 132, 230;
     --def-orange: #FD8B28;
     --def-orange-rgb: 253, 139, 40;
+    /* Button background and button icon colors */
+    --button-inactive-color: var(--light-grey);
+    --button-hover-color: var(--accent);
+    --button-active-color: var(--accent);
+    --button-text-inactive-color: var(--dark-grey);
+    --button-text-hover-color: var(--highlight);
+    --button-text-active-color: var(--highlight);
+    /* -- Fonts -- */
     /* Font sizes */
     --default-font-size: 14pt;
     --max-font-size: 12pt;
@@ -66,15 +76,9 @@
     /* Font styles */
     --serif-font: 'StixTwoText', serif;
     --sans-serif-font: 'Atkinson Hyperlegible', sans-serif;
-    /* Button background and button icon colors */
-    --button-inactive-color: var(--light-grey);
-    --button-hover-color: var(--accent);
-    --button-active-color: var(--accent);
-    --button-text-inactive-color: var(--dark-grey);
-    --button-text-hover-color: var(--highlight);
-    --button-text-active-color: var(--highlight);
-    /* Dimensions */
-    --lateral-column-width: 150px;
+    /* -- Dimensions -- */
+    /* Page and general dimensions */
+    --lateral-column-min-width: 150px;
     --slide-padding-bottom: 50px;
     --small-gap-size: 10px;
     --small-page-padding: 40px;
@@ -82,44 +86,54 @@
     --scrollbar-width: 10px;
     --small-border-radius: 15px;
     --large-border-radius: 30px;
+    /* Buttons */
     --button-diameter: 30px;
     --button-radius: calc(var(--button-diameter) / 2);
     --controls-height: calc(var(--button-diameter) * 1.5);
     --controls-border-radius: calc(var(--controls-height) / 2);
+    /* Containers and controls capsules */
     --controls-margin: 10px;
     --controls-small-margin: 5px;
     --controls-gap: 10px;
-    --font-serif-gap: calc(var(--controls-gap) / 2);
-    --font-serif-offset: calc(var(--button-diameter) + var(--font-serif-gap));
-    --font-serif-capsule-width: calc(2 * var(--button-diameter) + var(--font-serif-gap));
-    --expanded-font-serif-capsule-width: calc(var(--font-serif-capsule-width) + var(--font-serif-offset));
+    /* Serif picker */
+    --serif-picker-gap: calc(var(--controls-gap) / 2);
+    --serif-picker-offset: calc(var(--button-diameter) + var(--serif-picker-gap));
+    --serif-picker-capsule-width: calc(2 * var(--button-diameter) + var(--serif-picker-gap));
+    --expanded-serif-picker-capsule-width: calc(var(--serif-picker-capsule-width) + var(--serif-picker-offset));
+    /* Font size slider */
     --font-size-slider-width: calc(8px * (var(--max-font-size-value) - var(--min-font-size-value)));
+    /* View controls toolbar */
     --view-controls-width: calc(2 * var(--button-diameter) + var(--font-size-slider-width) + 2 * var(--controls-margin) + 2 * var(--controls-gap));
-    --expanded-view-controls-width: calc(var(--view-controls-width) + var(--font-serif-offset));
-    --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
+    --expanded-view-controls-width: calc(var(--view-controls-width) + var(--serif-picker-offset));
+    /* Navigation controls toolbar */
+    --slideshow-navigation-width: calc(100% - 2 * var(--controls-margin));
+    /* Slideshow slider */
+    --slideshow-slider-width: calc(100% - 2 * var(--controls-margin) - 2 * var(--controls-gap) - var(--arrows-capsule-width) - var(--button-diameter));
     --slider-icon-size: calc(var(--button-diameter) * 2 / 3);
     --slider-icon-margin: calc((var(--button-diameter) - var(--slider-icon-size)) / 2);
-    /* Z-indexes */
+    /* Navigation controls */
+    --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
+    /* -- Z-indexes -- */
     --controls-index: 0;
     --slider-progress-index: 0;
     --slider-index: 1;
     --slider-handle-index: 2;
-    --font-serif-capsule-index: 2;
-    --font-serif-circle-index: 3;
-    --font-serif-lower-index: 4;
-    --font-serif-upper-index: 5;
-    /* Effects */
+    --serif-picker-capsule-index: 2;
+    --serif-picker-circle-index: 3;
+    --serif-picker-lower-index: 4;
+    --serif-picker-upper-index: 5;
+    /* -- Effects -- */
     --active-button-scale: 1.1;
     --backdrop-blur: 10px;
-    /* Opacities */
+    /* -- Opacities -- */
     --button-inactive-opacity: 0.7;
     --button-hover-opacity: 0.8;
     --button-active-opacity: 1;
-    /* Times */
-    --button-general-transition-time: 0.15s;
-    --button-active-transition-time: 0.01s;
-    --slider-general-transition-time: 0.1s;
-    --serif-button-opacity-transition-time: 0.05s;
+    /* -- Times and durations -- */
+    --button-general-transition-duration: 0.15s;
+    --button-active-transition-duration: 0.01s;
+    --slider-general-transition-duration: 0.1s;
+    --serif-button-opacity-transition-duration: 0.05s;
 }
 
 /* -- Selection -- */
@@ -169,7 +183,6 @@
 *:focus-visible:not(input.input-box) {
     outline: solid var(--accent) 3px;
     outline-offset: 2px;
-    /*box-shadow: 0 0 10px var(--accent);*/
 }
 
 /* ============================
@@ -181,15 +194,15 @@
 .page-container {
     display: grid;
     gap: var(--small-gap-size);
-    grid-template-columns: minmax(var(--lateral-column-width), 1fr) 4fr 1fr;
+    grid-template-columns: minmax(var(--lateral-column-min-width), 1fr) 5fr minmax(var(--lateral-column-min-width), 1fr);
     font-family: var(--sans-serif-font);
     visibility: hidden;
     opacity: 0;
-    -webkit-transition: opacity 0.1s ease-in-out;
-    -moz-transition: opacity 0.1s ease-in-out;
-    -ms-transition: opacity 0.1s ease-in-out;
-    -o-transition: opacity 0.1s ease-in-out;
-    transition: opacity 0.1s ease-in-out;
+    -webkit-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    -moz-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    -ms-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    -o-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
 }
 
 .page-content {
@@ -199,7 +212,7 @@
 
 @media (max-width:1400px) {
     .page-container {
-        grid-template-columns: minmax(var(--lateral-column-width), 1fr) 5fr 1fr;
+        grid-template-columns: minmax(var(--lateral-column-min-width), 1fr) 6fr minmax(var(--lateral-column-min-width), 1fr);
     }
 }
 
@@ -471,7 +484,7 @@ canvas.focused {
     box-shadow: 0 0 20px #00000030;
 }
 
-/* -- 2.4 Presentation -- */
+/* -- 2.4 slideshow -- */
 
 div.plot-controls {
     display: grid;
@@ -513,19 +526,19 @@ div.controls {
     top: 0;
     right: 0;
     width: var(--view-controls-width);
-    -webkit-transition: width var(--button-general-transition-time) ease-in-out;
-    -moz-transition: width var(--button-general-transition-time) ease-in-out;
-    -ms-transition: width var(--button-general-transition-time) ease-in-out;
-    -o-transition: width var(--button-general-transition-time) ease-in-out;
-    transition: width var(--button-general-transition-time) ease-in-out;
+    -webkit-transition: width var(--button-general-transition-duration) ease-in-out;
+    -moz-transition: width var(--button-general-transition-duration) ease-in-out;
+    -ms-transition: width var(--button-general-transition-duration) ease-in-out;
+    -o-transition: width var(--button-general-transition-duration) ease-in-out;
+    transition: width var(--button-general-transition-duration) ease-in-out;
 }
 
-#presentation-navigation {
+#slideshow-navigation {
     position: fixed;
     bottom: 0;
     right: 0;
+    width: var(--slideshow-navigation-width);
     opacity: 0;
-    width: calc(100% - 2 * var(--controls-margin));
 }
 
 div.controls-item {
@@ -534,20 +547,29 @@ div.controls-item {
     border-radius: var(--button-radius);
 }
 
-#font-size-selection {
+#font-size-picker {
     width: var(--font-size-slider-width);
     background-color: transparent;
 }
 
-#slide-selection {
+#slide-picker {
     flex-grow: 1;
-    margin-left: var(--controls-margin);
     background-color: transparent;
 }
 
-#presentation-toggle {
+#slideshow-toggle {
     margin-right: var(--controls-margin);
     background-color: transparent;
+}
+
+.round-capsule {
+    width: var(--button-diameter);
+    height: var(--button-diameter);
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--button-radius);
 }
 
 button.toggle-button {
@@ -566,11 +588,11 @@ button.round-button {
     padding: 0;
     border: none;
     border-radius: var(--button-radius);
-    -webkit-transition: all var(--button-general-transition-time) ease-in-out;
-    -moz-transition: all var(--button-general-transition-time) ease-in-out;
-    -ms-transition: all var(--button-general-transition-time) ease-in-out;
-    -o-transition: all var(--button-general-transition-time) ease-in-out;
-    transition: all var(--button-general-transition-time) ease-in-out;
+    -webkit-transition: all var(--button-general-transition-duration) ease-in-out;
+    -moz-transition: all var(--button-general-transition-duration) ease-in-out;
+    -ms-transition: all var(--button-general-transition-duration) ease-in-out;
+    -o-transition: all var(--button-general-transition-duration) ease-in-out;
+    transition: all var(--button-general-transition-duration) ease-in-out;
 }
 
 button.glass-grey {
@@ -586,38 +608,38 @@ button.glass-grey:hover {
 button.glass-grey:active {
     opacity: var(--button-active-opacity);
     transform: scale(var(--active-button-scale));
-    -webkit-transition: transform var(--button-active-transition-time) ease-in-out;
-    -moz-transition: transform var(--button-active-transition-time) ease-in-out;
-    -ms-transition: transform var(--button-active-transition-time) ease-in-out;
-    -o-transition: transform var(--button-active-transition-time) ease-in-out;
-    transition: transform var(--button-active-transition-time) ease-in-out;
+    -webkit-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -moz-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -ms-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -o-transition: transform var(--button-active-transition-duration) ease-in-out;
+    transition: transform var(--button-active-transition-duration) ease-in-out;
 }
 
-button.serif-selection-button {
+button.serif-picker-button {
     vertical-align: middle;
     background-color: transparent;
     color: var(--dark-grey);
     font-weight: var(--bold-weight);
 }
 
-#serif-selection-capsule {
+#serif-picker-capsule {
     display: flex;
     height: var(--button-diameter);
-    width: var(--font-serif-capsule-width);
+    width: var(--serif-picker-capsule-width);
     flex-flow: row nowrap;
     justify-content: flex-end;
     align-items: center;
     align-content: space-between;
-    gap: var(--font-serif-gap);
+    gap: var(--serif-picker-gap);
     padding: 0;
     margin-left: var(--controls-margin);
     background-color: var(--transparent-mid-grey);
-    -webkit-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
-    -moz-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
-    -ms-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
-    -o-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
-    transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
-    z-index: var(--font-serif-capsule-index);
+    -webkit-transition: opacity var(--serif-button-opacity-transition-duration) ease-in-out;
+    -moz-transition: opacity var(--serif-button-opacity-transition-duration) ease-in-out;
+    -ms-transition: opacity var(--serif-button-opacity-transition-duration) ease-in-out;
+    -o-transition: opacity var(--serif-button-opacity-transition-duration) ease-in-out;
+    transition: opacity var(--serif-button-opacity-transition-duration) ease-in-out;
+    z-index: var(--serif-picker-capsule-index);
 }
 
 #serif-button {
@@ -637,10 +659,10 @@ button.serif-selection-button {
     font-size: 16.5px;
     background-color: transparent;
     opacity: 1;
-    z-index: var(--font-serif-lower-index);
+    z-index: var(--serif-picker-lower-index);
 }
 
-#serif-selection-circle {
+#serif-picker-selection-circle {
     position: absolute;
     width: var(--button-diameter);
     height: var(--button-diameter);
@@ -650,18 +672,43 @@ button.serif-selection-button {
     border: none;
     border-radius: var(--button-radius);
     background-color: var(--light-grey);
-    -webkit-transition: all var(--button-general-transition-time) ease-in-out;
-    -moz-transition: all var(--button-general-transition-time) ease-in-out;
-    -ms-transition: all var(--button-general-transition-time) ease-in-out;
-    -o-transition: all var(--button-general-transition-time) ease-in-out;
-    transition: all var(--button-general-transition-time) ease-in-out;
-    z-index: var(--font-serif-circle-index);
+    -webkit-transition: all var(--button-general-transition-duration) ease-in-out;
+    -moz-transition: all var(--button-general-transition-duration) ease-in-out;
+    -ms-transition: all var(--button-general-transition-duration) ease-in-out;
+    -o-transition: all var(--button-general-transition-duration) ease-in-out;
+    transition: all var(--button-general-transition-duration) ease-in-out;
+    z-index: var(--serif-picker-circle-index);
 }
 
-svg.presentation-toggle-icon {
+svg.slideshow-toggle-icon {
     vertical-align: middle;
     fill: currentColor;
     counter-reset: var(--dark-grey);
+}
+
+#slide-number-capsule {
+    display: grid;
+    place-items: center;
+    margin-left: var(--controls-margin);
+    background-color: var(--transparent-mid-grey);
+}
+
+@keyframes enlarge {
+    50% {
+        transform: scale(var(--active-button-scale));
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+#slide-number {
+    opacity: var(--button-inactive-opacity);
+    color: var(--dark-grey);
+    font-family: 'AtkinsonHyperlegible', sans-serif;
+    font-weight: var(--bold-weight);
+    transform: translateY(0.5px);
 }
 
 #arrows {
@@ -902,7 +949,7 @@ div.slider-base {
     width: var(--font-size-slider-width);
 }
 
-#presentation-slider-base {
+#slideshow-slider-base {
     width: 100%;
 }
 
@@ -915,11 +962,11 @@ div.slider-progress {
     background-color: var(--light-grey);
     opacity: var(--button-inactive-opacity);
     cursor: pointer;
-    -webkit-transition: all var(--slider-general-transition-time) ease-in-out;
-    -moz-transition: all var(--slider-general-transition-time) ease-in-out;
-    -ms-transition: all var(--slider-general-transition-time) ease-in-out;
-    -o-transition: all var(--slider-general-transition-time) ease-in-out;
-    transition: all var(--slider-general-transition-time) ease-in-out;
+    -webkit-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -moz-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -ms-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -o-transition: all var(--slider-general-transition-duration) ease-in-out;
+    transition: all var(--slider-general-transition-duration) ease-in-out;
     z-index: --(slider-progress-index);
 }
 
@@ -927,7 +974,7 @@ div.slider-progress {
     width: 45px;
 }
 
-#presentation-slider-progress {
+#slideshow-slider-progress {
     width: var(--button-diameter);
 }
 
@@ -944,11 +991,11 @@ div.slider-progress {
     background: transparent;
     outline: none;
     cursor: pointer;
-    -webkit-transition: var(--slider-general-transition-time) ease-in-out;
-    -moz-transition: all var(--slider-general-transition-time) ease-in-out;
-    -ms-transition: all var(--slider-general-transition-time) ease-in-out;
-    -o-transition: all var(--slider-general-transition-time) ease-in-out;
-    transition: all var(--slider-general-transition-time) ease-in-out;
+    -webkit-transition: var(--slider-general-transition-duration) ease-in-out;
+    -moz-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -ms-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -o-transition: all var(--slider-general-transition-duration) ease-in-out;
+    transition: all var(--slider-general-transition-duration) ease-in-out;
     z-index: var(--slider-index);
 }
 
@@ -956,8 +1003,8 @@ div.slider-progress {
     width: var(--font-size-slider-width);
 }
 
-#presentation-slider {
-    width: calc(100% - 2 * var(--controls-margin) - var(--controls-gap) - var(--arrows-capsule-width));
+#slideshow-slider {
+    width: var(--slideshow-slider-width);
 }
 
 /* The slider handle  */
@@ -1000,10 +1047,10 @@ span.slider-icon {
     font-size: calc(0.8 * var(--slider-icon-size));
 }
 
-#presentation-slider-icon {
+#slideshow-slider-icon {
     font-family: 'RobotoMono', monospace;
     font-style: var(--bold-weight);
-    color: white;
+    color: var(--dark-grey);
 }
 
 /* -- 2.8 Math Environments -- */
@@ -1044,12 +1091,12 @@ span.definition-label {
 
 span.definition-label::before {
     content: "\00a0(";
-    color: #000000;
+    color: var(--primary);
 }
 
 span.definition-label::after {
     content: ")\00a0 —";
-    color: #000000;
+    color: var(--primary);
 }
 
 span.definition-label.no-dash::after {
@@ -1093,12 +1140,12 @@ span.theorem-label {
 
 span.theorem-label::before {
     content: "\00a0(";
-    color: #000000;
+    color: var(--primary);
 }
 
 span.theorem-label::after {
     content: ")\00a0 —";
-    color: #000000;
+    color: var(--primary);
 }
 
 /* Lemma */

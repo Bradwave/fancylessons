@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1">
 
     <meta name="description" content="Fancylessons">
-    <meta name=" keywords" content="presentation, text, lesson">
+    <meta name=" keywords" content="slideshow, text, lesson">
 
     <title>Fancylessons</title>
 
@@ -150,16 +150,16 @@
     <!-- Controls -->
 
     <div id="view-controls" class="controls">
-        <div id="serif-selection-capsule" class="controls-item">
-            <button id="serif-button" class="toggle-button round-button serif-selection-button">
+        <div id="serif-picker-capsule" class="controls-item">
+            <button id="serif-button" class="toggle-button round-button serif-picker-button">
                 S
             </button>
-            <button id="sans-serif-button" class="toggle-button round-button serif-selection-button">
+            <button id="sans-serif-button" class="toggle-button round-button serif-picker-button">
                 S
             </button>
-            <span id="serif-selection-circle"></span>
+            <span id="serif-picker-selection-circle"></span>
         </div>
-        <div id="font-size-selection" class="controls-item">
+        <div id="font-size-picker" class="controls-item">
             <div id="font-size-slider-base" class="slider-base">
                 <div id="font-size-slider-progress" class="slider-progress">
                     <svg id="font-size-slider-icon" class="slider-icon" xmlns="http://www.w3.org/2000/svg"
@@ -171,9 +171,9 @@
                 <input id="font-size-slider" type="range" min="12" max="28" value="14" class="slider" step="2">
             </div>
         </div>
-        <div id="presentation-toggle" class="controls-item">
-            <button id="presentation-toggle-button" class="toggle-button round-button glass-grey">
-                <svg id="presentation-toggle-icon" class="presentation-toggle-icon" xmlns="http://www.w3.org/2000/svg"
+        <div id="slideshow-toggle" class="controls-item">
+            <button id="slideshow-toggle-button" class="toggle-button round-button glass-grey">
+                <svg id="slideshow-toggle-icon" class="slideshow-toggle-icon" xmlns="http://www.w3.org/2000/svg"
                     height="22px" viewBox="0 -960 960 960" width="22px">
                     <path
                         d="M440-487v127q0 17 11.5 28.5T480-320q17 0 28.5-11.5T520-360v-126l36 35q12 11 28 11.5t28-11.5q12-12 12-28.5T612-508L508-612q-12-12-28-12t-28 12L348-508q-12 12-11.5 28t12.5 28q12 11 28 11.5t28-11.5l35-35ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z" />
@@ -182,13 +182,16 @@
         </div>
     </div>
 
-    <div id="presentation-navigation" class="controls">
-        <div id="slide-selection" class="controls-item">
-            <div id="presentation-slider-base" class="slider-base">
-                <div id="presentation-slider-progress" class="slider-progress">
-                    <span id="presentation-slider-icon" class="slider-icon">0</span>
+    <div id="slideshow-navigation" class="controls">
+        <div id="slide-number-capsule" class="round-capsule controls-item">
+            <span id="slide-number"></span>
+        </div>
+        <div id="slide-picker" class="controls-item">
+            <div id="slideshow-slider-base" class="slider-base">
+                <div id="slideshow-slider-progress" class="slider-progress">
+                    <span id="slideshow-slider-icon" class="slider-icon"></span>
                 </div>
-                <input id="presentation-slider" class="slider" type="range" min="0" max="99" value="0" step="1">
+                <input id="slideshow-slider" class="slider" type="range" min="0" max="99" value="0" step="1">
             </div>
         </div>
         <div id="arrows" class="controls-item">
@@ -215,7 +218,7 @@
         <div class="general loader"></div>
     </div>
 
-    <script src="js/src/presentation/presentation-controller.js"></script>
+    <script src="js/src/slideshow/slideshow-controller.js"></script>
     <script src="js/src/util/utils.js"></script>
     <script src="js/src/plots/plot-structure.js"></script>
     <script src="js/src/plots/plots-manager.js"></script>
