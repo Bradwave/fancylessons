@@ -97,6 +97,8 @@
     --view-controls-width: calc(2 * var(--button-diameter) + var(--font-size-slider-width) + 2 * var(--controls-margin) + 2 * var(--controls-gap));
     --expanded-view-controls-width: calc(var(--view-controls-width) + var(--font-serif-offset));
     --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
+    --slider-icon-size: calc(var(--button-diameter) * 2 / 3);
+    --slider-icon-margin: calc((var(--button-diameter) - var(--slider-icon-size)) / 2);
     /* Z-indexes */
     --controls-index: 0;
     --slider-progress-index: 0;
@@ -958,14 +960,6 @@ div.slider-progress {
     width: calc(100% - 2 * var(--controls-margin) - var(--controls-gap) - var(--arrows-capsule-width));
 }
 
-svg.slider-icon {
-    position: absolute;
-    right: 6px;
-    top: 5px;
-    fill: currentColor;
-    color: var(--dark-grey);
-}
-
 /* The slider handle  */
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -986,6 +980,30 @@ svg.slider-icon {
     border-color: transparent;
     background: none;
     cursor: pointer;
+}
+
+svg.slider-icon {
+    width: var(--slider-icon-size);
+    height: var(--slider-icon-size);
+    position: absolute;
+    right: calc(var(--slider-icon-margin) + 1px);
+    top: var(--slider-icon-margin);
+    fill: currentColor;
+    color: var(--dark-grey);
+}
+
+span.slider-icon {
+    position: absolute;
+    right: calc(2 * var(--slider-icon-margin));
+    top: var(--slider-icon-margin);
+    color: var(--dark-grey);
+    font-size: calc(0.8 * var(--slider-icon-size));
+}
+
+#presentation-slider-icon {
+    font-family: 'RobotoMono', monospace;
+    font-style: var(--bold-weight);
+    color: white;
 }
 
 /* -- 2.8 Math Environments -- */

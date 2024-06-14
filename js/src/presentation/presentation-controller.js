@@ -573,6 +573,7 @@ let presentationController = new function () {
 
         // Updates the progress bar
         resizeSliderProgress("presentation", currentSlideIndex);
+        sliders.get("presentation").icon.innerText = currentSlideIndex;
 
         // Scrolls to the correct slide position
         centerSlide(timeout)
