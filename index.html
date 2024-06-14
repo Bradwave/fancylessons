@@ -16,15 +16,27 @@
     <link rel="stylesheet" href="css/fonts/stix-two-text.css">
     <link rel="stylesheet" href="css/fonts/atkinson-hyperlegible.css">
     <link rel="stylesheet" href="css/fonts/roboto-mono.css">
+
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="node_modules/mathjax/es5/mml-chtml.js" id="MathJax-script" async></script>
+    <script>
+        MathJax = {
+            loader: { load: ['[tex]/mathtools', '[tex]/newcommand'] },
+            tex: {
+                packages: { '[+]': ['mathtools', 'newcommand'] },
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                tags: 'ams',
+            }
+        }
+    </script>
+
+    <!-- Seamless scroll polyfill -->
+    <!--script src="https://cdn.jsdelivr.net/npm/seamless-scroll-polyfill@latest/lib/bundle.min.js"></script-->
+    <script src="js/src/polyfill/seamless-scroll-polyfill-bundle.min.js"></script>
 </head>
 
 <body>
-
-    <!-- SPINNING LOADER -->
-
-    <div id="loading-container" class="loading-container">
-        <div class="general loader"></div>
-    </div>
 
     <!-- PAGE CONTENT -->
 
@@ -99,7 +111,16 @@
     <!-- Controls -->
 
     <div id="view-controls" class="controls">
-        <div id="font-selection" class="controls-item">
+        <div id="serif-selection-capsule" class="controls-item">
+            <button id="serif-button" class="toggle-button round-button serif-selection-button">
+                S
+            </button>
+            <button id="sans-serif-button" class="toggle-button round-button serif-selection-button">
+                S
+            </button>
+            <span id="serif-selection-circle"></span>
+        </div>
+        <div id="font-size-selection" class="controls-item">
             <div id="font-size-slider-base" class="slider-base">
                 <div id="font-size-slider-progress" class="slider-progress">
                     <svg id="font-size-slider-icon" class="slider-icon" xmlns="http://www.w3.org/2000/svg" height="20px"
@@ -112,7 +133,7 @@
             </div>
         </div>
         <div id="presentation-toggle" class="controls-item">
-            <button id="presentation-toggle-button" class="toggle-button round-button">
+            <button id="presentation-toggle-button" class="toggle-button round-button glass-grey">
                 <svg id="presentation-toggle-icon" class="presentation-toggle-icon" xmlns="http://www.w3.org/2000/svg"
                     height="22px" viewBox="0 -960 960 960" width="22px">
                     <path
@@ -132,14 +153,14 @@
             </div>
         </div>
         <div id="arrows" class="controls-item">
-            <button id="previous" class="arrow-button round-button">
+            <button id="previous" class="arrow-button round-button glass-grey">
                 <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="190 -850 650 650"
                     width="22px">
                     <path
                         d="m432-480 156 156q11 11 11 28t-11 28q-11 11-28 11t-28-11L348-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 28-11t28 11q11 11 11 28t-11 28L432-480Z" />
                 </svg>
             </button>
-            <button id="next" class="arrow-button round-button">
+            <button id="next" class="arrow-button round-button glass-grey">
                 <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="120 -850 650 650"
                     width="22px">
                     <path
@@ -148,25 +169,12 @@
             </button>
         </div>
     </div>
+
+    <!-- SPINNING LOADER -->
+
+    <div id="loading-container" class="loading-container">
+        <div class="general loader"></div>
     </div>
-
-    <!-- MathJax -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script>
-        MathJax = {
-            loader: { load: ['[tex]/mathtools'] },
-            tex: {
-                packages: { '[+]': ['mathtools'] },
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                tags: 'ams',
-            }
-        }
-    </script>
-    <!--script src="https://cdn.jsdelivr.net/npm/seamless-scroll-polyfill@latest/lib/bundle.min.js"></script-->
-    <script src="js/src/polyfill/seamless-scroll-polyfill-bundle.min.js"></script>
-
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script src="node_modules/mathjax/es5/mml-chtml.js" id="MathJax-script" async></script>
 
     <script src="js/src/presentation/presentation-controller.js"></script>
     <script src="js/src/util/utils.js"></script>

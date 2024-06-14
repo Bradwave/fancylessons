@@ -44,6 +44,7 @@
     --highlight: #ffffff;
     --light-grey: #c8c8c8;
     --transparent-light-grey: #f2f2f278;
+    --light-mid-grey: #757575;
     --mid-grey: #555555;
     --transparent-mid-grey: #d7d7d778;
     --dark-grey: #222222;
@@ -60,8 +61,11 @@
     --min-font-size-value: 12;
     --max-font-size-value: 28;
     /* Font weights */
-    --normal-weight: 400;
+    --regular-weight: 400;
     --bold-weight: 700;
+    /* Font styles */
+    --serif-font: 'StixTwoText', serif;
+    --sans-serif-font: 'Atkinson Hyperlegible', sans-serif;
     /* Button background and button icon colors */
     --button-inactive-color: var(--light-grey);
     --button-hover-color: var(--accent);
@@ -71,6 +75,7 @@
     --button-text-active-color: var(--highlight);
     /* Dimensions */
     --lateral-column-width: 150px;
+    --slide-padding-bottom: 50px;
     --small-gap-size: 10px;
     --small-page-padding: 40px;
     --large-page-padding: 40px;
@@ -84,7 +89,24 @@
     --controls-margin: 10px;
     --controls-small-margin: 5px;
     --controls-gap: 10px;
+    --font-serif-gap: calc(var(--controls-gap) / 2);
+    --font-serif-offset: calc(var(--button-diameter) + var(--font-serif-gap));
+    --font-serif-capsule-width: calc(2 * var(--button-diameter) + var(--font-serif-gap));
+    --expanded-font-serif-capsule-width: calc(var(--font-serif-capsule-width) + var(--font-serif-offset));
     --font-size-slider-width: calc(8px * (var(--max-font-size-value) - var(--min-font-size-value)));
+    --view-controls-width: calc(2 * var(--button-diameter) + var(--font-size-slider-width) + 2 * var(--controls-margin) + 2 * var(--controls-gap));
+    --expanded-view-controls-width: calc(var(--view-controls-width) + var(--font-serif-offset));
+    --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
+    /* Z-indexes */
+    --controls-index: 0;
+    --slider-progress-index: 0;
+    --slider-index: 1;
+    --slider-handle-index: 2;
+    --font-serif-capsule-index: 2;
+    --font-serif-circle-index: 3;
+    --font-serif-lower-index: 4;
+    --font-serif-upper-index: 5;
+    /* Effects */
     --active-button-scale: 1.1;
     --backdrop-blur: 10px;
     /* Opacities */
@@ -92,9 +114,10 @@
     --button-hover-opacity: 0.8;
     --button-active-opacity: 1;
     /* Times */
-    --button-general-transition-time: 0.2s;
+    --button-general-transition-time: 0.15s;
     --button-active-transition-time: 0.01s;
     --slider-general-transition-time: 0.1s;
+    --serif-button-opacity-transition-time: 0.05s;
 }
 
 /* -- Selection -- */
@@ -157,6 +180,14 @@
     display: grid;
     gap: var(--small-gap-size);
     grid-template-columns: minmax(var(--lateral-column-width), 1fr) 4fr 1fr;
+    font-family: var(--sans-serif-font);
+    visibility: hidden;
+    opacity: 0;
+    -webkit-transition: opacity 0.1s ease-in-out;
+    -moz-transition: opacity 0.1s ease-in-out;
+    -ms-transition: opacity 0.1s ease-in-out;
+    -o-transition: opacity 0.1s ease-in-out;
+    transition: opacity 0.1s ease-in-out;
 }
 
 .page-content {
@@ -200,8 +231,6 @@
 body {
     margin: 0;
     background-color: var(--background);
-    /*font-family: 'STIX Two Text', serif;*/
-    font-family: 'Atkinson Hyperlegible', sans-serif;
     color: var(--secondary);
     counter-reset: chapter section subsection definition definition theorem;
     scroll-behavior: smooth;
@@ -273,7 +302,7 @@ h5 {
 
 p {
     font-size: 100%;
-    font-weight: var(--normal-weight);
+    font-weight: var(--regular-weight);
 }
 
 li {
@@ -454,7 +483,7 @@ div.play-pause-plot {
 }
 
 div.slide, div.slide.hidden {
-    padding: 5px 10px;
+    padding: 5px 10px var(--slide-padding-bottom) 10px;
     border-radius: var(--button-radius);
     opacity: 1;
     transition: all .3s ease-in-out;
@@ -481,6 +510,12 @@ div.controls {
     position: fixed;
     top: 0;
     right: 0;
+    width: var(--view-controls-width);
+    -webkit-transition: width var(--button-general-transition-time) ease-in-out;
+    -moz-transition: width var(--button-general-transition-time) ease-in-out;
+    -ms-transition: width var(--button-general-transition-time) ease-in-out;
+    -o-transition: width var(--button-general-transition-time) ease-in-out;
+    transition: width var(--button-general-transition-time) ease-in-out;
 }
 
 #presentation-navigation {
@@ -488,7 +523,7 @@ div.controls {
     bottom: 0;
     right: 0;
     opacity: 0;
-    width: calc(100% - var(--controls-margin) * 2);
+    width: calc(100% - 2 * var(--controls-margin));
 }
 
 div.controls-item {
@@ -497,9 +532,8 @@ div.controls-item {
     border-radius: var(--button-radius);
 }
 
-#font-selection {
+#font-size-selection {
     width: var(--font-size-slider-width);
-    margin-left: var(--controls-margin);
     background-color: transparent;
 }
 
@@ -530,9 +564,6 @@ button.round-button {
     padding: 0;
     border: none;
     border-radius: var(--button-radius);
-    background-color: var(--light-grey);
-    opacity: var(--button-inactive-opacity);
-    backdrop-filter: blur(var(--backdrop-blur));
     -webkit-transition: all var(--button-general-transition-time) ease-in-out;
     -moz-transition: all var(--button-general-transition-time) ease-in-out;
     -ms-transition: all var(--button-general-transition-time) ease-in-out;
@@ -540,11 +571,17 @@ button.round-button {
     transition: all var(--button-general-transition-time) ease-in-out;
 }
 
-button.round-button:hover {
+button.glass-grey {
+    background-color: var(--light-grey);
+    opacity: var(--button-inactive-opacity);
+    backdrop-filter: blur(var(--backdrop-blur));
+}
+
+button.glass-grey:hover {
     opacity: var(--button-hover-opacity);
 }
 
-button.round-button:active {
+button.glass-grey:active {
     opacity: var(--button-active-opacity);
     transform: scale(var(--active-button-scale));
     -webkit-transition: transform var(--button-active-transition-time) ease-in-out;
@@ -552,6 +589,71 @@ button.round-button:active {
     -ms-transition: transform var(--button-active-transition-time) ease-in-out;
     -o-transition: transform var(--button-active-transition-time) ease-in-out;
     transition: transform var(--button-active-transition-time) ease-in-out;
+}
+
+button.serif-selection-button {
+    vertical-align: middle;
+    background-color: transparent;
+    color: var(--dark-grey);
+    font-weight: var(--bold-weight);
+}
+
+#serif-selection-capsule {
+    display: flex;
+    height: var(--button-diameter);
+    width: var(--font-serif-capsule-width);
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    align-content: space-between;
+    gap: var(--font-serif-gap);
+    padding: 0;
+    margin-left: var(--controls-margin);
+    background-color: var(--transparent-mid-grey);
+    -webkit-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
+    -moz-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
+    -ms-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
+    -o-transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
+    transition: opacity var(--serif-button-opacity-transition-time) ease-in-out;
+    z-index: var(--font-serif-capsule-index);
+}
+
+#serif-button {
+    position: absolute;
+    order: 1;
+    font-family: 'StixTwoText', serif;
+    font-size: 18px;
+    background-color: transparent;
+    opacity: 0;
+    z-index: 10;
+}
+
+#sans-serif-button {
+    position: relative;
+    order: 2;
+    font-family: 'AtkinsonHyperlegible', sans-serif;
+    font-size: 16.5px;
+    background-color: transparent;
+    opacity: 1;
+    z-index: var(--font-serif-lower-index);
+}
+
+#serif-selection-circle {
+    position: absolute;
+    width: var(--button-diameter);
+    height: var(--button-diameter);
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--button-radius);
+    background-color: var(--light-grey);
+    -webkit-transition: all var(--button-general-transition-time) ease-in-out;
+    -moz-transition: all var(--button-general-transition-time) ease-in-out;
+    -ms-transition: all var(--button-general-transition-time) ease-in-out;
+    -o-transition: all var(--button-general-transition-time) ease-in-out;
+    transition: all var(--button-general-transition-time) ease-in-out;
+    z-index: var(--font-serif-circle-index);
 }
 
 svg.presentation-toggle-icon {
@@ -562,7 +664,7 @@ svg.presentation-toggle-icon {
 
 #arrows {
     position: relative;
-    width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
+    width: var(--arrows-capsule-width);
     height: var(--button-diameter);
     margin-right: var(--controls-margin);
     padding: 0;
@@ -676,9 +778,9 @@ svg.arrow-icon {
 .loader {
     margin: 4px;
     text-indent: 0em;
-    border-top: 1.75em solid #00000015;
-    border-right: 1.75em solid #00000015;
-    border-bottom: 1.75em solid #00000015;
+    border-top: 1.75em solid var(--transparent-mid-grey);
+    border-right: 1.75em solid var(--transparent-mid-grey);
+    border-bottom: 1.75em solid var(--transparent-mid-grey);
     transform: translateZ(0);
     animation: load 1.1s infinite linear;
     animation-play-state: paused;
@@ -718,11 +820,18 @@ svg.arrow-icon {
 /* Loading container */
 
 div.loading-container {
-    position: absolute;
-    width: 100%;
-    top: 42%;
+    position: fixed;
+    top: 0;
     display: grid;
+    width: 100%;
+    height: 100%;
     place-items: center;
+    backdrop-filter: blur(10px);
+    -webkit-transition: opacity 0.1s ease-in-out;
+    -moz-transition: opacity 0.1s ease-in-out;
+    -ms-transition: opacity 0.1s ease-in-out;
+    -o-transition: opacity 0.1s ease-in-out;
+    transition: opacity 0.1s ease-in-out;
 }
 
 /* -- 2.7 Input Boxes and Sliders -- */
@@ -809,7 +918,7 @@ div.slider-progress {
     -ms-transition: all var(--slider-general-transition-time) ease-in-out;
     -o-transition: all var(--slider-general-transition-time) ease-in-out;
     transition: all var(--slider-general-transition-time) ease-in-out;
-    z-index: 0;
+    z-index: --(slider-progress-index);
 }
 
 #font-size-slider-progress {
@@ -838,7 +947,7 @@ div.slider-progress {
     -ms-transition: all var(--slider-general-transition-time) ease-in-out;
     -o-transition: all var(--slider-general-transition-time) ease-in-out;
     transition: all var(--slider-general-transition-time) ease-in-out;
-    z-index: 2;
+    z-index: var(--slider-index);
 }
 
 #font-size-slider {
@@ -846,7 +955,7 @@ div.slider-progress {
 }
 
 #presentation-slider {
-    width: calc(100% - var(--controls-margin) * 4 - var(--controls-gap) - 2 * var(--button-diameter) + var(--controls-small-margin));
+    width: calc(100% - 2 * var(--controls-margin) - var(--controls-gap) - var(--arrows-capsule-width));
 }
 
 svg.slider-icon {
@@ -867,7 +976,7 @@ svg.slider-icon {
     border-radius: var(--button-radius);
     background: none;
     cursor: pointer;
-    z-index: 2;
+    z-index: var(--slider-handle-index);
 }
 
 .slider::-moz-range-thumb {

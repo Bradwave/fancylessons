@@ -25,6 +25,16 @@ let presentationController = new function () {
      */
     let presentationMode = false;
 
+    /**
+     * True if the serif selection is ongoing, false otherwise.
+     */
+    let isSerifSelecting = false;
+
+    /**
+     * True if serif is selected, false otherwise.
+     */
+    let isSerif = false;
+
     /*_______________________________________
     |   HTML elements
     */
@@ -45,6 +55,10 @@ let presentationController = new function () {
      * Hidden slides div elements.
      */
     let hiddenSlides;
+
+    /* ------ View controls ------ */
+
+    let viewControlsCapsule;
 
     /* ------ Presentation toggle ------ */
 
@@ -68,14 +82,31 @@ let presentationController = new function () {
     /* ------ Font size range slider ------ */
 
     /**
-     * Font size range slider.
-     */
-    let fontSizeSlider;
-
-    /**
      * Map of sliders and respective progress bars and icons.
      */
     let sliders = new Map();
+
+    /* ------ Font serif selection ------ */
+
+    /**
+     * Serif button.
+     */
+    let serifButton;
+
+    /**
+     * Sans serif button.
+     */
+    let sansSerifButton;
+
+    /**
+     * Selection circle for the serif/sans-serif toggle.
+     */
+    let serifSelectionCircle;
+
+    /**
+     * Container for the serif/sans-serif toggle.
+     */
+    let serifSelectionCapsule;
 
     /*_______________________________________
     |   Styles
@@ -103,6 +134,16 @@ let presentationController = new function () {
         // Sets the locally stored font size, if present
         setFontSize(localStorage.getItem("fontSize"));
 
+        // Gets the locally stored font style
+        const fontStyle = localStorage.getItem("fontStyle");
+        // Sets the locally stored font style, if present
+        setFontStyle(fontStyle);
+        // Makes the serif button visible if necessary
+        if (fontStyle == "serif") {
+            serifButton.style.opacity = 1;
+            sansSerifButton.style.opacity = 0;
+        };
+
         // Get the location hash property
         let hash = location.hash;
 
@@ -115,16 +156,20 @@ let presentationController = new function () {
     });
 
     window.onload = () => {
-        // Removes the spinning loader
-        document.getElementById("loading-container").style.opacity = 0;
-        document.getElementById("loading-container").remove();
-        // Makes page content visible 
-        document.getElementById("page-container").style.visibility = "visible";
-        document.getElementById("page-container").style.opacity = 1;
+        setTimeout(() => {
+            // Removes the spinning loader
+            document.getElementById("loading-container").style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById("loading-container").remove();
+            }, 200);
+            // Makes page content visible 
+            document.getElementById("page-container").style.visibility = "visible";
+            document.getElementById("page-container").style.opacity = 1;
+        }, 300);
 
         if (presentationMode) {
             // Start the presentation
-            togglePresentation(true);
+            togglePresentation(true, { timeout: 1000 });
         }
 
         // Get the device dpi
@@ -149,6 +194,10 @@ let presentationController = new function () {
         // Gets the presentation navigation elements
         presentationNavigation = document.getElementById("presentation-navigation");
 
+        /* ------ View controls ------ */
+
+        viewControlsCapsule = document.getElementById("view-controls");
+
         /* ------ Presentation toggle ------ */
 
         // Gets the presentation controls elements
@@ -172,6 +221,7 @@ let presentationController = new function () {
 
         /* ------ Sliders ------ */
 
+        // Adds sliders and related elements to the sliders map
         addSlider("font-size");
         addSlider("presentation");
 
@@ -182,6 +232,8 @@ let presentationController = new function () {
             const fontSize = parseInt(sliders.get("font-size").slider.value);
             // Sets the font size
             setFontSize(fontSize);
+            // After a certain interval, Scrolls the current slide into view if necessary
+            if (presentationMode) centerSlide(1000);
             // Stores the font size in the local storage
             localStorage.setItem("fontSize", fontSize);
         });
@@ -234,6 +286,112 @@ let presentationController = new function () {
             sliderProgress.style.opacity = "var(--button-" + status + "-opacity)";
             sliderIcon.style.color = "var(--button-text-" + status + "-color)";
             sliderIcon.style.fill = "var(--button-text-" + status + "-color)";
+        }
+
+        /* ------ Font serif selection ------ */
+
+        // Gets the serif selection elements
+        serifButton = document.getElementById("serif-button");
+        sansSerifButton = document.getElementById("sans-serif-button");
+        serifSelectionCircle = document.getElementById("serif-selection-circle");
+        serifSelectionCapsule = document.getElementById("serif-selection-capsule");
+
+        // Toggles the selection when the serif button is clicked
+        serifButton.onclick = () => {
+            toggleSerifSelection(true);
+        }
+
+        // Toggles the selection when the sans serif button is clicked
+        sansSerifButton.onclick = () => {
+            toggleSerifSelection(false);
+        }
+
+        /**
+         * Toggles the serif selection.
+         * @param {Boolean} isSerifClicked True if serif is clicked, false otherwise.
+         */
+        function toggleSerifSelection(isSerifClicked) {
+            // Flags the selection start/end
+            isSerifSelecting = !isSerifSelecting;
+
+            if (isSerifSelecting) {
+                // Expands the toggle if the selection started
+                expandSerifSelection();
+            } else {
+                // If the selection was already ongoing...
+                if (isSerifClicked) {
+                    if (!isSerif) {
+                        isSerif = true;
+                        // Moves the selection circle
+                        serifSelectionCircle.style.transform = "translateX(calc(-1 * var(--font-serif-offset)))";
+                        // Shrinks the toggle after the selection circle is moved
+                        setTimeout(() => {
+                            shrinkSerifSelection(true);
+                        }, 200);
+                    } else {
+                        shrinkSerifSelection(true);
+                    }
+                    // Sets the serif font style
+                    setFontStyle("serif");
+                    // After a certain interval, Scrolls the current slide into view if necessary
+                    if (presentationMode) centerSlide(500);
+                } else {
+                    if (isSerif) {
+                        isSerif = false;
+                        // Moves the selection circle
+                        serifSelectionCircle.style = "transform: translateX(0)";
+                        // Shrinks the toggle after the selection circle is moved
+                        setTimeout(() => {
+                            shrinkSerifSelection(false);
+                        }, 200);
+                    } else {
+                        shrinkSerifSelection(false);
+                    }
+                    // Sets the sans-serif font style
+                    setFontStyle("sans-serif");
+                    // After a certain interval, Scrolls the current slide into view if necessary
+                    if (presentationMode) centerSlide(500);
+                }
+            }
+        }
+
+        /**
+         * Expands the serif selection toggle.
+         */
+        function expandSerifSelection() {
+            // Makes the buttons visible
+            serifButton.style.opacity = 1;
+            sansSerifButton.style.opacity = 1;
+
+            // Expands the toggle
+            serifButton.style.transform = "translateX(calc(-1 * var(--font-serif-offset)))";
+            serifSelectionCircle.style.transform =
+                isSerif ? "translateX(calc(-1 * var(--font-serif-offset)))" : "transform: translateX(0)";
+            viewControlsCapsule.style.width = "var(--expanded-view-controls-width)"
+            serifSelectionCapsule.style.width = "var(--expanded-view-controls-width)";
+        }
+
+        /**
+         * Shrinks the serif selection toggle.
+         * @param {Boolean} isSerifVisible True if the serif button is visible, false otherwise.
+         */
+        function shrinkSerifSelection(isSerifVisible) {
+            // Hides the serif or sans-serif button
+            if (isSerifVisible) {
+                sansSerifButton.style.opacity = 0;
+                sansSerifButton.style.zIndex = "var(--font-serif-lower-index)"
+                serifButton.style.zIndex = "var(--font-serif-upper-index)"
+            } else {
+                serifButton.style.opacity = 0;
+                serifButton.style.zIndex = "var(--font-serif-lower-index)"
+                sansSerifButton.style.zIndex = "var(--font-serif-upper-index)"
+            }
+
+            // Shrinks the toggle
+            serifButton.style.transform = "translateX(0)"
+            serifSelectionCircle.style.transform = "translateX(0)"
+            viewControlsCapsule.style.width = "var(--view-controls-width)"
+            serifSelectionCapsule.style.width = "var(--view-controls-width)";
         }
 
         /* ------ Hotkeys ------ */
@@ -290,6 +448,14 @@ let presentationController = new function () {
         resizeSliderProgress("font-size", fontSize);
     }
 
+    function setFontStyle(fontStyle) {
+        if (fontStyle == undefined || fontStyle === null) fontStyle = "sans-serif";
+        // Sets the font style
+        document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
+        // Stores the font style
+        localStorage.setItem("fontStyle", fontStyle);
+    }
+
     /**
      * Resizes the progress bar for the font size slider
      * @param {String} key Keyword of the slider.
@@ -316,8 +482,9 @@ let presentationController = new function () {
     /**
      * Starts or pauses the presentation.
      * @param {boolean} isActive Starts if true, pauses otherwise.
+     * @param {*} options Toggle presentation options (timeout).
      */
-    function togglePresentation(isActive = undefined) {
+    function togglePresentation(isActive = undefined, options = { timeout: 0 }) {
         presentationMode = isActive !== undefined ? isActive : (presentationMode ? false : true);
 
         // Sets the opacity of the hidden slides div elements
@@ -336,7 +503,7 @@ let presentationController = new function () {
 
         if (presentationMode) {
             // If presentation mode is active, updates the slides
-            updateSlides();
+            updateSlides(options.timeout);
 
             // Sets the hash as the currently selected slide index
             window.location.hash = currentSlideIndex;
@@ -393,8 +560,9 @@ let presentationController = new function () {
 
     /**
      * Updates the slides.
+     * @param {Number} timeout Time in ms to wait before scrolling.
      */
-    function updateSlides() {
+    function updateSlides(timeout) {
         // Sets the hash to the currently selected slide index
         window.location.hash = currentSlideIndex;
 
@@ -407,12 +575,21 @@ let presentationController = new function () {
         resizeSliderProgress("presentation", currentSlideIndex);
 
         // Scrolls to the correct slide position
+        centerSlide(timeout)
+    }
+
+    /**
+     * Scrolls to the correct slide position, centering the slide.
+     * @param {Number} timeout Time in ms to wait before scrolling.
+     */
+    function centerSlide(timeout = 0) {
         setTimeout(() => {
             slides[currentSlideIndex].scrollIntoView({
                 behavior: 'smooth',
                 block: 'center'
             });
-        }, 0);
+        }, timeout);
+
     }
 
 }
