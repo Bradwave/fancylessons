@@ -167,7 +167,7 @@ let slideshowController = new function () {
         }
 
         // Sets the slide picker visibility according to the stored value if present
-        toggleSlidePickerVisibility((localStorage.getItem("isSlidePickerVisible") == "true"));
+        toggleSlidePickerVisibility(!(localStorage.getItem("isSlidePickerVisible") == "true"));
     });
 
     window.onload = () => {
@@ -603,6 +603,7 @@ let slideshowController = new function () {
      */
     function setFontStyle(fontStyle) {
         isSerif = (fontStyle == "serif");
+        if (!isSerif) fontStyle = "sans-serif";
         // Sets the font style
         hidePageContainerTemporarily(() => {
             document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
@@ -714,25 +715,30 @@ let slideshowController = new function () {
         setTimeout(() => {
             // Waits before changing the opacity if the control panel is expanding
             sliders.get("slideshow").base.style.opacity = isSlidePickerVisible ? "1" : "0";
-        }, isSlidePickerVisible ? getCssTimeInMs("general-transition-duration") / 3 : 0);
+        }, isSlidePickerVisible ? getCssTimeInMs("general-long-transition-duration") * .9 : 0);
         setTimeout(() => {
             // Waits before setting the visibility to "hidden" if the control panel is collapsing
             sliders.get("slideshow").base.style.visibility = isSlidePickerVisible ? "visible" : "hidden";
         }, isSlidePickerVisible ? 0 : getCssTimeInMs("slider-general-transition-duration"));
+        setTimeout(() => {
+            // Makes adjustments to the right margin of the slide number button to counter the spare gap
+            document.getElementById("slide-number-button").style.marginRight
+                = isSlidePickerVisible ? "0" : "calc(-1 * var(--controls-gap))";
+            document.getElementById("slide-number-button").style.marginLeft
+                = isSlidePickerVisible ? "calc(-1 * var(--controls-small-gap))" : "0";
+        }, isSlidePickerVisible ? 50 : getCssTimeInMs("general-long-transition-duration") * 0.75);
 
-        // Resizes the progress bar for the slide picker
+        // Resizes the progress bar for the slide picker and readjust the right margin of the slide number button
         if (isSlidePickerVisible) {
             setTimeout(() => {
                 resizeSliderProgress("slideshow", currentSlideIndex);
-            }, getCssTimeInMs("general-transition-duration"));
+                document.getElementById("slide-number-button").style.marginLeft = "0";
+            }, getCssTimeInMs("general-long-transition-duration"));
         }
 
         // Changes the control panel width
         slideshowNavigationControlsPanel.style.width
             = isSlidePickerVisible ? "var(--slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)";
-        // Makes adjustments
-        document.getElementById("slide-number-button").style.marginRight
-            = isSlidePickerVisible ? "0" : "calc(-1 * var(--controls-gap))";
     }
 
     /**

@@ -84,8 +84,8 @@
     --page-sidebar-min-width: 150px;
     --slide-padding-bottom: 50px;
     --small-gap-size: 10px;
-    --small-page-padding: 40px;
-    --large-page-padding: 40px;
+    --small-page-padding: 20px;
+    --large-page-padding: 30px;
     --scrollbar-width: 10px;
     --small-border-radius: 15px;
     --large-border-radius: 30px;
@@ -99,8 +99,9 @@
     --controls-small-margin: 5px;
     --controls-padding: 10px;
     --controls-gap: 10px;
+    --controls-small-gap: 5px;
     /* Serif picker */
-    --serif-picker-gap: var(--controls-small-margin);
+    --serif-picker-gap: var(--controls-small-gap);
     --serif-picker-capsule-width: var(--button-diameter);
     --serif-picker-offset: calc(var(--button-diameter) + var(--serif-picker-gap));
     --extended-serif-picker-capsule-width: calc(var(--serif-picker-capsule-width) + var(--serif-picker-offset));
@@ -141,6 +142,7 @@
     --button-locked-opacity: 0.5;
     /* -- Times and durations -- */
     --general-transition-duration: 0.2s;
+    --general-long-transition-duration: 0.4s;
     --button-active-transition-duration: 0.01s;
     --slider-general-transition-duration: 0.1s;
 }
@@ -548,6 +550,11 @@ div.controls-panel {
     right: 0;
     width: var(--slideshow-navigation-width);
     opacity: 0;
+    -webkit-transition: all var(--general-long-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-long-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-long-transition-duration) ease-in-out;
+    -o-transition: all var(--general-long-transition-duration) ease-in-out;
+    transition: all var(--general-long-transition-duration) ease-in-out;
 }
 
 div.controls-panel-group {
@@ -750,6 +757,11 @@ button.serif-picker-button {
     text-align: center;
     vertical-align: middle;
     background-color: var(--transparent-mid-grey);
+    -webkit-transition: margin-right calc(.75 * var(--general-long-transition-duration)) ease-in-out, margin-left var(--general-transition-duration) ease-in-out;
+    -moz-transition: margin-right calc(.75 * var(--general-long-transition-duration)) ease-in-out, margin-left var(--general-transition-duration) ease-in-out;
+    -ms-transition: margin-right calc(.75 * var(--general-long-transition-duration)) ease-in-out, margin-left var(--general-transition-duration) ease-in-out;
+    -o-transition: margin-right calc(.75 * var(--general-long-transition-duration)) ease-in-out, margin-left var(--general-transition-duration) ease-in-out;
+    transition: margin-right calc(.75 * var(--general-long-transition-duration)) ease-in-out, margin-left var(--general-transition-duration) ease-in-out;
 }
 
 @keyframes enlarge {
