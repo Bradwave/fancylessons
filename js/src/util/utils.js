@@ -40,10 +40,10 @@ const getInputNumber = (inputBox, options = {
 }
 
 /**
- * Gets a css variable, given the name.
+ * Gets a CSS variable, given the name.
  * @param {String} variableName Name of the CSS variable.
  * @param {*} Options Options (forceName: true if the variable name must be used unaltered).
- * @returns 
+ * @returns The variable value.
  */
 const getCssVariable = (variableName, options = {
     forceName: false
@@ -53,4 +53,14 @@ const getCssVariable = (variableName, options = {
     // Gets the variable
     let variableValue = getComputedStyle(document.documentElement).getPropertyValue(variableName);
     return variableValue;
+}
+
+
+/**
+ * Gets a CSS time or duration variable (in seconds) and converts it into milliseconds.
+ * @param {String} variableName Name of the CSS time or duration variable (in seconds);
+ * @returns The time or duration stored in the CSS variable in milliseconds.
+ */
+const getCssTimeInMs = (variableName) => {
+    return parseFloat(getCssVariable(variableName)) * 1000;
 }

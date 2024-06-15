@@ -40,6 +40,11 @@ let slideshowController = new function () {
      */
     let isPortraitMode = false;
 
+    /**
+     * True if the slide picker is visible, false otherwise.
+     */
+    let isSlidePickerVisible = true;
+
     /*_______________________________________
     |   HTML elements
     */
@@ -160,6 +165,9 @@ let slideshowController = new function () {
             currentSlideIndex = parseInt(hash.substring(1));
             isSlideshowMode = true;
         }
+
+        // Sets the slide picker visibility according to the stored value if present
+        toggleSlidePickerVisibility((localStorage.getItem("isSlidePickerVisible") == "true"));
     });
 
     window.onload = () => {
@@ -339,6 +347,13 @@ let slideshowController = new function () {
             goToSlide(slideValue);
         }
 
+        document.getElementById("slide-number-button").onclick = () => {
+            // Hides on displays the slide picker when the slide number button is pressed
+            toggleSlidePickerVisibility(!isSlidePickerVisible);
+            // Stores the slide picker visibility status
+            localStorage.setItem("isSlidePickerVisible", isSlidePickerVisible ? "true" : "false");
+        }
+
         /* -- Common listeners -- */
 
         // Styles the slide appropriately according to the current status (active/hover/inactive/locked/unlocked)
@@ -408,7 +423,7 @@ let slideshowController = new function () {
                         // Shrinks the toggle after the selection circle is moved
                         setTimeout(() => {
                             shrinkSerifPicker(true, isPanelCollapsed);
-                        }, parseFloat(getCssVariable("general-transition-duration")) * 1000);
+                        }, getCssTimeInMs("general-transition-duration"));
                     } else {
                         shrinkSerifPicker(true, isPanelCollapsed);
                     }
@@ -424,7 +439,7 @@ let slideshowController = new function () {
                         // Shrinks the toggle after the picker selection circle is moved
                         setTimeout(() => {
                             shrinkSerifPicker(false, isPanelCollapsed);
-                        }, parseFloat(getCssVariable("general-transition-duration")) * 1000);
+                        }, getCssTimeInMs("general-transition-duration"));
                     } else {
                         shrinkSerifPicker(false, isPanelCollapsed);
                     }
@@ -679,12 +694,45 @@ let slideshowController = new function () {
         // Slider width
         const sliderWidth = slider.offsetWidth;
         // Slider height
-        const sliderHeight = slider.offsetHeight;
+        const buttonDiameter = parseFloat(getCssVariable("button-diameter"));
         // Computes the progress bar size
-        const progressSize = ((value - min) / (max - min) * (sliderWidth - sliderHeight) + sliderHeight);
+        const progressSize = ((value - min) / (max - min) * (sliderWidth - buttonDiameter) + buttonDiameter);
 
         // Resizes and styles the progress bar for the font size slider
         sliders.get(key).progress.style.width = progressSize + "px";
+    }
+
+    /**
+     * Hides or displays the slide picker.
+     * @param {Boolean} slidePickerVisibility True if the slide picker is visible, false otherwise.
+     */
+    function toggleSlidePickerVisibility(slidePickerVisibility) {
+        // Sets the slide picker visibility
+        isSlidePickerVisible = slidePickerVisibility;
+
+        // Hides or displays the slide picker
+        setTimeout(() => {
+            // Waits before changing the opacity if the control panel is expanding
+            sliders.get("slideshow").base.style.opacity = isSlidePickerVisible ? "1" : "0";
+        }, isSlidePickerVisible ? getCssTimeInMs("general-transition-duration") / 3 : 0);
+        setTimeout(() => {
+            // Waits before setting the visibility to "hidden" if the control panel is collapsing
+            sliders.get("slideshow").base.style.visibility = isSlidePickerVisible ? "visible" : "hidden";
+        }, isSlidePickerVisible ? 0 : getCssTimeInMs("slider-general-transition-duration"));
+
+        // Resizes the progress bar for the slide picker
+        if (isSlidePickerVisible) {
+            setTimeout(() => {
+                resizeSliderProgress("slideshow", currentSlideIndex);
+            }, getCssTimeInMs("general-transition-duration"));
+        }
+
+        // Changes the control panel width
+        slideshowNavigationControlsPanel.style.width
+            = isSlidePickerVisible ? "var(--slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)";
+        // Makes adjustments
+        document.getElementById("slide-number-button").style.marginRight
+            = isSlidePickerVisible ? "0" : "calc(-1 * var(--controls-gap))";
     }
 
     /**
@@ -695,10 +743,10 @@ let slideshowController = new function () {
         // Updates the slide number
         document.getElementById("slide-number").innerText = currentSlideIndex;
         // Animates the slider number
-        document.getElementById("slide-number-capsule").style.animation = "enlarge " + (animationDuration / 1000) + "s ease-in-out 1";
+        document.getElementById("slide-number-button").style.animation = "enlarge " + (animationDuration / 1000) + "s ease-in-out 1";
         // Removes the animation (necessary to add the animation again at a later time)
         setTimeout(() => {
-            document.getElementById("slide-number-capsule").style.animation = "none";
+            document.getElementById("slide-number-button").style.animation = "none";
         }, animationDuration);
     }
 

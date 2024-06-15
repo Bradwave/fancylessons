@@ -113,14 +113,15 @@
     --extended-view-controls-panel-width: calc(var(--expanded-view-controls-panel-width) + var(--serif-picker-offset));
     --view-controls-panel-height: var(--button-diameter);
     --expanded-view-controls-panel-height: calc(3 * var(--button-diameter) + 2 * var(--controls-gap));
+    /* Navigation controls */
+    --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
     /* Navigation controls toolbar */
     --slideshow-navigation-width: calc(100% - 2 * var(--controls-margin) - 2 * var(--controls-padding));
+    --collapsed-slideshow-navigation-width: calc(var(--arrows-capsule-width) + var(--controls-gap) + var(--button-diameter));
     /* Slideshow slider */
     --slideshow-slider-width: calc(100% - 2 * var(--controls-padding) - 2 * var(--controls-gap) - var(--arrows-capsule-width) - var(--button-diameter));
     --slider-icon-size: calc(var(--button-diameter) * 2 / 3);
     --slider-icon-margin: calc((var(--button-diameter) - var(--slider-icon-size)) / 2);
-    /* Navigation controls */
-    --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
     /* -- Z-indexes -- */
     --controls-index: 0;
     --slider-progress-index: 0;
@@ -646,6 +647,7 @@ button.round-button {
     width: var(--button-diameter);
     height: var(--button-diameter);
     vertical-align: middle;
+    text-align: center;
     margin: 0;
     padding: 0;
     border: none;
@@ -742,9 +744,11 @@ button.serif-picker-button {
     z-index: var(--serif-picker-lower-index);
 }
 
-#slide-number-capsule {
-    display: grid;
-    place-items: center;
+#slide-number-button {
+    min-width: var(--button-diameter);
+    min-height: var(--button-diameter);
+    text-align: center;
+    vertical-align: middle;
     background-color: var(--transparent-mid-grey);
 }
 
@@ -761,19 +765,29 @@ button.serif-picker-button {
 #slide-number {
     opacity: var(--button-inactive-opacity);
     color: var(--dark-grey);
-    font-family: 'AtkinsonHyperlegible', sans-serif;
+    font-family: 'Noto Sans', sans-serif;
     font-weight: var(--bold-weight);
-    transform: translateY(0.5px);
+    font-size: var(--button-radius);
 }
 
 #arrows {
     position: relative;
     width: var(--arrows-capsule-width);
     height: var(--button-diameter);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    align-content: space-between;
+    gap: var(--controls-small-margin);
     padding: 0;
     border-radius: var(--button-radius);
     background-color: transparent;
     user-select: none;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
 }
 
 button.arrow-button {
@@ -1001,6 +1015,11 @@ div.slider-base {
     border-radius: var(--button-radius);
     background-color: var(--transparent-mid-grey);
     cursor: pointer;
+    -webkit-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -moz-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -ms-transition: all var(--slider-general-transition-duration) ease-in-out;
+    -o-transition: all var(--slider-general-transition-duration) ease-in-out;
+    transition: all var(--slider-general-transition-duration) ease-in-out;
 }
 
 #font-size-slider-base {
