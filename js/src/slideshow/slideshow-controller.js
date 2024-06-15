@@ -321,9 +321,13 @@ let slideshowController = new function () {
         // Sets max value for the slide picker slider
         sliders.get("slideshow").slider.max = slides.length - 1;
 
-        // Resizes the slide picker progress bar on window resize.
         window.addEventListener("resize", () => {
+            // Resizes the slide picker progress bar on window resize.
             resizeSliderProgress("slideshow", currentSlideIndex);
+            // Sets the portrait mode if the orientation of the device is vertical
+            const isPortrait = window.innerWidth < 1.1 * window.innerHeight;
+            localStorage.setItem("isPortraitMode", isPortrait ? "true" : "false");
+            setPortraitMode(isPortrait)
         })
 
         sliders.get("slideshow").slider.oninput = () => {
