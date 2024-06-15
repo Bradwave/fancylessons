@@ -38,3 +38,19 @@ const getInputNumber = (inputBox, options = {
     inputBox.value = newValue;
     return newValue;
 }
+
+/**
+ * Gets a css variable, given the name.
+ * @param {String} variableName Name of the CSS variable.
+ * @param {*} Options Options (forceName: true if the variable name must be used unaltered).
+ * @returns 
+ */
+const getCssVariable = (variableName, options = {
+    forceName: false
+}) => {
+    // Adds -- in front of the variable name if missing and the variable name can be altered
+    if (!options.forceName) variableName = variableName.startsWith("--") ? variableName : "--" + variableName;
+    // Gets the variable
+    let variableValue = getComputedStyle(document.documentElement).getPropertyValue(variableName);
+    return variableValue;
+}

@@ -59,9 +59,11 @@
     --button-inactive-color: var(--light-grey);
     --button-hover-color: var(--accent);
     --button-active-color: var(--accent);
+    --button-locked-color: var(--light-grey);
     --button-text-inactive-color: var(--dark-grey);
     --button-text-hover-color: var(--highlight);
     --button-text-active-color: var(--highlight);
+    --button-text-locked-color: var(--mid-grey);
     /* -- Fonts -- */
     /* Font sizes */
     --default-font-size: 14pt;
@@ -124,9 +126,9 @@
     --slider-index: 1;
     --slider-handle-index: 2;
     --serif-picker-capsule-index: 2;
-    --serif-picker-circle-index: 3;
-    --serif-picker-lower-index: 4;
-    --serif-picker-upper-index: 5;
+    --serif-picker-lower-index: 3;
+    --serif-picker-middle-index: 4;
+    --serif-picker-higher-index: 5;
     /* -- Effects -- */
     --active-button-scale: 1.1;
     --backdrop-blur: 10px;
@@ -134,6 +136,7 @@
     --button-inactive-opacity: 0.7;
     --button-hover-opacity: 0.8;
     --button-active-opacity: 1;
+    --button-locked-opacity: 0.5;
     /* -- Times and durations -- */
     --general-transition-duration: 0.2s;
     --button-active-transition-duration: 0.01s;
@@ -623,6 +626,21 @@ button.toggle-button {
     cursor: pointer;
 }
 
+svg.toggle-icon {
+    vertical-align: middle;
+    fill: currentColor;
+    counter-reset: var(--dark-grey);
+    -webkit-transition: transform var(--general-transition-duration) ease-in-out;
+    -moz-transition: transform var(--general-transition-duration) ease-in-out;
+    -ms-transition: transform var(--general-transition-duration) ease-in-out;
+    -o-transition: transform var(--general-transition-duration) ease-in-out;
+    transition: transform var(--general-transition-duration) ease-in-out;
+}
+
+#portrait-toggle-icon {
+    transform: rotate(90deg);
+}
+
 button.round-button {
     width: var(--button-diameter);
     height: var(--button-diameter);
@@ -692,7 +710,7 @@ button.serif-picker-button {
     font-size: 18px;
     background-color: transparent;
     opacity: 0;
-    z-index: 10;
+    z-index: var(--serif-picker-middle-index);
 }
 
 #sans-serif-button {
@@ -702,7 +720,7 @@ button.serif-picker-button {
     font-size: 16.5px;
     background-color: transparent;
     opacity: 1;
-    z-index: var(--serif-picker-lower-index);
+    z-index: var(--serif-picker-higher-index);
 }
 
 #serif-picker-selection-circle {
@@ -720,13 +738,7 @@ button.serif-picker-button {
     -ms-transition: all var(--general-transition-duration) ease-in-out;
     -o-transition: all var(--general-transition-duration) ease-in-out;
     transition: all var(--general-transition-duration) ease-in-out;
-    z-index: var(--serif-picker-circle-index);
-}
-
-svg.toggle-icon {
-    vertical-align: middle;
-    fill: currentColor;
-    counter-reset: var(--dark-grey);
+    z-index: var(--serif-picker-lower-index);
 }
 
 #slide-number-capsule {
@@ -1010,7 +1022,7 @@ div.slider-progress {
     border-radius: var(--button-radius);
     background-color: var(--light-grey);
     opacity: var(--button-inactive-opacity);
-    cursor: pointer;
+    cursor: inherit;
     -webkit-transition: all var(--slider-general-transition-duration) ease-in-out;
     -moz-transition: all var(--slider-general-transition-duration) ease-in-out;
     -ms-transition: all var(--slider-general-transition-duration) ease-in-out;
@@ -1043,7 +1055,7 @@ div.slider-progress {
     border-radius: var(--button-radius);
     background: transparent;
     outline: none;
-    cursor: pointer;
+    cursor: inherit;
     -webkit-transition: var(--slider-general-transition-duration) ease-in-out;
     -moz-transition: all var(--slider-general-transition-duration) ease-in-out;
     -ms-transition: all var(--slider-general-transition-duration) ease-in-out;
@@ -1073,7 +1085,7 @@ div.slider-progress {
     height: var(--button-diameter);
     border-radius: var(--button-radius);
     background: none;
-    cursor: pointer;
+    cursor: inherit;
     z-index: var(--slider-handle-index);
 }
 
@@ -1083,7 +1095,7 @@ div.slider-progress {
     border-radius: var(--button-radius);
     border-color: transparent;
     background: none;
-    cursor: pointer;
+    cursor: inherit;
 }
 
 svg.slider-icon {

@@ -23,7 +23,7 @@ let slideshowController = new function () {
     /**
      * Ture if slideshow mode is active, false otherwise.
      */
-    let slideshowMode = false;
+    let isSlideshowMode = false;
 
     /**
      * True if the serif selection is ongoing, false otherwise.
@@ -34,6 +34,11 @@ let slideshowController = new function () {
      * True if serif is selected, false otherwise.
      */
     let isSerif = false;
+
+    /**
+     * True if the portrait mode is enabled, false otherwise.
+     */
+    let isPortraitMode = false;
 
     /*_______________________________________
     |   HTML elements
@@ -140,10 +145,11 @@ let slideshowController = new function () {
             sansSerifButton.style.opacity = 0;
         };
 
-        // Gets the locally stored page size, if present
-        const pageSize = localStorage.getItem("pageSize")
         // Sets the locally stored page size, if present
-        setPageSize(pageSize === null ? 2 : pageSize);
+        setLocallyStoredPageSize();
+
+        // Sets the locally stored portrait mode, if present
+        setPortraitMode((localStorage.getItem("isPortraitMode") == "true"));
 
         // Get the location hash property
         let hash = location.hash;
@@ -152,7 +158,7 @@ let slideshowController = new function () {
         if (hash) {
             // Sets the current slide to the hash value
             currentSlideIndex = parseInt(hash.substring(1));
-            slideshowMode = true;
+            isSlideshowMode = true;
         }
     });
 
@@ -168,7 +174,7 @@ let slideshowController = new function () {
             document.getElementById("page-container").style.opacity = 1;
         }, 300);
 
-        if (slideshowMode) {
+        if (isSlideshowMode) {
             // Start the slideshow
             toggleSlideshow(true, { timeout: 1000 });
         }
@@ -263,6 +269,18 @@ let slideshowController = new function () {
             previousSlide();
         };
 
+        /* ------ Portrait mode toggle ------ */
+
+        // Adds the portrait mode toggle button
+        addToggleButton("portrait");
+
+        toggleButtons.get("portrait").button.onclick = () => {
+            // Switches between portrait and non-portrait mode
+            setPortraitMode(!isPortraitMode);
+            // Saves the portrait mode status as a string
+            localStorage.setItem("isPortraitMode", isPortraitMode ? "true" : "false");
+        }
+
         /* ------ Sliders ------ */
 
         // Adds sliders and related elements to the sliders map
@@ -278,7 +296,7 @@ let slideshowController = new function () {
             // Sets the font size
             setFontSize(fontSize);
             // After a certain interval, Scrolls the current slide into view if necessary
-            if (slideshowMode) centerSlide(1000);
+            if (isSlideshowMode) centerSlide(1000);
             // Stores the font size in the local storage
             localStorage.setItem("fontSize", fontSize);
         });
@@ -286,14 +304,16 @@ let slideshowController = new function () {
         /* -- Page size slider -- */
 
         sliders.get("page-size").slider.addEventListener("input", () => {
-            // Gets the fractional page content size from the slider
-            const pageSize = parseInt(sliders.get("page-size").slider.value);
-            // Sets the fractional page size
-            setPageSize(pageSize);
-            // After a certain interval, Scrolls the current slide into view if necessary
-            if (slideshowMode) centerSlide(1000);
-            // Stores the font size in the local storage
-            localStorage.setItem("pageSize", pageSize);
+            if (!isPortraitMode) {
+                // Gets the fractional page content size from the slider
+                const pageSize = parseInt(sliders.get("page-size").slider.value);
+                // Sets the fractional page size
+                setPageSize(pageSize);
+                // After a certain interval, Scrolls the current slide into view if necessary
+                if (isSlideshowMode) centerSlide(1000);
+                // Stores the font size in the local storage
+                localStorage.setItem("pageSize", pageSize);
+            }
         })
 
         /* -- Slide picker slider -- */
@@ -315,7 +335,7 @@ let slideshowController = new function () {
 
         /* -- Common listeners -- */
 
-        // Styles the slide appropriately according to the current status (active/hover/inactive)
+        // Styles the slide appropriately according to the current status (active/hover/inactive/locked/unlocked)
         sliders.forEach((s) => {
             s.slider.addEventListener("input", () => {
                 styleSlider(s, "active");
@@ -382,14 +402,14 @@ let slideshowController = new function () {
                         // Shrinks the toggle after the selection circle is moved
                         setTimeout(() => {
                             shrinkSerifPicker(true, isPanelCollapsed);
-                        }, 200);
+                        }, parseFloat(getCssVariable("general-transition-duration")) * 1000);
                     } else {
                         shrinkSerifPicker(true, isPanelCollapsed);
                     }
                     // Sets the serif font style
                     setFontStyle("serif");
                     // After a certain interval, Scrolls the current slide into view if necessary
-                    if (slideshowMode) centerSlide(500);
+                    if (isSlideshowMode) centerSlide(500);
                 } else {
                     if (isSerif) {
                         isSerif = false;
@@ -398,14 +418,14 @@ let slideshowController = new function () {
                         // Shrinks the toggle after the picker selection circle is moved
                         setTimeout(() => {
                             shrinkSerifPicker(false, isPanelCollapsed);
-                        }, 200);
+                        }, parseFloat(getCssVariable("general-transition-duration")) * 1000);
                     } else {
                         shrinkSerifPicker(false, isPanelCollapsed);
                     }
                     // Sets the sans-serif font style
                     setFontStyle("sans-serif");
                     // After a certain interval, Scrolls the current slide into view if necessary
-                    if (slideshowMode) centerSlide(500);
+                    if (isSlideshowMode) centerSlide(500);
                 }
             }
         }
@@ -435,11 +455,11 @@ let slideshowController = new function () {
             if (isSerifVisible) {
                 sansSerifButton.style.opacity = 0;
                 sansSerifButton.style.zIndex = "var(--serif-picker-lower-index)"
-                serifButton.style.zIndex = "var(--serif-picker-upper-index)"
+                serifButton.style.zIndex = "var(--serif-picker-higher-index)"
             } else {
                 serifButton.style.opacity = 0;
                 serifButton.style.zIndex = "var(--serif-picker-lower-index)"
-                sansSerifButton.style.zIndex = "var(--serif-picker-upper-index)"
+                sansSerifButton.style.zIndex = "var(--serif-picker-higher-index)"
             }
 
             // Shrinks the toggle
@@ -455,7 +475,7 @@ let slideshowController = new function () {
             switch (e.code) {
                 case "KeyS":
                     // Toggles the slideshow on and off
-                    toggleSlideshow(!slideshowMode);
+                    toggleSlideshow(!isSlideshowMode);
                     break;
                 case "ArrowRight":
                     // Moves to next slide
@@ -472,13 +492,13 @@ let slideshowController = new function () {
     }
 
     /**
-         * Styles the slider according to its status (active/hover/inactive).
+         * Styles the slider according to its status (active/hover/inactive/locked/unlocked).
          * @param {*} slider Slider.
-         * @param {String} status Can be "active", "inactive" or "hover".
+         * @param {String} status Can be "active", "inactive", "hover", "locked", "unlocked".
          */
     function styleSlider(slider, status) {
         // Executes only if the status has changed
-        if (slider.status !== status) {
+        if (slider.status !== status && slider.status !== "locked") {
             // Changes the status
             slider.status = status;
             // Styles the slider
@@ -528,10 +548,11 @@ let slideshowController = new function () {
      */
     function addSlider(key) {
         sliders.set(key, {
+            base: document.getElementById(key + "-slider-base"),
             slider: document.getElementById(key + "-slider"),
             progress: document.getElementById(key + "-slider-progress"),
             icon: document.getElementById(key + "-slider-icon"),
-            status: "inactive"
+            status: "inactive",
         })
     }
 
@@ -561,10 +582,21 @@ let slideshowController = new function () {
      */
     function setFontStyle(fontStyle) {
         if (fontStyle == undefined || fontStyle === null) fontStyle = "sans-serif";
+        if (fontStyle == "serif") isSerif = true;
         // Sets the font style
         document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
         // Stores the font style
         localStorage.setItem("fontStyle", fontStyle);
+    }
+
+    /**
+     * Sets the locally stored page size
+     */
+    function setLocallyStoredPageSize() {
+        // Gets the locally stored page size, if present
+        const pageSize = localStorage.getItem("pageSize")
+        // Sets the locally stored page size, if present
+        setPageSize(pageSize === null ? 2 : pageSize);
     }
 
     /**
@@ -588,6 +620,48 @@ let slideshowController = new function () {
         }
         // Resizes the progress bar for the font size slider
         resizeSliderProgress("page-size", pageSize);
+    }
+
+    /**
+     * Sets the portrait or non-portrait mode
+     * @param {Boolean} portraitMode True if portrait mode is activated, false otherwise
+     */
+    function setPortraitMode(portraitMode) {
+        // Sets the portrait mode status
+        isPortraitMode = portraitMode;
+
+        // Sets the button status
+        toggleButtons.get("portrait").status = isPortraitMode;
+
+        // Rotates the icon
+        toggleButtons.get("portrait").icon.style.transform = isPortraitMode ? "rotate(0)" : "rotate(90deg)";
+
+        // Hides the page container
+        document.getElementById("page-container").style.opacity = "0";
+
+        // Styles the page size slider and the page container
+        setTimeout(() => {
+            if (isPortraitMode) {
+                // Removes the grid template
+                document.getElementById("page-container").style.gridTemplateColumns = "none";
+                // Sets the padding as large
+                pageContent.style.padding = "var(--large-page-padding)";
+                // Locks the page size slider
+                styleSlider(sliders.get("page-size"), "locked");
+                sliders.get("page-size").base.style.cursor = "default";
+            } else {
+                // Resets the grid template
+                setLocallyStoredPageSize();
+                // Unlocks the page size slider (status bust be changed first, or style can't be changed)
+                sliders.get("page-size").status = "unlocked";
+                styleSlider(sliders.get("page-size"), "inactive");
+                sliders.get("page-size").base.style.cursor = "pointer";
+            }
+        }, 100);
+        // Displays the page container
+        setTimeout(() => {
+            document.getElementById("page-container").style.opacity = "1";
+        }, 200);
     }
 
     /**
@@ -638,19 +712,19 @@ let slideshowController = new function () {
      * @param {*} options Toggle slideshow options (timeout).
      */
     function toggleSlideshow(isActive = undefined, options = { timeout: 0 }) {
-        slideshowMode = isActive !== undefined ? isActive : (slideshowMode ? false : true);
+        isSlideshowMode = isActive !== undefined ? isActive : (isSlideshowMode ? false : true);
 
         // Sets the opacity of the hidden slides div elements
         hiddenSlides.forEach(slide => {
-            slide.style = slideshowMode ? nonSelectedSlideStyle : selectedSlideStyle;
+            slide.style = isSlideshowMode ? nonSelectedSlideStyle : selectedSlideStyle;
         })
 
         // Shows or hides the controls for the slideshow
-        slideshowNavigationControlsPanel.style.opacity = slideshowMode ? "1" : "0";
+        slideshowNavigationControlsPanel.style.opacity = isSlideshowMode ? "1" : "0";
         // Styles the toggle button
-        styleToggleButton("slideshow", slideshowMode);
+        styleToggleButton("slideshow", isSlideshowMode);
 
-        if (slideshowMode) {
+        if (isSlideshowMode) {
             // If slideshow mode is active, updates the slides
             updateSlides(options.timeout);
 
@@ -672,7 +746,7 @@ let slideshowController = new function () {
      */
     function nextSlide() {
         // When slideshow mode is active, increases the slide index
-        if (slideshowMode) {
+        if (isSlideshowMode) {
             // Loops through to first slide if necessary
             if (++currentSlideIndex > slides.length - 1) {
                 currentSlideIndex = 0;
@@ -686,7 +760,7 @@ let slideshowController = new function () {
      */
     function previousSlide() {
         // When slideshow mode is active, decreases the slide index
-        if (slideshowMode) {
+        if (isSlideshowMode) {
             // Loops through to last slide if necessary
             if (--currentSlideIndex < 0) {
                 currentSlideIndex = slides.length - 1;
@@ -701,7 +775,7 @@ let slideshowController = new function () {
      */
     function goToSlide(index) {
         // When slideshow mode is active, goes to the desired slide index
-        if (slideshowMode) {
+        if (isSlideshowMode) {
             currentSlideIndex = index;
             updateSlides();
         }
