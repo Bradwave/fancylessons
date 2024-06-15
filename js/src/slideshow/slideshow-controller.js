@@ -327,7 +327,9 @@ let slideshowController = new function () {
             // Sets the portrait mode if the orientation of the device is vertical
             const isPortrait = window.innerWidth < 1.1 * window.innerHeight;
             localStorage.setItem("isPortraitMode", isPortrait ? "true" : "false");
-            setPortraitMode(isPortrait)
+            setPortraitMode(isPortrait);
+            // Centers the slide
+            centerSlide(500);
         })
 
         sliders.get("slideshow").slider.oninput = () => {
