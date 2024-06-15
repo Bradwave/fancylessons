@@ -585,10 +585,11 @@ let slideshowController = new function () {
      * @param {String} fontStyle Can be "serif" or "sans-serif".
      */
     function setFontStyle(fontStyle) {
-        if (fontStyle == undefined || fontStyle === null) fontStyle = "sans-serif";
-        if (fontStyle == "serif") isSerif = true;
+        isSerif = (fontStyle == "serif");
         // Sets the font style
-        document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
+        hidePageContainerTemporarily(() => {
+            document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
+        }, 100);
         // Stores the font style
         localStorage.setItem("fontStyle", fontStyle);
     }
@@ -640,11 +641,8 @@ let slideshowController = new function () {
         // Rotates the icon
         toggleButtons.get("portrait").icon.style.transform = isPortraitMode ? "rotate(0)" : "rotate(90deg)";
 
-        // Hides the page container
-        document.getElementById("page-container").style.opacity = "0";
-
         // Styles the page size slider and the page container
-        setTimeout(() => {
+        hidePageContainerTemporarily(() => {
             if (isPortraitMode) {
                 // Removes the grid template
                 document.getElementById("page-container").style.gridTemplateColumns = "none";
@@ -661,10 +659,6 @@ let slideshowController = new function () {
                 styleSlider(sliders.get("page-size"), "inactive");
                 sliders.get("page-size").base.style.cursor = "pointer";
             }
-        }, 100);
-        // Displays the page container
-        setTimeout(() => {
-            document.getElementById("page-container").style.opacity = "1";
         }, 200);
     }
 
@@ -704,6 +698,25 @@ let slideshowController = new function () {
         setTimeout(() => {
             document.getElementById("slide-number-capsule").style.animation = "none";
         }, animationDuration);
+    }
+
+    /**
+     * Temporarily hides the page container to perform an action.
+     * @param {Function} action Function to execute while the page container is not visible.
+     * @param {Number} hidingDuration Hiding duration in ms.
+     */
+    function hidePageContainerTemporarily(action, hidingDuration) {
+        // Hides the page container
+        document.getElementById("page-container").style.opacity = "0";
+
+        // Styles the page size slider and the page container
+        setTimeout(() => {
+            action();
+        }, hidingDuration);
+        // Displays the page container
+        setTimeout(() => {
+            document.getElementById("page-container").style.opacity = "1";
+        }, hidingDuration * 2);
     }
 
     /*_______________________________________

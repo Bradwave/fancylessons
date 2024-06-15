@@ -76,8 +76,9 @@
     --regular-weight: 400;
     --bold-weight: 700;
     /* Font styles */
-    --serif-font: 'StixTwoText', serif;
-    --sans-serif-font: 'Atkinson Hyperlegible', sans-serif;
+    --sans-serif-font: 'Noto Sans', sans-serif;
+    --serif-font: 'Noto Serif', serif;
+    --mono-font: 'Noto Sans Mono', monospace;
     /* -- Dimensions -- */
     /* Page and general dimensions */
     --page-sidebar-min-width: 150px;
@@ -1117,7 +1118,7 @@ span.slider-icon {
 }
 
 #slideshow-slider-icon {
-    font-family: 'RobotoMono', monospace;
+    font-family: var(--mono-font);
     font-style: var(--bold-weight);
     color: var(--dark-grey);
 }
