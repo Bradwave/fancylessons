@@ -58,26 +58,18 @@ let slideshowController = new function () {
 
     /* ------ View controls ------ */
 
-    let viewControlsCapsule;
+    let viewControlsPanel;
 
-    /* ------ slideshow toggle ------ */
+    /* ------ Toggle buttons ------ */
 
-    /**
-     * slideshow toggle button.
-     */
-    let slideshowToggleButton;
+    let toggleButtons = new Map();
 
-    /**
-     * slideshow toggle icon.
-     */
-    let slideshowToggleIcon;
-
-    /* ------ slideshow navigation ------ */
+    /* ------ Slideshow navigation ------ */
 
     /**
      * slideshow controls panel.
      */
-    let slideshowNavigation;
+    let slideshowNavigationControlsPanel;
 
     /* ------ Font size range slider ------ */
 
@@ -131,8 +123,10 @@ let slideshowController = new function () {
         // Initializes HTML elements and listeners
         initHTMLComponents();
 
+        // Gets the locally stored font size, if present
+        const fontSize = localStorage.getItem("fontSize");
         // Sets the locally stored font size, if present
-        setFontSize(localStorage.getItem("fontSize"));
+        setFontSize(fontSize === null ? 14 : fontSize);
 
         // Gets the locally stored font style
         const fontStyle = localStorage.getItem("fontStyle");
@@ -140,9 +134,16 @@ let slideshowController = new function () {
         setFontStyle(fontStyle);
         // Makes the serif button visible if necessary
         if (fontStyle == "serif") {
-            serifButton.style.opacity = 1;
+            setTimeout(() => {
+                serifButton.style.opacity = 1;
+            }, 100);
             sansSerifButton.style.opacity = 0;
         };
+
+        // Gets the locally stored page size, if present
+        const pageSize = localStorage.getItem("pageSize")
+        // Sets the locally stored page size, if present
+        setPageSize(pageSize === null ? 2 : pageSize);
 
         // Get the location hash property
         let hash = location.hash;
@@ -192,22 +193,65 @@ let slideshowController = new function () {
         hiddenSlides = [...document.querySelectorAll(".slide.hidden")];
 
         // Gets the slideshow navigation elements
-        slideshowNavigation = document.getElementById("slideshow-navigation");
+        slideshowNavigationControlsPanel = document.getElementById("slideshow-navigation-controls-panel");
 
         /* ------ View controls ------ */
 
-        viewControlsCapsule = document.getElementById("view-controls");
+        viewControlsPanel = document.getElementById("view-controls-panel");
 
-        /* ------ slideshow toggle ------ */
+        /* ------ Options toggle ------ */
 
-        // Gets the slideshow controls elements
-        slideshowToggleButton = document.getElementById("slideshow-toggle-button");
-        slideshowToggleIcon = document.getElementById("slideshow-toggle-icon");
+        // Adds the options toggle button
+        addToggleButton("options");
 
-        slideshowToggleButton.onclick = () => {
+        // Expands and shrinks the view controls panel on click
+        toggleButtons.get("options").button.onclick = () => {
+            styleToggleButton("options", !toggleButtons.get("options").status);
+            if (toggleButtons.get("options").status) {
+                // Expands the view controls panel
+                toggleViewControlsPanel(true);
+            } else {
+                // Toggle the serif picker if expanded
+                if (isSerifSelecting) toggleSerifPicker(isSerif, true);
+                // Shrinks the view controls panel
+                toggleViewControlsPanel(false);
+            }
+        }
+
+        /**
+         * Expands or shrinks the controls panel
+         * @param {Boolean} isExpanded True if panel must be expanded, false otherwise.
+         * @param {Duration} animationDelay Animation delay.
+         */
+        function toggleViewControlsPanel(isExpanded, animationDelay = 150) {
+            // Delays the contraction
+            setTimeout(() => {
+                viewControlsPanel.style.width
+                    = isExpanded ? "var(--expanded-view-controls-panel-width)" : "var(--view-controls-panel-width)";
+                viewControlsPanel.style.height
+                    = isExpanded ? "var(--expanded-view-controls-panel-height)" : "var(--view-controls-panel-height)";
+                // Displays/hides the controls panel groups
+                document.getElementById("font-options-controls-panel-group").style.visibility = isExpanded ? "visible" : "hidden";
+                document.getElementById("page-size-controls-panel-group").style.visibility = isExpanded ? "visible" : "hidden";
+            }, isExpanded ? 0 : animationDelay);
+            // Delays the opacity animation
+            setTimeout(() => {
+                document.getElementById("font-options-controls-panel-group").style.opacity = isExpanded ? "1" : "0";
+                document.getElementById("page-size-controls-panel-group").style.opacity = isExpanded ? "1" : "0";
+            }, isExpanded ? animationDelay : 0);
+        }
+
+        /* ------ Slideshow toggle ------ */
+
+        // Adds the slideshow toggle button
+        addToggleButton("slideshow");
+
+        toggleButtons.get("slideshow").button.onclick = () => {
             // Starts the slideshow
             toggleSlideshow();
         };
+
+        /* ------ Navigation arrows ------ */
 
         document.getElementById("next").onclick = () => {
             // Moves to next slide
@@ -223,6 +267,7 @@ let slideshowController = new function () {
 
         // Adds sliders and related elements to the sliders map
         addSlider("font-size");
+        addSlider("page-size");
         addSlider("slideshow");
 
         /* -- Font size slider -- */
@@ -237,6 +282,19 @@ let slideshowController = new function () {
             // Stores the font size in the local storage
             localStorage.setItem("fontSize", fontSize);
         });
+
+        /* -- Page size slider -- */
+
+        sliders.get("page-size").slider.addEventListener("input", () => {
+            // Gets the fractional page content size from the slider
+            const pageSize = parseInt(sliders.get("page-size").slider.value);
+            // Sets the fractional page size
+            setPageSize(pageSize);
+            // After a certain interval, Scrolls the current slide into view if necessary
+            if (slideshowMode) centerSlide(1000);
+            // Stores the font size in the local storage
+            localStorage.setItem("pageSize", pageSize);
+        })
 
         /* -- Slide picker slider -- */
 
@@ -284,24 +342,6 @@ let slideshowController = new function () {
             })
         })
 
-        /**
-         * Styles the slider according to its status (active/hover/inactive).
-         * @param {*} slider Slider.
-         * @param {String} status Can be "active", "inactive" or "hover".
-         */
-        function styleSlider(slider, status) {
-            // Executes only if the status has changed
-            if (slider.status !== status) {
-                // Changes the status
-                slider.status = status;
-                // Styles the slider
-                slider.progress.style.backgroundColor = "var(--button-" + status + "-color)";
-                slider.progress.style.opacity = "var(--button-" + status + "-opacity)";
-                slider.icon.style.color = "var(--button-text-" + status + "-color)";
-                slider.icon.style.fill = "var(--button-text-" + status + "-color)";
-            }
-        }
-
         /* ------ Font serif picker ------ */
 
         // Gets the serif picker elements
@@ -323,8 +363,9 @@ let slideshowController = new function () {
         /**
          * Toggles the serif picker.
          * @param {Boolean} isSerifClicked True if serif is clicked, false otherwise.
+         * @param {Boolean} isPanelCollapsed True if the panel has to be completely collapsed, false otherwise.
          */
-        function toggleSerifPicker(isSerifClicked) {
+        function toggleSerifPicker(isSerifClicked, isPanelCollapsed = false) {
             // Flags the picker start/end
             isSerifSelecting = !isSerifSelecting;
 
@@ -340,10 +381,10 @@ let slideshowController = new function () {
                         serifPickerSelectionCircle.style.transform = "translateX(calc(-1 * var(--serif-picker-offset)))";
                         // Shrinks the toggle after the selection circle is moved
                         setTimeout(() => {
-                            shrinkSerifPicker(true);
+                            shrinkSerifPicker(true, isPanelCollapsed);
                         }, 200);
                     } else {
-                        shrinkSerifPicker(true);
+                        shrinkSerifPicker(true, isPanelCollapsed);
                     }
                     // Sets the serif font style
                     setFontStyle("serif");
@@ -356,10 +397,10 @@ let slideshowController = new function () {
                         serifPickerSelectionCircle.style = "transform: translateX(0)";
                         // Shrinks the toggle after the picker selection circle is moved
                         setTimeout(() => {
-                            shrinkSerifPicker(false);
+                            shrinkSerifPicker(false, isPanelCollapsed);
                         }, 200);
                     } else {
-                        shrinkSerifPicker(false);
+                        shrinkSerifPicker(false, isPanelCollapsed);
                     }
                     // Sets the sans-serif font style
                     setFontStyle("sans-serif");
@@ -378,18 +419,18 @@ let slideshowController = new function () {
             sansSerifButton.style.opacity = 1;
 
             // Expands the toggle
+            viewControlsPanel.style.width = "var(--extended-view-controls-panel-width)"
             serifButton.style.transform = "translateX(calc(-1 * var(--serif-picker-offset)))";
             serifPickerSelectionCircle.style.transform =
                 isSerif ? "translateX(calc(-1 * var(--serif-picker-offset)))" : "transform: translateX(0)";
-            viewControlsCapsule.style.width = "var(--expanded-view-controls-width)"
-            serifPickerCapsule.style.width = "var(--expanded-view-controls-width)";
+            serifPickerCapsule.style.width = "var(--extended-serif-picker-capsule-width)";
         }
 
         /**
          * Shrinks the serif picker.
          * @param {Boolean} isSerifVisible True if the serif button is visible, false otherwise.
          */
-        function shrinkSerifPicker(isSerifVisible) {
+        function shrinkSerifPicker(isSerifVisible, isPanelCollapsed = false) {
             // Hides the serif or sans-serif button
             if (isSerifVisible) {
                 sansSerifButton.style.opacity = 0;
@@ -404,8 +445,8 @@ let slideshowController = new function () {
             // Shrinks the toggle
             serifButton.style.transform = "translateX(0)"
             serifPickerSelectionCircle.style.transform = "translateX(0)"
-            viewControlsCapsule.style.width = "var(--view-controls-width)"
-            serifPickerCapsule.style.width = "var(--view-controls-width)";
+            serifPickerCapsule.style.width = "var(--serif-picker-capsule-width)";
+            viewControlsPanel.style.width = "var(--expanded-view-controls-panel-width)";
         }
 
         /* ------ Hotkeys ------ */
@@ -431,7 +472,58 @@ let slideshowController = new function () {
     }
 
     /**
-     * Adds the slider, its progress bar and its icon to the map.
+         * Styles the slider according to its status (active/hover/inactive).
+         * @param {*} slider Slider.
+         * @param {String} status Can be "active", "inactive" or "hover".
+         */
+    function styleSlider(slider, status) {
+        // Executes only if the status has changed
+        if (slider.status !== status) {
+            // Changes the status
+            slider.status = status;
+            // Styles the slider
+            slider.progress.style.backgroundColor = "var(--button-" + status + "-color)";
+            slider.progress.style.opacity = "var(--button-" + status + "-opacity)";
+            slider.icon.style.color = "var(--button-text-" + status + "-color)";
+            slider.icon.style.fill = "var(--button-text-" + status + "-color)";
+        }
+    }
+
+    /**
+     * Styles the toggle button and sets its status.
+     * @param {String} key Keyword of the toggle button.
+     * @param {*} status Status of the toggle.
+     */
+    function styleToggleButton(key, status) {
+        // Gets the correct toggle button
+        const toggleButton = toggleButtons.get(key);
+        // Sets the status
+        toggleButton.status = status;
+        // Styles the button
+        toggleButton.button.style = status ?
+            "background-color: var(--accent);" :
+            "background-color: var(--light-grey)";
+        // Styles the icon
+        toggleButton.icon.style = status ?
+            "fill: var(--highlight);" :
+            "fill: var(--dark-grey)";
+    }
+
+
+    /**
+     * Adds the toggle button, its icon and its status to the map
+     * @param {String} key Keyword of the toggle button.
+     */
+    function addToggleButton(key) {
+        toggleButtons.set(key, {
+            button: document.getElementById(key + "-toggle-button"),
+            icon: document.getElementById(key + "-toggle-icon"),
+            status: false
+        })
+    }
+
+    /**
+     * Adds the slider, its progress bar, its icon and its status to the map.
      * @param {String} key Keyword of the slider.
      */
     function addSlider(key) {
@@ -453,7 +545,7 @@ let slideshowController = new function () {
         // Max font size value
         const max = sliders.get("font-size").slider.max;
         // Checks if the font size is between the minimum and maximum value allowed
-        fontSize = fontSize < min ? min : (fontSize > max ? max : fontSize);
+        fontSize = constrain(fontSize, min, max);
 
         // Sets the font size
         pageContent.style = "font-size: " + fontSize + "pt";
@@ -463,12 +555,39 @@ let slideshowController = new function () {
         resizeSliderProgress("font-size", fontSize);
     }
 
+    /**
+     * Sets the font style (serif/sans-serif).
+     * @param {String} fontStyle Can be "serif" or "sans-serif".
+     */
     function setFontStyle(fontStyle) {
         if (fontStyle == undefined || fontStyle === null) fontStyle = "sans-serif";
         // Sets the font style
         document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
         // Stores the font style
         localStorage.setItem("fontStyle", fontStyle);
+    }
+
+    /**
+     * Sets the fractional size for the page.
+     * @param {Number} pageSize Size of the page content (from 0 to 4);
+     */
+    function setPageSize(pageSize) {
+        // Available fractional sizes
+        const fractionalSizes = [3, 4, 5, 10, "full"];
+        // Selects the fractional size
+        let selectedFractionalSize = fractionalSizes[pageSize];
+
+        if (selectedFractionalSize == "full") {
+            // Sets the font size
+            document.getElementById("page-container").style.gridTemplateColumns = "0fr 1fr 0fr";
+            pageContent.style.padding = "var(--large-page-padding)";
+        } else {
+            // Sets the font size
+            document.getElementById("page-container").style.gridTemplateColumns = "1fr " + selectedFractionalSize + "fr 1fr";
+            pageContent.style.padding = "var(--small-page-padding)";
+        }
+        // Resizes the progress bar for the font size slider
+        resizeSliderProgress("page-size", pageSize);
     }
 
     /**
@@ -527,13 +646,9 @@ let slideshowController = new function () {
         })
 
         // Shows or hides the controls for the slideshow
-        slideshowNavigation.style.opacity = slideshowMode ? "1" : "0";
-        slideshowToggleButton.style = slideshowMode ?
-            "background-color: var(--accent);" :
-            "background-color: var(--light-grey)";
-        slideshowToggleIcon.style = slideshowMode ?
-            "fill: var(--highlight);" :
-            "fill: var(--dark-grey)";
+        slideshowNavigationControlsPanel.style.opacity = slideshowMode ? "1" : "0";
+        // Styles the toggle button
+        styleToggleButton("slideshow", slideshowMode);
 
         if (slideshowMode) {
             // If slideshow mode is active, updates the slides
