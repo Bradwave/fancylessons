@@ -166,8 +166,10 @@ let slideshowController = new function () {
             isSlideshowMode = true;
         }
 
-        // Sets the slide picker visibility according to the stored value if present
-        toggleSlidePickerVisibility(!(localStorage.getItem("isSlidePickerVisible") == "true"));
+        // Gets the slide picker visibility according to the stored value, if present
+        const slidePickerVisibility = localStorage.getItem("isSlidePickerVisible");
+        // Gets the slide picker visibility according to the stored value, if present (visible by default)
+        toggleSlidePickerVisibility(slidePickerVisibility == "true" || slidePickerVisibility === null);
     });
 
     window.onload = () => {
@@ -665,7 +667,7 @@ let slideshowController = new function () {
                 // Removes the grid template
                 document.getElementById("page-container").style.gridTemplateColumns = "none";
                 // Sets the padding as large
-                pageContent.style.padding = "var(--large-page-padding)";
+                pageContent.style.padding = "var(--small-page-padding)";
                 // Locks the page size slider
                 styleSlider(sliders.get("page-size"), "locked");
                 sliders.get("page-size").base.style.cursor = "default";
@@ -708,8 +710,14 @@ let slideshowController = new function () {
      * @param {Boolean} slidePickerVisibility True if the slide picker is visible, false otherwise.
      */
     function toggleSlidePickerVisibility(slidePickerVisibility) {
+        console.log(slidePickerVisibility, localStorage.getItem("isSlidePickerVisible"))
+
         // Sets the slide picker visibility
         isSlidePickerVisible = slidePickerVisibility;
+
+        // Changes the control panel width
+        slideshowNavigationControlsPanel.style.width
+            = isSlidePickerVisible ? "var(--slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)";
 
         // Hides or displays the slide picker
         setTimeout(() => {
@@ -721,7 +729,7 @@ let slideshowController = new function () {
             sliders.get("slideshow").base.style.visibility = isSlidePickerVisible ? "visible" : "hidden";
         }, isSlidePickerVisible ? 0 : getCssTimeInMs("slider-general-transition-duration"));
         setTimeout(() => {
-            // Makes adjustments to the right margin of the slide number button to counter the spare gap
+            // Makes adjustments to the margin of the slide number button to counter the spare gap
             document.getElementById("slide-number-button").style.marginRight
                 = isSlidePickerVisible ? "0" : "calc(-1 * var(--controls-gap))";
             document.getElementById("slide-number-button").style.marginLeft
@@ -735,10 +743,6 @@ let slideshowController = new function () {
                 document.getElementById("slide-number-button").style.marginLeft = "0";
             }, getCssTimeInMs("general-long-transition-duration"));
         }
-
-        // Changes the control panel width
-        slideshowNavigationControlsPanel.style.width
-            = isSlidePickerVisible ? "var(--slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)";
     }
 
     /**

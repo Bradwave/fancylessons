@@ -85,7 +85,7 @@
     --slide-padding-bottom: 50px;
     --small-gap-size: 10px;
     --small-page-padding: 20px;
-    --large-page-padding: 30px;
+    --large-page-padding: 40px;
     --scrollbar-width: 10px;
     --small-border-radius: 15px;
     --large-border-radius: 30px;
@@ -209,7 +209,7 @@
     font-family: var(--sans-serif-font);
     visibility: hidden;
     opacity: 0;
-    -webkit-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    -webkit-transition: opacity 0.1s ease-in-6ut, grid-template-columns 0.5s ease-in-out;
     -moz-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
     -ms-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
     -o-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
@@ -283,34 +283,32 @@ h1 {
 /* Part */
 
 h2 {
+    margin-top: 0;
     margin-bottom: 30px;
     font-size: 175%;
     font-weight: var(--bold-weight);
-    padding-left: 85px;
-    text-indent: -85px;
     counter-set: section subsection;
 }
 
 h2::before {
+    margin-right: 40px;
     counter-increment: chapter;
     content: counter(chapter);
-    margin-right: 60px;
 }
 
 /* Section */
 
 h3 {
+    margin-top: 0;
     margin-bottom: 30px;
     font-size: 150%;
-    padding-left: 80px;
-    text-indent: -80px;
     counter-set: subsection definition theorem;
 }
 
 h3::before {
+    margin-right: 20px;
     counter-increment: section;
     content: counter(chapter) "."counter(section);
-    margin-right: 30px;
 }
 
 /* Subsection */
