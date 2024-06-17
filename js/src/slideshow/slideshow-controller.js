@@ -497,16 +497,10 @@ let slideshowController = new function () {
         // Gets the locally stored text alignment if present
         const textAlignment = localStorage.getItem("textAlignment");
         // Sets the locally stored text alignment if present (otherwise is set to align left by default)
-        setTextAlignment(textAlignment === null ? "align-left" : "justify");
+        setTextAlignment(textAlignment == "justify" ? textAlignment : "align-left");
         // Makes the align-left button visible if necessary
-        if (textAlignment == "align-left") {
-            // Sans-serif button
-            twoOptionsPickers.get("text-alignment").secondButton.style.opacity = 0;
-            setTimeout(() => {
-                // Serif button
-                twoOptionsPickers.get("alignment").firstButton.style.opacity = 1;
-            }, 100);
-        };
+        twoOptionsPickers.get("text-alignment").secondButton.style.opacity = (textAlignment == "justify") ? "1" : "0";
+        twoOptionsPickers.get("text-alignment").firstButton.style.opacity = (textAlignment == "justify") ? "0" : "1";
     }
 
     /* ------ Line height ------ */
@@ -591,7 +585,7 @@ let slideshowController = new function () {
         // Gets the locally stored page size if present
         const pageSize = localStorage.getItem("pageSize")
         // Sets the locally stored page size if present
-        setPageSize(pageSize === null ? 2 : pageSize);
+        setPageSize(pageSize === null ? 4 : pageSize);
     }
 
     /**

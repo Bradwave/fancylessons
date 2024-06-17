@@ -115,7 +115,7 @@
     --format-options-panel-slider-width: calc(4 * var(--button-diameter) + 3 * var(--options-gap));
     /* View options toolbar */
     --format-options-panel-width: calc(2 * var(--button-diameter) + var(--options-gap));
-    --expanded-format-options-panel-width: calc(var(--button-diameter) + var(--format-options-panel-slider-width) + 2 * var(--options-gap));
+    --expanded-format-options-panel-width: calc(var(--button-diameter) + var(--format-options-panel-slider-width) + 1 * var(--options-gap));
     --extended-format-options-panel-width: calc(var(--expanded-format-options-panel-width) + var(--two-options-picker-offset));
     --format-options-panel-height: var(--button-diameter);
     --expanded-format-options-panel-height: calc(4 * var(--button-diameter) + 4 * var(--options-gap));
@@ -793,15 +793,15 @@ button.two-options-picker-button {
 #align-left-button {
     position: absolute;
     order: 1;
-    opacity: 0;
-    z-index: var(--two-options-picker-middle-index);
+    opacity: 1;
+    z-index: var(--two-options-picker-higher-index);
 }
 
 #justify-button {
     position: relative;
     order: 2;
-    opacity: 1;
-    z-index: var(--two-options-picker-higher-index);
+    opacity: 0;
+    z-index: var(--two-options-picker-middle-index);
 }
 
 #slide-number-button {
