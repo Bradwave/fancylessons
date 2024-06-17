@@ -67,8 +67,8 @@
     /* -- Fonts -- */
     /* Font sizes */
     --default-font-size: 14pt;
-    --max-font-size: 12pt;
-    --min-font-size: 28pt;
+    --min-font-size: 12pt;
+    --max-font-size: 28pt;
     --default-font-size-value: 14;
     --min-font-size-value: 12;
     --max-font-size-value: 28;
@@ -76,6 +76,10 @@
     --regular-weight: 400;
     --bold-weight: 700;
     /* Font styles */
+    /* -- Line spacing/height -- */
+    --default-line-height: 1.25;
+    --min-line-height: 1.15;
+    --max-line-height: 1.75;
     --sans-serif-font: 'Noto Sans', sans-serif;
     --serif-font: 'Noto Serif', serif;
     --mono-font: 'Noto Sans Mono', monospace;
@@ -92,46 +96,47 @@
     /* Buttons */
     --button-diameter: 30px;
     --button-radius: calc(var(--button-diameter) / 2);
-    --controls-height: calc(var(--button-diameter) * 1.5);
-    --controls-border-radius: calc(var(--controls-height) / 2);
-    /* Containers and controls capsules */
-    --controls-margin: 10px;
-    --controls-small-margin: 5px;
-    --controls-padding: 10px;
-    --controls-gap: 10px;
-    --controls-small-gap: 5px;
+    --button-icon-diameter: calc(22 / 30 * var(--button-diameter));
+    --options-height: calc(var(--button-diameter) * 1.5);
+    --options-border-radius: calc(var(--options-height) / 2);
+    /* Containers and options capsules */
+    --options-margin: 10px;
+    --options-small-margin: 5px;
+    --options-padding: 10px;
+    --options-gap: 10px;
+    --options-small-gap: 5px;
     /* Serif picker */
-    --serif-picker-gap: var(--controls-small-gap);
-    --serif-picker-capsule-width: var(--button-diameter);
-    --serif-picker-offset: calc(var(--button-diameter) + var(--serif-picker-gap));
-    --extended-serif-picker-capsule-width: calc(var(--serif-picker-capsule-width) + var(--serif-picker-offset));
+    --two-options-picker-gap: var(--options-small-gap);
+    --two-options-picker-capsule-width: var(--button-diameter);
+    --two-options-picker-offset: calc(var(--button-diameter) + var(--two-options-picker-gap));
+    --extended-two-options-picker-capsule-width: calc(var(--two-options-picker-capsule-width) + var(--two-options-picker-offset));
     /* Font size slider */
     /* --font-size-slider-width: calc(8px * (var(--max-font-size-value) - var(--min-font-size-value))); */
-    --font-size-slider-width: calc(4 * var(--button-diameter) + 3 * var(--controls-gap));
-    /* View controls toolbar */
-    --view-controls-panel-width: calc(2 * var(--button-diameter) + var(--controls-gap));
-    --expanded-view-controls-panel-width: calc(var(--button-diameter) + var(--font-size-slider-width) + 1 * var(--controls-gap));
-    --extended-view-controls-panel-width: calc(var(--expanded-view-controls-panel-width) + var(--serif-picker-offset));
-    --view-controls-panel-height: var(--button-diameter);
-    --expanded-view-controls-panel-height: calc(3 * var(--button-diameter) + 2 * var(--controls-gap));
-    /* Navigation controls */
-    --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--controls-small-margin));
-    /* Navigation controls toolbar */
-    --slideshow-navigation-width: calc(100% - 2 * var(--controls-margin) - 2 * var(--controls-padding));
-    --collapsed-slideshow-navigation-width: calc(var(--arrows-capsule-width) + var(--controls-gap) + var(--button-diameter));
+    --format-options-panel-slider-width: calc(4 * var(--button-diameter) + 3 * var(--options-gap));
+    /* View options toolbar */
+    --format-options-panel-width: calc(2 * var(--button-diameter) + var(--options-gap));
+    --expanded-format-options-panel-width: calc(var(--button-diameter) + var(--format-options-panel-slider-width) + 2 * var(--options-gap));
+    --extended-format-options-panel-width: calc(var(--expanded-format-options-panel-width) + var(--two-options-picker-offset));
+    --format-options-panel-height: var(--button-diameter);
+    --expanded-format-options-panel-height: calc(4 * var(--button-diameter) + 4 * var(--options-gap));
+    /* Navigation options */
+    --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--options-small-margin));
+    /* Navigation options toolbar */
+    --slideshow-navigation-width: calc(100% - 2 * var(--options-margin) - 2 * var(--options-padding));
+    --collapsed-slideshow-navigation-width: calc(var(--arrows-capsule-width) + var(--options-gap) + var(--button-diameter));
     /* Slideshow slider */
-    --slideshow-slider-width: calc(100% - 2 * var(--controls-padding) - 2 * var(--controls-gap) - var(--arrows-capsule-width) - var(--button-diameter));
+    --slideshow-slider-width: calc(100% - 2 * var(--options-padding) - 2 * var(--options-gap) - var(--arrows-capsule-width) - var(--button-diameter));
     --slider-icon-size: calc(var(--button-diameter) * 2 / 3);
     --slider-icon-margin: calc((var(--button-diameter) - var(--slider-icon-size)) / 2);
     /* -- Z-indexes -- */
-    --controls-index: 0;
+    --options-index: 0;
     --slider-progress-index: 0;
     --slider-index: 1;
     --slider-handle-index: 2;
-    --serif-picker-capsule-index: 2;
-    --serif-picker-lower-index: 3;
-    --serif-picker-middle-index: 4;
-    --serif-picker-higher-index: 5;
+    --two-options-capsule-index: 2;
+    --two-options-picker-lower-index: 3;
+    --two-options-picker-middle-index: 4;
+    --two-options-picker-higher-index: 5;
     /* -- Effects -- */
     --active-button-scale: 1.1;
     --backdrop-blur: 10px;
@@ -332,6 +337,12 @@ h5 {
 p {
     font-size: 100%;
     font-weight: var(--regular-weight);
+    line-height: 1.5;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
 }
 
 li {
@@ -500,7 +511,7 @@ canvas.focused {
 
 /* -- 2.4 slideshow -- */
 
-div.plot-controls {
+div.plot-options {
     display: grid;
     place-items: center;
     transition: all .3s ease-in-out;
@@ -518,11 +529,10 @@ div.slide, div.slide.hidden {
     transition: all .3s ease-in-out;
 }
 
-div.controls-panel {
-    width: var(--expanded-view-controls-panel-width);
-    margin: var(--controls-margin);
-    padding: var(--controls-padding);
-    border-radius: var(--controls-border-radius);
+div.options-panel {
+    margin: var(--options-margin);
+    padding: var(--options-padding);
+    border-radius: var(--options-border-radius);
     vertical-align: middle;
     background-color: var(--transparent-light-grey);
     backdrop-filter: blur(var(--backdrop-blur));
@@ -534,15 +544,16 @@ div.controls-panel {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
-#view-controls-panel {
+#format-options-panel {
+    width: var(--expanded-format-options-panel-width);
     position: fixed;
     top: 0;
     right: 0;
-    width: var(--view-controls-panel-width);
-    height: var(--view-controls-panel-height);
+    width: var(--format-options-panel-width);
+    height: var(--format-options-panel-height);
 }
 
-#slideshow-navigation-controls-panel {
+#slideshow-navigation-options-panel {
     position: fixed;
     bottom: 0;
     right: 0;
@@ -555,16 +566,16 @@ div.controls-panel {
     transition: all var(--general-long-transition-duration) ease-in-out;
 }
 
-div.controls-panel-group {
+div.options-panel-group {
     display: flex;
     height: var(--button-diameter);
     flex-flow: row nowrap;
     align-items: center;
     align-content: space-between;
-    gap: var(--controls-gap);
+    gap: var(--options-gap);
     padding: 0;
     vertical-align: middle;
-    border-radius: var(--controls-border-radius);
+    border-radius: var(--options-border-radius);
     user-select: none;
     -webkit-transition: all var(--general-transition-duration) ease-in-out;
     -moz-transition: all var(--general-transition-duration) ease-in-out;
@@ -573,36 +584,58 @@ div.controls-panel-group {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
-#toggles-controls-panel-group {
+div.vertical-options-panel-group {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    align-content: space-between;
+    justify-content: center;
+    gap: var(--options-gap);
+    padding: 0;
+    border-radius: var(--options-border-radius);
+    user-select: none;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
+}
+
+#toggles-options-panel-group {
     justify-content: flex-end;
 }
 
-#font-options-controls-panel-group {
-    margin-top: var(--controls-gap);
-    justify-content: flex-end;
+#complete-format-options-panel-group {
+    margin-top: calc(2 * var(--options-gap));
     visibility: hidden;
     opacity: 0;
 }
 
-#page-size-controls-panel-group {
-    margin-top: var(--controls-gap);
+#font-options-panel-group {
     justify-content: flex-end;
-    opacity: 0;
-    visibility: hidden;
 }
 
-#slideshow-navigation-controls-panel-group {
+#page-size-options-panel-group {
+    justify-content: flex-end;
+}
+
+#slideshow-navigation-options-panel-group {
     width: 100%;
     justify-content: space-between;
 }
 
 #font-size-picker {
-    width: var(--font-size-slider-width);
+    width: var(--format-options-panel-slider-width);
+    background-color: transparent;
+}
+
+#line-height-picker {
+    width: var(--format-options-panel-slider-width);
     background-color: transparent;
 }
 
 #page-size-picker {
-    width: var(--font-size-slider-width);
+    width: var(--format-options-panel-slider-width);
     background-color: transparent;
 }
 
@@ -637,11 +670,17 @@ svg.toggle-icon {
     vertical-align: middle;
     fill: currentColor;
     counter-reset: var(--dark-grey);
-    -webkit-transition: transform var(--general-transition-duration) ease-in-out;
-    -moz-transition: transform var(--general-transition-duration) ease-in-out;
-    -ms-transition: transform var(--general-transition-duration) ease-in-out;
-    -o-transition: transform var(--general-transition-duration) ease-in-out;
-    transition: transform var(--general-transition-duration) ease-in-out;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
+}
+
+svg.button-icon {
+    width: var(--button-icon-diameter);
+    height: var(--button-icon-diameter);
+    fill: currentColor;
 }
 
 #portrait-toggle-icon {
@@ -684,22 +723,22 @@ button.glass-grey:active {
     transition: transform var(--button-active-transition-duration) ease-in-out;
 }
 
-button.serif-picker-button {
+button.two-options-picker-button {
     vertical-align: middle;
     background-color: transparent;
     color: var(--dark-grey);
     font-weight: var(--bold-weight);
 }
 
-#serif-picker-capsule {
+.two-options-picker-capsule {
     display: flex;
     height: var(--button-diameter);
-    width: var(--serif-picker-capsule-width);
+    width: var(--two-options-picker-capsule-width);
     flex-flow: row nowrap;
     justify-content: flex-end;
     align-items: center;
     align-content: space-between;
-    gap: var(--serif-picker-gap);
+    gap: var(--two-options-picker-gap);
     padding: 0;
     border-radius: var(--button-radius);
     background-color: var(--transparent-mid-grey);
@@ -708,30 +747,10 @@ button.serif-picker-button {
     -ms-transition: all var(--general-transition-duration) ease-in-out;
     -o-transition: all var(--general-transition-duration) ease-in-out;
     transition: all var(--general-transition-duration) ease-in-out;
-    z-index: var(--serif-picker-capsule-index);
+    z-index: var(--two-options-capsule-index);
 }
 
-#serif-button {
-    position: absolute;
-    order: 1;
-    font-family: 'StixTwoText', serif;
-    font-size: 18px;
-    background-color: transparent;
-    opacity: 0;
-    z-index: var(--serif-picker-middle-index);
-}
-
-#sans-serif-button {
-    position: relative;
-    order: 2;
-    font-family: 'AtkinsonHyperlegible', sans-serif;
-    font-size: 16.5px;
-    background-color: transparent;
-    opacity: 1;
-    z-index: var(--serif-picker-higher-index);
-}
-
-#serif-picker-selection-circle {
+.two-options-picker-selection-circle {
     position: absolute;
     width: var(--button-diameter);
     height: var(--button-diameter);
@@ -746,7 +765,43 @@ button.serif-picker-button {
     -ms-transition: all var(--general-transition-duration) ease-in-out;
     -o-transition: all var(--general-transition-duration) ease-in-out;
     transition: all var(--general-transition-duration) ease-in-out;
-    z-index: var(--serif-picker-lower-index);
+    z-index: var(--two-options-picker-lower-index);
+}
+
+#serif-button {
+    position: absolute;
+    order: 1;
+    font-family: var(--serif-font);
+    font-weight: bold;
+    font-size: 18px;
+    background-color: transparent;
+    opacity: 0;
+    z-index: var(--two-options-picker-middle-index);
+}
+
+#sans-serif-button {
+    position: relative;
+    order: 2;
+    font-family: var(--sans-serif-font);
+    font-weight: bold;
+    font-size: 18px;
+    background-color: transparent;
+    opacity: 1;
+    z-index: var(--two-options-picker-higher-index);
+}
+
+#align-left-button {
+    position: absolute;
+    order: 1;
+    opacity: 0;
+    z-index: var(--two-options-picker-middle-index);
+}
+
+#justify-button {
+    position: relative;
+    order: 2;
+    opacity: 1;
+    z-index: var(--two-options-picker-higher-index);
 }
 
 #slide-number-button {
@@ -788,7 +843,7 @@ button.serif-picker-button {
     flex-flow: row nowrap;
     align-items: center;
     align-content: space-between;
-    gap: var(--controls-small-margin);
+    gap: var(--options-small-margin);
     padding: 0;
     border-radius: var(--button-radius);
     background-color: transparent;
@@ -1033,11 +1088,11 @@ div.slider-base {
 }
 
 #font-size-slider-base {
-    width: var(--font-size-slider-width);
+    width: var(--format-options-panel-slider-width);
 }
 
 #page-size-slider-base {
-    width: var(--font-size-slider-width);
+    width: var(--format-options-panel-slider-width);
 }
 
 #slideshow-slider-base {
@@ -1062,6 +1117,10 @@ div.slider-progress {
 }
 
 #font-size-slider-progress {
+    width: 45px;
+}
+
+#line-height-slider-progress {
     width: 45px;
 }
 
@@ -1095,11 +1154,15 @@ div.slider-progress {
 }
 
 #font-size-slider {
-    width: var(--font-size-slider-width);
+    width: var(--format-options-panel-slider-width);
+}
+
+#line-height-slider {
+    width: var(--format-options-panel-slider-width);
 }
 
 #page-size-slider {
-    width: var(--font-size-slider-width);
+    width: var(--format-options-panel-slider-width);
 }
 
 #slideshow-slider {

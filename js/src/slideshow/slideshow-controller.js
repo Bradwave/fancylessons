@@ -26,16 +26,6 @@ let slideshowController = new function () {
     let isSlideshowMode = false;
 
     /**
-     * True if the serif selection is ongoing, false otherwise.
-     */
-    let isSerifSelecting = false;
-
-    /**
-     * True if serif is selected, false otherwise.
-     */
-    let isSerif = false;
-
-    /**
      * True if the portrait mode is enabled, false otherwise.
      */
     let isPortraitMode = false;
@@ -44,6 +34,16 @@ let slideshowController = new function () {
      * True if the slide picker is visible, false otherwise.
      */
     let isSlidePickerVisible = true;
+
+    /**
+     * Available page sizes (5 options).
+     */
+    const fractionalPageSizes = [3, 4, 5, 10, "full"];
+
+    /**
+     * Available line spacings (5 options).
+     */
+    const lineHeights = [1.15, 1.25, 1.35, 1.5, 1.75];
 
     /*_______________________________________
     |   HTML elements
@@ -66,49 +66,34 @@ let slideshowController = new function () {
      */
     let hiddenSlides;
 
-    /* ------ View controls ------ */
+    /* ------ View options ------ */
 
-    let viewControlsPanel;
+    let formatOptionsPanel;
+
+    /* ------ Slideshow navigation ------ */
+
+    /**
+     * slideshow options panel.
+     */
+    let slideshowNavigationOptionsPanel;
 
     /* ------ Toggle buttons ------ */
 
     let toggleButtons = new Map();
 
-    /* ------ Slideshow navigation ------ */
-
-    /**
-     * slideshow controls panel.
-     */
-    let slideshowNavigationControlsPanel;
-
-    /* ------ Font size range slider ------ */
+    /* ------ Sliders ------ */
 
     /**
      * Map of sliders and respective progress bars and icons.
      */
     let sliders = new Map();
 
-    /* ------ Font serif picker ------ */
+    /* ------ Two-options picker ------ */
 
     /**
-     * Serif button.
+     * Map of two-options pickers.
      */
-    let serifButton;
-
-    /**
-     * Sans serif button.
-     */
-    let sansSerifButton;
-
-    /**
-     * Selection circle for the serif/sans-serif toggle.
-     */
-    let serifPickerSelectionCircle;
-
-    /**
-     * Container for the serif/sans-serif toggle.
-     */
-    let serifPickerCapsule;
+    let twoOptionsPickers = new Map();
 
     /*_______________________________________
     |   Styles
@@ -133,28 +118,13 @@ let slideshowController = new function () {
         // Initializes HTML elements and listeners
         initHTMLComponents();
 
-        // Gets the locally stored font size, if present
-        const fontSize = localStorage.getItem("fontSize");
-        // Sets the locally stored font size, if present
-        setFontSize(fontSize === null ? 14 : fontSize);
-
-        // Gets the locally stored font style
-        const fontStyle = localStorage.getItem("fontStyle");
-        // Sets the locally stored font style, if present
-        setFontStyle(fontStyle);
-        // Makes the serif button visible if necessary
-        if (fontStyle == "serif") {
-            setTimeout(() => {
-                serifButton.style.opacity = 1;
-            }, 100);
-            sansSerifButton.style.opacity = 0;
-        };
-
-        // Sets the locally stored page size, if present
+        // Sets the locally stored format options
+        setLocallyStoredFontSize();
+        setLocallyStoredFontStyle();
+        setLocallyStoredTextAlignment();
+        setLocallyStoredLineHeight();
+        setLocallyStoredPortraitMode();
         setLocallyStoredPageSize();
-
-        // Sets the locally stored portrait mode, if present
-        setPortraitMode((localStorage.getItem("isPortraitMode") == "true"));
 
         // Get the location hash property
         let hash = location.hash;
@@ -166,10 +136,7 @@ let slideshowController = new function () {
             isSlideshowMode = true;
         }
 
-        // Gets the slide picker visibility according to the stored value, if present
-        const slidePickerVisibility = localStorage.getItem("isSlidePickerVisible");
-        // Gets the slide picker visibility according to the stored value, if present (visible by default)
-        toggleSlidePickerVisibility(slidePickerVisibility == "true" || slidePickerVisibility === null);
+        setLocallyStoredSlidePickerVisibility();
     });
 
     window.onload = () => {
@@ -194,7 +161,7 @@ let slideshowController = new function () {
     }
 
     /**
-     * Initializes the HTML elements and their listeners
+     * Initializes the HTML elements and their listeners.
      */
     function initHTMLComponents() {
         /* ------ Page content and sliders ------ */
@@ -209,75 +176,64 @@ let slideshowController = new function () {
         hiddenSlides = [...document.querySelectorAll(".slide.hidden")];
 
         // Gets the slideshow navigation elements
-        slideshowNavigationControlsPanel = document.getElementById("slideshow-navigation-controls-panel");
+        slideshowNavigationOptionsPanel = document.getElementById("slideshow-navigation-options-panel");
 
-        /* ------ View controls ------ */
+        /* ------ Format options ------ */
 
-        viewControlsPanel = document.getElementById("view-controls-panel");
+        formatOptionsPanel = document.getElementById("format-options-panel");
 
-        /* ------ Options toggle ------ */
+        /* ------ Format options toggle ------ */
 
         // Adds the options toggle button
         addToggleButton("options");
 
-        // Expands and shrinks the view controls panel on click
+        // Expands and shrinks the view options panel on click
         toggleButtons.get("options").button.onclick = () => {
             styleToggleButton("options", !toggleButtons.get("options").status);
             if (toggleButtons.get("options").status) {
-                // Expands the view controls panel
-                toggleViewControlsPanel(true);
+                // Expands the view options panel
+                toggleFormatOptionsPanel(true);
             } else {
-                // Toggle the serif picker if expanded
-                if (isSerifSelecting) toggleSerifPicker(isSerif, true);
-                // Shrinks the view controls panel
-                toggleViewControlsPanel(false);
+                // Toggles the serif picker if expanded
+                if (twoOptionsPickers.get("serif").isPicking) {
+                    toggleSerifPicker(twoOptionsPickers.get("serif").isFirstOptionPicked, true);
+                }
+                // Toggles the text alignment picker if expanded
+                if (twoOptionsPickers.get("text-alignment").isPicking) {
+                    toggleSerifPicker(twoOptionsPickers.get("text-alignment").isFirstOptionPicked, true);
+                }
+                // Shrinks the view options panel
+                toggleFormatOptionsPanel(false);
             }
         }
 
-        /**
-         * Expands or shrinks the controls panel
-         * @param {Boolean} isExpanded True if panel must be expanded, false otherwise.
-         * @param {Duration} animationDelay Animation delay.
-         */
-        function toggleViewControlsPanel(isExpanded, animationDelay = 150) {
-            // Delays the contraction
-            setTimeout(() => {
-                viewControlsPanel.style.width
-                    = isExpanded ? "var(--expanded-view-controls-panel-width)" : "var(--view-controls-panel-width)";
-                viewControlsPanel.style.height
-                    = isExpanded ? "var(--expanded-view-controls-panel-height)" : "var(--view-controls-panel-height)";
-                // Displays/hides the controls panel groups
-                document.getElementById("font-options-controls-panel-group").style.visibility = isExpanded ? "visible" : "hidden";
-                document.getElementById("page-size-controls-panel-group").style.visibility = isExpanded ? "visible" : "hidden";
-            }, isExpanded ? 0 : animationDelay);
-            // Delays the opacity animation
-            setTimeout(() => {
-                document.getElementById("font-options-controls-panel-group").style.opacity = isExpanded ? "1" : "0";
-                document.getElementById("page-size-controls-panel-group").style.opacity = isExpanded ? "1" : "0";
-            }, isExpanded ? animationDelay : 0);
+        /* ------ Font serif picker ------ */
+
+        addTwoOptionsPicker("serif", "serif", "sans-serif");
+
+        // Toggles the picker when the serif button is clicked
+        twoOptionsPickers.get("serif").firstButton.onclick = () => {
+            toggleSerifPicker(true);
         }
 
-        /* ------ Slideshow toggle ------ */
+        // Toggles the picker when the sans serif button is clicked
+        twoOptionsPickers.get("serif").secondButton.onclick = () => {
+            toggleSerifPicker(false);
+        }
 
-        // Adds the slideshow toggle button
-        addToggleButton("slideshow");
+        /* ------ Text alignment picker ------ */
 
-        toggleButtons.get("slideshow").button.onclick = () => {
-            // Starts the slideshow
-            toggleSlideshow();
-        };
+        addTwoOptionsPicker("text-alignment", "align-left", "justify");
 
-        /* ------ Navigation arrows ------ */
+        // Toggles the picker when the serif button is clicked
+        twoOptionsPickers.get("text-alignment").firstButton.onclick = () => {
+            toggleTextAlignmentPicker(true);
+        }
 
-        document.getElementById("next").onclick = () => {
-            // Moves to next slide
-            nextSlide();
-        };
-
-        document.getElementById("previous").onclick = () => {
-            // Moves to previous slide
-            previousSlide();
-        };
+        // Toggles the picker when the sans serif button is clicked
+        twoOptionsPickers.get("text-alignment").secondButton.onclick = () => {
+            toggleTextAlignmentPicker(false);
+        }
 
         /* ------ Portrait mode toggle ------ */
 
@@ -295,6 +251,7 @@ let slideshowController = new function () {
 
         // Adds sliders and related elements to the sliders map
         addSlider("font-size");
+        addSlider("line-height");
         addSlider("page-size");
         addSlider("slideshow");
 
@@ -311,18 +268,31 @@ let slideshowController = new function () {
             localStorage.setItem("fontSize", fontSize);
         });
 
+        /* -- Line spacing slider -- */
+
+        sliders.get("line-height").slider.addEventListener("input", () => {
+            // Gets the line spacing from the slider
+            const lineHeightIndex = parseInt(sliders.get("line-height").slider.value);
+            // Sets the line spacing
+            setLineHeight(lineHeights[lineHeightIndex]);
+            // After a certain interval, Scrolls the current slide into view if necessary
+            if (isSlideshowMode) centerSlide(500);
+            // Stores the line spacing in the local storage
+            localStorage.setItem("lineHeight", lineHeights[lineHeightIndex]);
+        });
+
         /* -- Page size slider -- */
 
         sliders.get("page-size").slider.addEventListener("input", () => {
             if (!isPortraitMode) {
                 // Gets the fractional page content size from the slider
-                const pageSize = parseInt(sliders.get("page-size").slider.value);
+                const pageSizeIndex = parseInt(sliders.get("page-size").slider.value);
                 // Sets the fractional page size
-                setPageSize(pageSize);
+                setPageSize(fractionalPageSizes[pageSizeIndex]);
                 // After a certain interval, Scrolls the current slide into view if necessary
-                if (isSlideshowMode) centerSlide(1000);
+                if (isSlideshowMode) centerSlide(500);
                 // Stores the font size in the local storage
-                localStorage.setItem("pageSize", pageSize);
+                localStorage.setItem("pageSize", fractionalPageSizes[pageSizeIndex]);
             }
         })
 
@@ -385,112 +355,27 @@ let slideshowController = new function () {
             })
         })
 
-        /* ------ Font serif picker ------ */
+        /* ------ Slideshow toggle ------ */
 
-        // Gets the serif picker elements
-        serifButton = document.getElementById("serif-button");
-        sansSerifButton = document.getElementById("sans-serif-button");
-        serifPickerSelectionCircle = document.getElementById("serif-picker-selection-circle");
-        serifPickerCapsule = document.getElementById("serif-picker-capsule");
+        // Adds the slideshow toggle button
+        addToggleButton("slideshow");
 
-        // Toggles the picker when the serif button is clicked
-        serifButton.onclick = () => {
-            toggleSerifPicker(true);
-        }
+        toggleButtons.get("slideshow").button.onclick = () => {
+            // Starts the slideshow
+            toggleSlideshow();
+        };
 
-        // Toggles the picker when the sans serif button is clicked
-        sansSerifButton.onclick = () => {
-            toggleSerifPicker(false);
-        }
+        /* ------ Navigation arrows ------ */
 
-        /**
-         * Toggles the serif picker.
-         * @param {Boolean} isSerifClicked True if serif is clicked, false otherwise.
-         * @param {Boolean} isPanelCollapsed True if the panel has to be completely collapsed, false otherwise.
-         */
-        function toggleSerifPicker(isSerifClicked, isPanelCollapsed = false) {
-            // Flags the picker start/end
-            isSerifSelecting = !isSerifSelecting;
+        document.getElementById("next").onclick = () => {
+            // Moves to next slide
+            nextSlide();
+        };
 
-            if (isSerifSelecting) {
-                // Expands the toggle if the picker started
-                expandSerifPicker();
-            } else {
-                // If the selection was already ongoing...
-                if (isSerifClicked) {
-                    if (!isSerif) {
-                        isSerif = true;
-                        // Moves the picker selection circle
-                        serifPickerSelectionCircle.style.transform = "translateX(calc(-1 * var(--serif-picker-offset)))";
-                        // Shrinks the toggle after the selection circle is moved
-                        setTimeout(() => {
-                            shrinkSerifPicker(true, isPanelCollapsed);
-                        }, getCssTimeInMs("general-transition-duration"));
-                    } else {
-                        shrinkSerifPicker(true, isPanelCollapsed);
-                    }
-                    // Sets the serif font style
-                    setFontStyle("serif");
-                    // After a certain interval, Scrolls the current slide into view if necessary
-                    if (isSlideshowMode) centerSlide(500);
-                } else {
-                    if (isSerif) {
-                        isSerif = false;
-                        // Moves the picker selection circle
-                        serifPickerSelectionCircle.style = "transform: translateX(0)";
-                        // Shrinks the toggle after the picker selection circle is moved
-                        setTimeout(() => {
-                            shrinkSerifPicker(false, isPanelCollapsed);
-                        }, getCssTimeInMs("general-transition-duration"));
-                    } else {
-                        shrinkSerifPicker(false, isPanelCollapsed);
-                    }
-                    // Sets the sans-serif font style
-                    setFontStyle("sans-serif");
-                    // After a certain interval, Scrolls the current slide into view if necessary
-                    if (isSlideshowMode) centerSlide(500);
-                }
-            }
-        }
-
-        /**
-         * Expands the serif picker.
-         */
-        function expandSerifPicker() {
-            // Makes the buttons visible
-            serifButton.style.opacity = 1;
-            sansSerifButton.style.opacity = 1;
-
-            // Expands the toggle
-            viewControlsPanel.style.width = "var(--extended-view-controls-panel-width)"
-            serifButton.style.transform = "translateX(calc(-1 * var(--serif-picker-offset)))";
-            serifPickerSelectionCircle.style.transform =
-                isSerif ? "translateX(calc(-1 * var(--serif-picker-offset)))" : "transform: translateX(0)";
-            serifPickerCapsule.style.width = "var(--extended-serif-picker-capsule-width)";
-        }
-
-        /**
-         * Shrinks the serif picker.
-         * @param {Boolean} isSerifVisible True if the serif button is visible, false otherwise.
-         */
-        function shrinkSerifPicker(isSerifVisible, isPanelCollapsed = false) {
-            // Hides the serif or sans-serif button
-            if (isSerifVisible) {
-                sansSerifButton.style.opacity = 0;
-                sansSerifButton.style.zIndex = "var(--serif-picker-lower-index)"
-                serifButton.style.zIndex = "var(--serif-picker-higher-index)"
-            } else {
-                serifButton.style.opacity = 0;
-                serifButton.style.zIndex = "var(--serif-picker-lower-index)"
-                sansSerifButton.style.zIndex = "var(--serif-picker-higher-index)"
-            }
-
-            // Shrinks the toggle
-            serifButton.style.transform = "translateX(0)"
-            serifPickerSelectionCircle.style.transform = "translateX(0)"
-            serifPickerCapsule.style.width = "var(--serif-picker-capsule-width)";
-            viewControlsPanel.style.width = "var(--expanded-view-controls-panel-width)";
-        }
+        document.getElementById("previous").onclick = () => {
+            // Moves to previous slide
+            previousSlide();
+        };
 
         /* ------ Hotkeys ------ */
 
@@ -514,69 +399,56 @@ let slideshowController = new function () {
         });
     }
 
+    /* ------ Font style ------ */
+
     /**
-         * Styles the slider according to its status (active/hover/inactive/locked/unlocked).
-         * @param {*} slider Slider.
-         * @param {String} status Can be "active", "inactive", "hover", "locked", "unlocked".
-         */
-    function styleSlider(slider, status) {
-        // Executes only if the status has changed
-        if (slider.status !== status && slider.status !== "locked") {
-            // Changes the status
-            slider.status = status;
-            // Styles the slider
-            slider.progress.style.backgroundColor = "var(--button-" + status + "-color)";
-            slider.progress.style.opacity = "var(--button-" + status + "-opacity)";
-            slider.icon.style.color = "var(--button-text-" + status + "-color)";
-            slider.icon.style.fill = "var(--button-text-" + status + "-color)";
-        }
+     * Sets the locally stored font style.
+     */
+    function setLocallyStoredFontStyle() {
+        // Gets the locally stored font style
+        const fontStyle = localStorage.getItem("fontStyle");
+        // Sets the locally stored font style if present (otherwise is set to sans serif)
+        setFontStyle(fontStyle);
+        // Makes the serif button visible if necessary
+        if (fontStyle == "serif") {
+            // Sans-serif button
+            twoOptionsPickers.get("serif").secondButton.style.opacity = 0;
+            setTimeout(() => {
+                // Serif button
+                twoOptionsPickers.get("serif").firstButton.style.opacity = 1;
+            }, 100);
+        };
     }
 
     /**
-     * Styles the toggle button and sets its status.
-     * @param {String} key Keyword of the toggle button.
-     * @param {*} status Status of the toggle.
+     * Sets the font style (serif/sans-serif).
+     * @param {String} fontStyle Can be "serif" or "sans-serif".
      */
-    function styleToggleButton(key, status) {
-        // Gets the correct toggle button
-        const toggleButton = toggleButtons.get(key);
-        // Sets the status
-        toggleButton.status = status;
-        // Styles the button
-        toggleButton.button.style = status ?
-            "background-color: var(--accent);" :
-            "background-color: var(--light-grey)";
-        // Styles the icon
-        toggleButton.icon.style = status ?
-            "fill: var(--highlight);" :
-            "fill: var(--dark-grey)";
+    function setFontStyle(fontStyle) {
+        // True if serif, false otherwise
+        const isSerif = (fontStyle == "serif");
+        // Saves the font style status
+        twoOptionsPickers.get("serif").isFirstOptionPicked = isSerif;
+        if (!isSerif) fontStyle = "sans-serif";
+        // Sets the font style
+        hidePageContainerTemporarily(() => {
+            document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
+        }, 100);
     }
 
+    /* ------ Font size ------ */
 
     /**
-     * Adds the toggle button, its icon and its status to the map
-     * @param {String} key Keyword of the toggle button.
+     * Sets the locally stored font size.
      */
-    function addToggleButton(key) {
-        toggleButtons.set(key, {
-            button: document.getElementById(key + "-toggle-button"),
-            icon: document.getElementById(key + "-toggle-icon"),
-            status: false
-        })
-    }
-
-    /**
-     * Adds the slider, its progress bar, its icon and its status to the map.
-     * @param {String} key Keyword of the slider.
-     */
-    function addSlider(key) {
-        sliders.set(key, {
-            base: document.getElementById(key + "-slider-base"),
-            slider: document.getElementById(key + "-slider"),
-            progress: document.getElementById(key + "-slider-progress"),
-            icon: document.getElementById(key + "-slider-icon"),
-            status: "inactive",
-        })
+    function setLocallyStoredFontSize() {
+        // Gets the locally stored font size if present
+        const fontSize = localStorage.getItem("fontSize");
+        // Sets the locally stored font size if present (otherwise is set to default)
+        setFontSize(fontSize === null ?
+            getCssVariable("default-font-size", { format: "int" }) :
+            parseInt(fontSize)
+        );
     }
 
     /**
@@ -584,13 +456,12 @@ let slideshowController = new function () {
      * @param {Number} fontSize 
      */
     function setFontSize(fontSize) {
-        // Min font size value
-        const min = sliders.get("font-size").slider.min;
-        // Max font size value
-        const max = sliders.get("font-size").slider.max;
-        // Checks if the font size is between the minimum and maximum value allowed
-        fontSize = constrain(fontSize, min, max);
-
+        // Constrains the font size
+        fontSize = constrain(
+            fontSize,
+            getCssVariable("min-font-size", { format: "int" }),
+            getCssVariable("max-font-size", { format: "int" })
+        )
         // Sets the font size
         pageContent.style = "font-size: " + fontSize + "pt";
         // Changes the font size slider value if necessary
@@ -599,52 +470,81 @@ let slideshowController = new function () {
         resizeSliderProgress("font-size", fontSize);
     }
 
+    /* ------ Text alignment ------ */
+
     /**
-     * Sets the font style (serif/sans-serif).
-     * @param {String} fontStyle Can be "serif" or "sans-serif".
+     * Sets the text alignment for all paragraphs.
+     * @param {String} textAlignment Can be "align-left" or "justify".
      */
-    function setFontStyle(fontStyle) {
-        isSerif = (fontStyle == "serif");
-        if (!isSerif) fontStyle = "sans-serif";
-        // Sets the font style
+    function setTextAlignment(textAlignment) {
+        // True if aligned left, false if justified
+        const isAlignedLeft = (textAlignment == "align-left");
+        // Saves the text alignment status
+        twoOptionsPickers.get("text-alignment").isFirstOptionPicked = isAlignedLeft;
+        // Sets the desired text alignment for all paragraphs
         hidePageContainerTemporarily(() => {
-            document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
+            document.querySelectorAll("p").forEach((paragraph) => {
+                paragraph.style.textAlign = isAlignedLeft ? "left" : "justify";
+                // paragraph.style.hyphen = isAlignedLeft ? "none" : "auto";
+            });
         }, 100);
-        // Stores the font style
-        localStorage.setItem("fontStyle", fontStyle);
     }
 
     /**
-     * Sets the locally stored page size
+     * Sets the locally stored text alignment.
      */
-    function setLocallyStoredPageSize() {
-        // Gets the locally stored page size, if present
-        const pageSize = localStorage.getItem("pageSize")
-        // Sets the locally stored page size, if present
-        setPageSize(pageSize === null ? 2 : pageSize);
+    function setLocallyStoredTextAlignment() {
+        // Gets the locally stored text alignment if present
+        const textAlignment = localStorage.getItem("textAlignment");
+        // Sets the locally stored text alignment if present (otherwise is set to align left by default)
+        setTextAlignment(textAlignment === null ? "align-left" : "justify");
+        // Makes the align-left button visible if necessary
+        if (textAlignment == "align-left") {
+            // Sans-serif button
+            twoOptionsPickers.get("text-alignment").secondButton.style.opacity = 0;
+            setTimeout(() => {
+                // Serif button
+                twoOptionsPickers.get("alignment").firstButton.style.opacity = 1;
+            }, 100);
+        };
+    }
+
+    /* ------ Line height ------ */
+
+    /**
+     * Sets the locally stored page line height.
+     */
+    function setLocallyStoredLineHeight() {
+        // Gets the locally stored line spacing if present
+        const lineHeight = localStorage.getItem("lineHeight");
+        // Sets the locally stored line spacing if present (otherwise is set to default)
+        setLineHeight(lineHeight == null ?
+            getCssVariable("default-line-height", { format: "float" }) :
+            parseFloat(lineHeight)
+        );
     }
 
     /**
-     * Sets the fractional size for the page.
-     * @param {Number} pageSize Size of the page content (from 0 to 4);
+     * Sets the line spacing.
+     * @param {Number} lineHeight Line spacing.
      */
-    function setPageSize(pageSize) {
-        // Available fractional sizes
-        const fractionalSizes = [3, 4, 5, 10, "full"];
-        // Selects the fractional size
-        let selectedFractionalSize = fractionalSizes[pageSize];
+    function setLineHeight(lineHeight) {
+        // Sets the line spacing
+        document.querySelectorAll("p").forEach((paragraph) => {
+            paragraph.style.lineHeight = lineHeight;
+        });
+        // Resizes the progress bar for the line spacing
+        resizeSliderProgress("line-height", lineHeights.indexOf(lineHeight));
+    }
 
-        if (selectedFractionalSize == "full") {
-            // Sets the font size
-            document.getElementById("page-container").style.gridTemplateColumns = "0fr 1fr 0fr";
-            pageContent.style.padding = "var(--large-page-padding)";
-        } else {
-            // Sets the font size
-            document.getElementById("page-container").style.gridTemplateColumns = "1fr " + selectedFractionalSize + "fr 1fr";
-            pageContent.style.padding = "var(--small-page-padding)";
-        }
-        // Resizes the progress bar for the font size slider
-        resizeSliderProgress("page-size", pageSize);
+    /* ------ Portrait mode ------ */
+
+    /**
+     * Sets the locally stored portrait mode.
+     */
+    function setLocallyStoredPortraitMode() {
+        // Sets the locally stored portrait mode if present (otherwise it's displayed by default)
+        setPortraitMode((localStorage.getItem("isPortraitMode") == "true"));
     }
 
     /**
@@ -682,9 +582,126 @@ let slideshowController = new function () {
         }, 200);
     }
 
+    /* ------ Page size ------ */
+
+    /**
+     * Sets the locally stored page size.
+     */
+    function setLocallyStoredPageSize() {
+        // Gets the locally stored page size if present
+        const pageSize = localStorage.getItem("pageSize")
+        // Sets the locally stored page size if present
+        setPageSize(pageSize === null ? 2 : pageSize);
+    }
+
+    /**
+     * Sets the fractional size for the page.
+     * @param {Number} fractionalPageSize Fractional size of the page content;
+     */
+    function setPageSize(fractionalPageSize) {
+        if (fractionalPageSize == "full") {
+            // Sets the font size
+            document.getElementById("page-container").style.gridTemplateColumns = "0fr 1fr 0fr";
+            pageContent.style.padding = "var(--large-page-padding)";
+        } else {
+            // Converts to numbers
+            fractionalPageSize = parseInt(fractionalPageSize);
+            // Sets the font size
+            document.getElementById("page-container").style.gridTemplateColumns = "1fr " + fractionalPageSize + "fr 1fr";
+            pageContent.style.padding = "var(--small-page-padding)";
+        }
+        // Resizes the progress bar for the font size slider
+        resizeSliderProgress("page-size", fractionalPageSizes.indexOf(fractionalPageSize));
+    }
+
+    /* ------ Sliders, buttons, two-options picker ------ */
+
+    /**
+     * Adds the toggle button, its icon and its status to the map
+     * @param {String} key Key of the toggle button.
+     */
+    function addToggleButton(key) {
+        toggleButtons.set(key, {
+            button: document.getElementById(key + "-toggle-button"),
+            icon: document.getElementById(key + "-toggle-icon"),
+            status: false
+        })
+    }
+
+    /**
+     * Adds the slider, its progress bar, its icon and its status to the map.
+     * @param {String} key Key of the slider.
+     */
+    function addSlider(key) {
+        sliders.set(key, {
+            base: document.getElementById(key + "-slider-base"),
+            slider: document.getElementById(key + "-slider"),
+            progress: document.getElementById(key + "-slider-progress"),
+            icon: document.getElementById(key + "-slider-icon"),
+            status: "inactive",
+        })
+    }
+
+    /**
+     * Adds the two-options picker, composed of a capsule, a selection circle and two buttons.
+     * @param {String} key Key of the two-options picker.
+     * @param {String} firstOptionKey Key of the first option button.
+     * @param {String} secondOptionKey Key of the second option button.
+     */
+    function addTwoOptionsPicker(key, firstOptionKey, secondOptionKey) {
+        twoOptionsPickers.set(key, {
+            capsule: document.getElementById(key + "-picker-capsule"),
+            selectionCircle: document.getElementById(key + "-picker-selection-circle"),
+            firstButton: document.getElementById(firstOptionKey + "-button"),
+            secondButton: document.getElementById(secondOptionKey + "-button"),
+            isFirstOptionPicked: true,
+            isPicking: false
+        })
+    }
+
+    /* ------ Element styling ------ */
+
+    /**
+     * Styles the slider according to its status (active/hover/inactive/locked/unlocked).
+     * @param {*} slider Slider.
+     * @param {String} status Can be "active", "inactive", "hover", "locked", "unlocked".
+     */
+    function styleSlider(slider, status) {
+        // Executes only if the status has changed
+        if (slider.status !== status && slider.status !== "locked") {
+            // Changes the status
+            slider.status = status;
+            // Styles the slider
+            slider.progress.style.backgroundColor = "var(--button-" + status + "-color)";
+            slider.progress.style.opacity = "var(--button-" + status + "-opacity)";
+            slider.icon.style.color = "var(--button-text-" + status + "-color)";
+            slider.icon.style.fill = "var(--button-text-" + status + "-color)";
+        }
+    }
+
+    /**
+     * Styles the toggle button and sets its status.
+     * @param {String} key Key of the toggle button.
+     * @param {*} status Status of the toggle.
+     */
+    function styleToggleButton(key, status) {
+        // Gets the correct toggle button
+        const toggleButton = toggleButtons.get(key);
+        // Sets the status
+        toggleButton.status = status;
+        // Styles the button
+        toggleButton.button.style = status ?
+            "background-color: var(--accent);" : "background-color: var(--light-grey)";
+        // Styles the icon
+        toggleButton.icon.style = status ?
+            "fill: var(--highlight);" : "fill: var(--dark-grey)";
+    }
+
+    /* ------ Slider resize ------ */
+
     /**
      * Resizes the progress bar for the font size slider
-     * @param {String} key Keyword of the slider.
+     * @param {String} key Key of the slider.
      * @param {Number} value Current slider value.
      */
     function resizeSliderProgress(key, value) {
@@ -697,7 +714,7 @@ let slideshowController = new function () {
         // Slider width
         const sliderWidth = slider.offsetWidth;
         // Slider height
-        const buttonDiameter = parseFloat(getCssVariable("button-diameter"));
+        const buttonDiameter = getCssVariable("button-diameter", { format: "float" });
         // Computes the progress bar size
         const progressSize = ((value - min) / (max - min) * (sliderWidth - buttonDiameter) + buttonDiameter);
 
@@ -705,35 +722,218 @@ let slideshowController = new function () {
         sliders.get(key).progress.style.width = progressSize + "px";
     }
 
+    /* ------ Format options visibility ------ */
+
+    /**
+     * Expands or shrinks the options panel
+     * @param {Boolean} isExpanded True if panel must be expanded, false otherwise.
+     * @param {Duration} animationDelay Animation delay.
+     */
+    function toggleFormatOptionsPanel(isExpanded, animationDelay = 150) {
+        // Delays the contraction
+        setTimeout(() => {
+            formatOptionsPanel.style.width = isExpanded ?
+                "var(--expanded-format-options-panel-width)" : "var(--format-options-panel-width)";
+            formatOptionsPanel.style.height = isExpanded ?
+                "var(--expanded-format-options-panel-height)" : "var(--format-options-panel-height)";
+            // Displays/hides the options panel groups
+            document.getElementById("complete-format-options-panel-group").style.visibility = isExpanded ? "visible" : "hidden";
+        }, isExpanded ? 0 : animationDelay);
+        // Delays the opacity animation
+        setTimeout(() => {
+            document.getElementById("complete-format-options-panel-group").style.opacity = isExpanded ? "1" : "0";
+        }, isExpanded ? animationDelay : 0);
+    }
+
+    /* ------ Two-options picker ------ */
+
+    /**
+     * Toggles the serif picker.
+     * @param {Boolean} isSerifClicked True if serif is clicked, false otherwise.
+     */
+    function toggleSerifPicker(isSerifClicked) {
+        toggleTwoOptionsPicker("serif", isSerifClicked, {
+            panel: formatOptionsPanel,
+            shrunkPanelWidth: "var(--expanded-format-options-panel-width)",
+            expandedPanelWidth: "var(--extended-format-options-panel-width)",
+            otherPickers: [twoOptionsPickers.get("text-alignment")]
+        });
+        // If an option is picked...
+        if (!twoOptionsPickers.get("serif").isPicking) {
+            // Sets the font style
+            setFontStyle(isSerifClicked ? "serif" : "sans-serif");
+            // Stores the font style
+            localStorage.setItem("fontStyle", isSerifClicked ? "serif" : "sans-serif");
+            // After a certain interval, Scrolls the current slide into view if necessary
+            if (isSlideshowMode) centerSlide(500);
+        }
+    }
+
+    /**
+     * Toggles the serif picker.
+     * @param {Boolean} isAlignLeftClicked True if serif is clicked, false otherwise.
+     */
+    function toggleTextAlignmentPicker(isAlignLeftClicked) {
+        toggleTwoOptionsPicker("text-alignment", isAlignLeftClicked, {
+            panel: formatOptionsPanel,
+            shrunkPanelWidth: "var(--expanded-format-options-panel-width)",
+            expandedPanelWidth: "var(--extended-format-options-panel-width)",
+            otherPickers: [twoOptionsPickers.get("serif")]
+        });
+        // If an option is picked...
+        if (!twoOptionsPickers.get("text-alignment").isPicking) {
+            // Sets the alignment
+            setTextAlignment(isAlignLeftClicked ? "align-left" : "justify");
+            // Stores the alignment
+            localStorage.setItem("textAlignment", isAlignLeftClicked ? "align-left" : "justify");
+            // After a certain interval, Scrolls the current slide into view if necessary
+            if (isSlideshowMode) centerSlide(500);
+        }
+    }
+
+    /**
+     * Toggles the two-options picker.
+     * @param {String} key Key of the two-options picker.
+     * @param {Boolean} isFirstButtonClicked True if serif is clicked, false otherwise.
+     * @param {*} Options Options.
+     */
+    function toggleTwoOptionsPicker(key, isFirstButtonClicked, options = {
+        panel: null,
+        shrunkPanelWidth: null,
+        expandedPanelWidth: null,
+        otherPickers: []
+    }) {
+        // Gets the two-options picker
+        const twoOptionsPicker = twoOptionsPickers.get(key);
+        // Sets the picking status
+        twoOptionsPicker.isPicking = !twoOptionsPicker.isPicking;
+
+        if (twoOptionsPicker.isPicking) {
+            // Expands the toggle if the picker started
+            expandTwoOptionsPicker(key);
+            // Expands the format options panel
+            if (options.panel !== null) options.panel.style.width = options.expandedPanelWidth;
+        } else {
+            // If the selection was already ongoing...
+            // Moves the picker selection circle
+            twoOptionsPicker.selectionCircle.style.transform = isFirstButtonClicked ?
+                "translateX(calc(-1 * var(--two-options-picker-offset)))" : "translateX(0)";
+            // Shrinks the toggle after the selection circle is moved
+            setTimeout(() => {
+                shrinkTwoOptionsPicker(key, isFirstButtonClicked);
+
+                let isPanelShrinkable = true;
+                // If other two-options picker in the same panel are defined...
+                if (options.otherPickers !== undefined) {
+                    options.otherPickers.some((picker) => {
+                        // And if the selection is ongoing
+                        if (picker.isPicking) {
+                            // The panel is not shrinkable
+                            isPanelShrinkable = false;
+                            return true;
+                        }
+                    })
+                }
+
+                if (isPanelShrinkable) {
+                    // Shrinks the format options panel
+                    if (options.panel !== null) options.panel.style.width = options.shrunkPanelWidth;
+                }
+            }, twoOptionsPicker.isFirstOptionPicked * isFirstButtonClicked == 0 ?
+                getCssTimeInMs("general-transition-duration") : 0
+            );
+
+            // Sets the value for the boolean flag
+            twoOptionsPicker.isFirstOptionPicked = isFirstButtonClicked;
+        }
+    }
+
+    /**
+     * Expands the two-options picker.
+     * @param {String} key Key of the two-options picker.
+     */
+    function expandTwoOptionsPicker(key) {
+        // Gets the two-options picker
+        const twoOptionsPicker = twoOptionsPickers.get(key);
+
+        // Makes the buttons visible
+        twoOptionsPicker.firstButton.style.opacity = 1;
+        twoOptionsPicker.secondButton.style.opacity = 1;
+
+        // Expands the toggle
+        twoOptionsPicker.firstButton.style.transform = "translateX(calc(-1 * var(--two-options-picker-offset)))";
+        twoOptionsPicker.selectionCircle.style.transform = twoOptionsPicker.isFirstOptionPicked ?
+            "translateX(calc(-1 * var(--two-options-picker-offset)))" : "transform: translateX(0)";
+        twoOptionsPicker.capsule.style.width = "var(--extended-two-options-picker-capsule-width)";
+    }
+
+    /**
+     * Shrinks the two-options picker.
+     * @param {String} key Key of the two-options picker.
+     * @param {Boolean} isFirstOptionPicked True if the serif button is visible, false otherwise.
+     */
+    function shrinkTwoOptionsPicker(key, isFirstOptionPicked) {
+        // Gets the two-options picker
+        const twoOptionsPicker = twoOptionsPickers.get(key);
+
+        // Hides the serif or sans-serif button
+        if (isFirstOptionPicked) {
+            twoOptionsPicker.secondButton.style.opacity = 0;
+            twoOptionsPicker.secondButton.style.zIndex = "var(--two-options-picker-lower-index)"
+            twoOptionsPicker.firstButton.style.zIndex = "var(--two-options-picker-higher-index)"
+        } else {
+            twoOptionsPicker.firstButton.style.opacity = 0;
+            twoOptionsPicker.firstButton.style.zIndex = "var(--two-options-picker-lower-index)"
+            twoOptionsPicker.secondButton.style.zIndex = "var(--two-options-picker-higher-index)"
+        }
+
+        // Shrinks the toggle and the options panel
+        twoOptionsPicker.firstButton.style.transform = "translateX(0)"
+        twoOptionsPicker.selectionCircle.style.transform = "translateX(0)"
+        twoOptionsPicker.capsule.style.width = "var(--two-options-picker-capsule-width)";
+    }
+
+    /* ------ Slide picker visibility ------ */
+
+    /**
+     * Sets the slide picker visibility according to the locally stored value.
+     */
+    function setLocallyStoredSlidePickerVisibility() {
+        // Gets the slide picker visibility according to the stored value if present
+        const slidePickerVisibility = localStorage.getItem("isSlidePickerVisible");
+        // Sets the slide picker visibility according to the stored value if present (visible by default)
+        toggleSlidePickerVisibility(slidePickerVisibility == "true" || slidePickerVisibility === null);
+    }
+
     /**
      * Hides or displays the slide picker.
      * @param {Boolean} slidePickerVisibility True if the slide picker is visible, false otherwise.
      */
     function toggleSlidePickerVisibility(slidePickerVisibility) {
-        console.log(slidePickerVisibility, localStorage.getItem("isSlidePickerVisible"))
-
         // Sets the slide picker visibility
         isSlidePickerVisible = slidePickerVisibility;
 
         // Changes the control panel width
-        slideshowNavigationControlsPanel.style.width
-            = isSlidePickerVisible ? "var(--slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)";
+        slideshowNavigationOptionsPanel.style.width = isSlidePickerVisible ?
+            "var(--slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)";
 
         // Hides or displays the slide picker
         setTimeout(() => {
             // Waits before changing the opacity if the control panel is expanding
             sliders.get("slideshow").base.style.opacity = isSlidePickerVisible ? "1" : "0";
         }, isSlidePickerVisible ? getCssTimeInMs("general-long-transition-duration") * .9 : 0);
+
         setTimeout(() => {
             // Waits before setting the visibility to "hidden" if the control panel is collapsing
             sliders.get("slideshow").base.style.visibility = isSlidePickerVisible ? "visible" : "hidden";
         }, isSlidePickerVisible ? 0 : getCssTimeInMs("slider-general-transition-duration"));
+
         setTimeout(() => {
             // Makes adjustments to the margin of the slide number button to counter the spare gap
-            document.getElementById("slide-number-button").style.marginRight
-                = isSlidePickerVisible ? "0" : "calc(-1 * var(--controls-gap))";
-            document.getElementById("slide-number-button").style.marginLeft
-                = isSlidePickerVisible ? "calc(-1 * var(--controls-small-gap))" : "0";
+            document.getElementById("slide-number-button").style.marginRight = isSlidePickerVisible ?
+                "0" : "calc(-1 * var(--options-gap))";
+            document.getElementById("slide-number-button").style.marginLeft = isSlidePickerVisible ?
+                "calc(-1 * var(--options-small-gap))" : "0";
         }, isSlidePickerVisible ? 50 : getCssTimeInMs("general-long-transition-duration") * 0.75);
 
         // Resizes the progress bar for the slide picker and readjust the right margin of the slide number button
@@ -744,6 +944,8 @@ let slideshowController = new function () {
             }, getCssTimeInMs("general-long-transition-duration"));
         }
     }
+
+    /* ------ Slide Number ------ */
 
     /**
      * Updates and animates the slide number.
@@ -759,6 +961,8 @@ let slideshowController = new function () {
             document.getElementById("slide-number-button").style.animation = "none";
         }, animationDuration);
     }
+
+    /* ------ Page visibility ------ */
 
     /**
      * Temporarily hides the page container to perform an action.
@@ -796,8 +1000,8 @@ let slideshowController = new function () {
             slide.style = isSlideshowMode ? nonSelectedSlideStyle : selectedSlideStyle;
         })
 
-        // Shows or hides the controls for the slideshow
-        slideshowNavigationControlsPanel.style.opacity = isSlideshowMode ? "1" : "0";
+        // Shows or hides the options for the slideshow
+        slideshowNavigationOptionsPanel.style.opacity = isSlideshowMode ? "1" : "0";
         // Styles the toggle button
         styleToggleButton("slideshow", isSlideshowMode);
 

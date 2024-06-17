@@ -42,16 +42,23 @@ const getInputNumber = (inputBox, options = {
 /**
  * Gets a CSS variable, given the name.
  * @param {String} variableName Name of the CSS variable.
- * @param {*} Options Options (forceName: true if the variable name must be used unaltered).
+ * @param {*} Options Options (forceName: true if the variable name must be used unaltered, format: output format float/int).
  * @returns The variable value.
  */
 const getCssVariable = (variableName, options = {
-    forceName: false
+    forceName: false,
+    format: undefined
 }) => {
     // Adds -- in front of the variable name if missing and the variable name can be altered
     if (!options.forceName) variableName = variableName.startsWith("--") ? variableName : "--" + variableName;
     // Gets the variable
     let variableValue = getComputedStyle(document.documentElement).getPropertyValue(variableName);
+    // Converts to float or integer if needed
+    if (options.format == "float") {
+        variableValue = parseFloat(variableValue);
+    } else if (options.format == "int" || options.format == "integer") {
+        variableValue = parseInt(variableValue);
+    }
     return variableValue;
 }
 
