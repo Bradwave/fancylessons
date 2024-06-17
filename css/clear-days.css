@@ -683,6 +683,12 @@ svg.button-icon {
     fill: currentColor;
 }
 
+svg.alignment-button {
+    width: calc(0.9 * var(--button-icon-diameter));
+    height: calc(0.9 * var(--button-icon-diameter));
+    fill: currentColor;
+}
+
 #portrait-toggle-icon {
     transform: rotate(90deg);
 }
@@ -1217,6 +1223,10 @@ span.slider-icon {
 
 #font-size-slider-icon {
     transform: translateX(-1px);
+}
+
+#page-size-slider-icon {
+    transform: rotate(90deg);
 }
 
 /* -- 2.8 Math Environments -- */
