@@ -659,7 +659,8 @@ div.vertical-options-panel-group {
 }
 
 button.toggle-button {
-    display: inline;
+    display: grid;
+    place-items: center;
     padding: 0;
     border: none;
     outline: none;
@@ -667,9 +668,6 @@ button.toggle-button {
 }
 
 svg.toggle-icon {
-    vertical-align: middle;
-    fill: currentColor;
-    counter-reset: var(--dark-grey);
     -webkit-transition: all var(--general-transition-duration) ease-in-out;
     -moz-transition: all var(--general-transition-duration) ease-in-out;
     -ms-transition: all var(--general-transition-duration) ease-in-out;

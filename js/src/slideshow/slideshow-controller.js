@@ -684,11 +684,13 @@ let slideshowController = new function () {
         // Sets the status
         toggleButton.status = status;
         // Styles the button
-        toggleButton.button.style = status ?
-            "background-color: var(--accent);" : "background-color: var(--light-grey)";
+        toggleButton.button.style.backgroundColor = status ?
+            "var(--accent)" : "background-color: var(--light-grey)";
         // Styles the icon
-        toggleButton.icon.style = status ?
-            "fill: var(--highlight);" : "fill: var(--dark-grey)";
+        toggleButton.icon.style.fill = status ?
+            "var(--highlight)" : "fill: var(--dark-grey)";
+        toggleButton.icon.style.color = status ?
+            "var(--highlight)" : "fill: var(--dark-grey)";
     }
 
     /* ------ Slider resize ------ */

@@ -14,6 +14,7 @@
     <!-- link rel="icon" type="image/svg" href="imgs/icon/icon.svg"-->
     <link rel="stylesheet" href="css/clear-days.css">
     <link rel="stylesheet" href="css/fonts/noto.css">
+    <link rel="stylesheet" href="css/icons/material-icons.css">
 
     <!-- MathJax -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -157,7 +158,7 @@
 
             <div id="options-toggle" class="options-panel-group-item">
                 <button id="options-toggle-button" class="toggle-button round-button glass-grey">
-                    <!-- SVG "tune" icon -->
+                    <!-- SVG "Tune" icon -->
                     <svg id="options-toggle-icon" class="toggle-icon button-icon" xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 -960 960 960">
                         <path
@@ -170,7 +171,7 @@
 
             <div id="slideshow-toggle" class="options-panel-group-item">
                 <button id="slideshow-toggle-button" class="toggle-button round-button glass-grey">
-                    <!-- SVG "present to all" icon -->
+                    <!-- SVG "Present To All" icon -->
                     <svg id="slideshow-toggle-icon" class="toggle-icon button-icon" xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 -960 960 960">
                         <path
@@ -188,13 +189,17 @@
 
             <div id="font-options-panel-group" class="options-panel-group">
 
-                <!-- Serif/sans-serif picker (capsule + selection circle + 2 buttons) -->
+                <!-- Serif/sans-serif picker (capsule, selection circle and 2 buttons) -->
 
+                <!-- Capsule -->
                 <div id="serif-picker-capsule" class="two-options-picker-capsule options-panel-group-item">
+                    <!-- Selection circle -->
                     <span id="serif-picker-selection-circle" class="two-options-picker-selection-circle"></span>
+                    <!-- Button for the second options (serif) -->
                     <button id="serif-button" class="toggle-button round-button two-options-picker-button">
                         S
                     </button>
+                    <!-- Button for the second options (sans serif) -->
                     <button id="sans-serif-button" class="toggle-button round-button two-option-picker-button">
                         S
                     </button>
@@ -203,16 +208,18 @@
                 <!-- Font size slider -->
 
                 <div id="font-size-picker" class="options-panel-group-item">
-                    <!-- Slider base, containing the progress bar, the icon and the slider itslef -->
+                    <!-- Slider base -->
                     <div id="font-size-slider-base" class="slider-base">
+                        <!-- Progress bar for the slider -->
                         <div id="font-size-slider-progress" class="slider-progress">
-                            <!-- SVG "format size" icon -->
+                            <!-- SVG "Format Size" icon -->
                             <svg id="font-size-slider-icon" class="slider-icon" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 -960 960 960">
                                 <path
                                     d="M560-680H420q-25 0-42.5-17.5T360-740q0-25 17.5-42.5T420-800h400q25 0 42.5 17.5T880-740q0 25-17.5 42.5T820-680H680v460q0 25-17.5 42.5T620-160q-25 0-42.5-17.5T560-220v-460ZM200-480h-60q-25 0-42.5-17.5T80-540q0-25 17.5-42.5T140-600h240q25 0 42.5 17.5T440-540q0 25-17.5 42.5T380-480h-60v260q0 25-17.5 42.5T260-160q-25 0-42.5-17.5T200-220v-260Z" />
                             </svg>
                         </div>
+                        <!-- Actual slider -->
                         <input id="font-size-slider" class="slider" type="range" min="12" max="28" value="14" step="2">
                     </div>
                 </div>
@@ -222,19 +229,25 @@
 
             <div id="text-line-options-panel-group" class="options-panel-group">
 
-                <!-- Alignment picker -->
+                <!-- Alignment picker (capsule, selection circle and 2 buttons) -->
 
+                <!-- Capsule -->
                 <div id="text-alignment-picker-capsule" class="two-options-picker-capsule options-panel-group item">
+                    <!-- Selection circle -->
                     <span id="text-alignment-picker-selection-circle"
                         class="two-options-picker-selection-circle"></span>
+                    <!-- Button for the first option (align left) -->
                     <button id="align-left-button" class="toggle-button round-button two-options-picker-button">
+                        <!-- SVG "Format Align Left" -->
                         <svg class="toggle-icon alignment-button" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 -960 960 960">
                             <path
                                 d="M160-120q-17 0-28.5-11.5T120-160q0-17 11.5-28.5T160-200h640q17 0 28.5 11.5T840-160q0 17-11.5 28.5T800-120H160Zm0-160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360h640q17 0 28.5 11.5T840-320q0 17-11.5 28.5T800-280H160Zm0-160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h640q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H160Zm0-160q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680h640q17 0 28.5 11.5T840-640q0 17-11.5 28.5T800-600H160Zm0-160q-17 0-28.5-11.5T120-800q0-17 11.5-28.5T160-840h640q17 0 28.5 11.5T840-800q0 17-11.5 28.5T800-760H160Z" />
                         </svg>
                     </button>
+                    <!-- Button for the second option (justify) -->
                     <button id="justify-button" class="toggle-button round-button two-options-picker-button">
+                        <!-- SVG "Format Align Justify" icon -->
                         <svg class="toggle-icon alignment-button" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 -960 960 960">
                             <path
@@ -242,22 +255,36 @@
                         </svg>
                     </button>
                 </div>
+
+                <!-- Line height slider -->
+
                 <div id="line-height-picker" class="options-panel-group-item">
+                    <!-- Slider base -->
                     <div id="line-height-slider-base" class="slider-base">
+                        <!-- Progress bar -->
                         <div id="line-height-slider-progress" class="slider-progress">
+                            <!-- SVG "Format Line Spacing" icon -->
                             <svg id="line-height-slider-icon" class="slider-icon" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 -960 960 960">
                                 <path
                                     d="m200-646-36 35q-11 11-27.5 11T108-612q-11-11-11-28t11-28l104-104q6-6 13-8.5t15-2.5q8 0 15 2.5t13 8.5l104 104q11 11 11.5 27.5T372-612q-11 11-27.5 11.5T316-611l-36-35v332l36-35q11-11 27.5-11t28.5 12q11 11 11 28t-11 28L268-188q-6 6-13 8.5t-15 2.5q-8 0-15-2.5t-13-8.5L108-292q-11-11-11.5-27.5T108-348q11-11 27.5-11.5T164-349l36 35v-332Zm320 446q-17 0-28.5-11.5T480-240q0-17 11.5-28.5T520-280h320q17 0 28.5 11.5T880-240q0 17-11.5 28.5T840-200H520Zm0-240q-17 0-28.5-11.5T480-480q0-17 11.5-28.5T520-520h320q17 0 28.5 11.5T880-480q0 17-11.5 28.5T840-440H520Zm0-240q-17 0-28.5-11.5T480-720q0-17 11.5-28.5T520-760h320q17 0 28.5 11.5T880-720q0 17-11.5 28.5T840-680H520Z" />
                             </svg>
                         </div>
+                        <!-- Actual slider -->
                         <input id="line-height-slider" class="slider" type="range" min="0" max="4" value="1" step="1">
                     </div>
                 </div>
             </div>
+
+            <!-- Page size options -->
+
             <div id="page-size-options-panel-group" class="options-panel-group">
+
+                <!-- Portrait mode toggle button -->
+
                 <div id="portrait-toggle" class="options-panel-group-item">
                     <button id="portrait-toggle-button" class="toggle-button round-button glass-grey">
+                        <!-- SVG "Screenshot Frame" icon (rotates by 90 deg on click) -->
                         <svg id="portrait-toggle-icon" class="toggle-icon button-icon" "http://www.w3.org/2000/svg"
                             viewBox="0 -960 960 960">
                             <path
@@ -265,15 +292,22 @@
                         </svg>
                     </button>
                 </div>
+
+                <!-- Fractional size for the page content slider -->
+
                 <div id="page-size-picker" class="options-panel-group-item">
+                    <!-- Slider base -->
                     <div id="page-size-slider-base" class="slider-base">
+                        <!-- Progress bar -->
                         <div id="page-size-slider-progress" class="slider-progress">
+                            <!-- SVG "Expand" icon (rotated by 90 deg) -->
                             <svg id="page-size-slider-icon" class="slider-icon" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 -960 960 960">
                                 <path
                                     d="M200-80q-17 0-28.5-11.5T160-120q0-17 11.5-28.5T200-160h560q17 0 28.5 11.5T800-120q0 17-11.5 28.5T760-80H200Zm280-137q-8 0-15-2.5t-13-8.5L348-332q-11-11-11.5-27.5T348-388q11-11 27.5-11.5T404-389l36 35v-252l-36 35q-11 11-27.5 11T348-572q-11-11-11-28t11-28l104-104q6-6 13-8.5t15-2.5q8 0 15 2.5t13 8.5l104 104q11 11 11.5 27.5T612-572q-11 11-27.5 11.5T556-571l-36-35v252l36-35q11-11 27.5-11t28.5 12q11 11 11 28t-11 28L508-228q-6 6-13 8.5t-15 2.5ZM200-800q-17 0-28.5-11.5T160-840q0-17 11.5-28.5T200-880h560q17 0 28.5 11.5T800-840q0 17-11.5 28.5T760-800H200Z" />
                             </svg>
                         </div>
+                        <!-- Actual slider -->
                         <input id="page-size-slider" class="slider" type="range" min="0" max="4" value="1" step="1">
                     </div>
                 </div>
@@ -281,27 +315,46 @@
         </div>
     </div>
 
+    <!-- Slideshow navigation options and controls -->
+
     <div id="slideshow-navigation-options-panel" class="options-panel">
         <div id="slideshow-navigation-options-panel-group" class="options-panel-group">
+
+            <!-- Slide number (displays/hides the slideshow progress when pressed) -->
+
             <button id="slide-number-button" class="round-button glass-grey options-panel-group-item">
                 <span id="slide-number"></span>
             </button>
+
+            <!-- Slideshow progress bar and slide picker slider -->
+
             <div id="slide-picker" class="options-panel-group-item">
+                <!-- Slider base -->
                 <div id="slideshow-slider-base" class="slider-base">
+                    <!-- Progress bar -->
                     <div id="slideshow-slider-progress" class="slider-progress">
+                        <!-- Empty span that doubles as icon (needed) -->
                         <span id="slideshow-slider-icon" class="slider-icon"></span>
                     </div>
+                    <!-- Actual slider -->
                     <input id="slideshow-slider" class="slider" type="range" min="0" max="99" value="0" step="1">
                 </div>
             </div>
+
+            <!-- Arrow controls (moves to next/previous slide when clicked) -->
+
             <div id="arrows" class="options-panel-group-item">
+                <!-- Previous slide arrow -->
                 <button id="previous" class="arrow-button round-button glass-grey">
+                    <!-- SVG "Chevron Left" (with modified view box) -->
                     <svg class="arrow-icon button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="190 -850 650 650">
                         <path
                             d="m432-480 156 156q11 11 11 28t-11 28q-11 11-28 11t-28-11L348-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 28-11t28 11q11 11 11 28t-11 28L432-480Z" />
                     </svg>
                 </button>
+                <!-- Next slide arrow -->
                 <button id="next" class="arrow-button round-button glass-grey">
+                    <!-- SVG "Chevron RIght" (with modified view box) -->
                     <svg class="arrow-icon button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="120 -850 650 650">
                         <path
                             d="M504-480 348-636q-11-11-11-28t11-28q11-11 28-11t28 11l184 184q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13L404-268q-11 11-28 11t-28-11q-11-11-11-28t11-28l156-156Z" />
