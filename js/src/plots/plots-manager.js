@@ -24,7 +24,20 @@ let plotsManager = new function () {
     let canvases = [...document.getElementsByName("plot")];
 
     function init() {
-        // plots.set('ft-winding', new ftvPlots(["ft-transform", "ft-winding"]));
+        // Test function plot
+        plots.set('test-function', new functionPlot("test-function", [
+            {
+                id: "line",
+                definition: "[x] + 2",
+                domain: [[-Infinity, +Infinity]],
+            }
+        ], {
+            viewportCenter: { x: 0, y: 0 },
+            initialZoom: 1,
+            parameters: [
+                { id: "t", name: "t" }
+            ]
+        }));
 
         plots.forEach((plot) => {
             plot.drawPlot();

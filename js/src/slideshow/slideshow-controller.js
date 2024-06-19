@@ -612,42 +612,42 @@ let slideshowController = new function () {
 
     /**
      * Adds the toggle button, its icon and its status to the map
-     * @param {String} key Key of the toggle button.
+     * @param {String} id Id of the toggle button.
      */
-    function addToggleButton(key) {
-        toggleButtons.set(key, {
-            button: document.getElementById(key + "-toggle-button"),
-            icon: document.getElementById(key + "-toggle-icon"),
+    function addToggleButton(id) {
+        toggleButtons.set(id, {
+            button: document.getElementById(id + "-toggle-button"),
+            icon: document.getElementById(id + "-toggle-icon"),
             status: false
         })
     }
 
     /**
      * Adds the slider, its progress bar, its icon and its status to the map.
-     * @param {String} key Key of the slider.
+     * @param {String} id Id of the slider.
      */
-    function addSlider(key) {
-        sliders.set(key, {
-            base: document.getElementById(key + "-slider-base"),
-            slider: document.getElementById(key + "-slider"),
-            progress: document.getElementById(key + "-slider-progress"),
-            icon: document.getElementById(key + "-slider-icon"),
+    function addSlider(id) {
+        sliders.set(id, {
+            base: document.getElementById(id + "-slider-base"),
+            slider: document.getElementById(id + "-slider"),
+            progress: document.getElementById(id + "-slider-progress"),
+            icon: document.getElementById(id + "-slider-icon"),
             status: "inactive",
         })
     }
 
     /**
      * Adds the two-options picker, composed of a capsule, a selection circle and two buttons.
-     * @param {String} key Key of the two-options picker.
-     * @param {String} firstOptionKey Key of the first option button.
-     * @param {String} secondOptionKey Key of the second option button.
+     * @param {String} id Id of the two-options picker.
+     * @param {String} firstOptionId Id of the first option button.
+     * @param {String} secondOptionId Id of the second option button.
      */
-    function addTwoOptionsPicker(key, firstOptionKey, secondOptionKey) {
-        twoOptionsPickers.set(key, {
-            capsule: document.getElementById(key + "-picker-capsule"),
-            selectionCircle: document.getElementById(key + "-picker-selection-circle"),
-            firstButton: document.getElementById(firstOptionKey + "-button"),
-            secondButton: document.getElementById(secondOptionKey + "-button"),
+    function addTwoOptionsPicker(id, firstOptionId, secondOptionId) {
+        twoOptionsPickers.set(id, {
+            capsule: document.getElementById(id + "-picker-capsule"),
+            selectionCircle: document.getElementById(id + "-picker-selection-circle"),
+            firstButton: document.getElementById(firstOptionId + "-button"),
+            secondButton: document.getElementById(secondOptionId + "-button"),
             isFirstOptionPicked: true,
             isPicking: false
         })
@@ -675,34 +675,34 @@ let slideshowController = new function () {
 
     /**
      * Styles the toggle button and sets its status.
-     * @param {String} key Key of the toggle button.
+     * @param {String} id Id of the toggle button.
      * @param {*} status Status of the toggle.
      */
-    function styleToggleButton(key, status) {
+    function styleToggleButton(id, status) {
         // Gets the correct toggle button
-        const toggleButton = toggleButtons.get(key);
+        const toggleButton = toggleButtons.get(id);
         // Sets the status
         toggleButton.status = status;
         // Styles the button
         toggleButton.button.style.backgroundColor = status ?
-            "var(--accent)" : "background-color: var(--light-grey)";
+            "var(--accent)" : "var(--light-grey)";
         // Styles the icon
         toggleButton.icon.style.fill = status ?
-            "var(--highlight)" : "fill: var(--dark-grey)";
+            "var(--highlight)" : "var(--dark-grey)";
         toggleButton.icon.style.color = status ?
-            "var(--highlight)" : "fill: var(--dark-grey)";
+            "var(--highlight)" : "var(--dark-grey)";
     }
 
     /* ------ Slider resize ------ */
 
     /**
      * Resizes the progress bar for the font size slider
-     * @param {String} key Key of the slider.
+     * @param {String} id Id of the slider.
      * @param {Number} value Current slider value.
      */
-    function resizeSliderProgress(key, value) {
+    function resizeSliderProgress(id, value) {
         // Gets the slider
-        const slider = sliders.get(key).slider;
+        const slider = sliders.get(id).slider;
         // Slider min value
         const min = slider.min;
         // Slider max value
@@ -715,7 +715,7 @@ let slideshowController = new function () {
         const progressSize = ((value - min) / (max - min) * (sliderWidth - buttonDiameter) + buttonDiameter);
 
         // Resizes and styles the progress bar for the font size slider
-        sliders.get(key).progress.style.width = progressSize + "px";
+        sliders.get(id).progress.style.width = progressSize + "px";
     }
 
     /* ------ Format options visibility ------ */
@@ -789,24 +789,24 @@ let slideshowController = new function () {
 
     /**
      * Toggles the two-options picker.
-     * @param {String} key Key of the two-options picker.
+     * @param {String} id Id of the two-options picker.
      * @param {Boolean} isFirstButtonClicked True if serif is clicked, false otherwise.
      * @param {*} Options Options.
      */
-    function toggleTwoOptionsPicker(key, isFirstButtonClicked, options = {
+    function toggleTwoOptionsPicker(id, isFirstButtonClicked, options = {
         panel: null,
         shrunkPanelWidth: null,
         expandedPanelWidth: null,
         otherPickers: []
     }) {
         // Gets the two-options picker
-        const twoOptionsPicker = twoOptionsPickers.get(key);
+        const twoOptionsPicker = twoOptionsPickers.get(id);
         // Sets the picking status
         twoOptionsPicker.isPicking = !twoOptionsPicker.isPicking;
 
         if (twoOptionsPicker.isPicking) {
             // Expands the toggle if the picker started
-            expandTwoOptionsPicker(key);
+            expandTwoOptionsPicker(id);
             // Expands the format options panel
             if (options.panel !== null) options.panel.style.width = options.expandedPanelWidth;
         } else {
@@ -816,7 +816,7 @@ let slideshowController = new function () {
                 "translateX(calc(-1 * var(--two-options-picker-offset)))" : "translateX(0)";
             // Shrinks the toggle after the selection circle is moved
             setTimeout(() => {
-                shrinkTwoOptionsPicker(key, isFirstButtonClicked);
+                shrinkTwoOptionsPicker(id, isFirstButtonClicked);
 
                 let isPanelShrinkable = true;
                 // If other two-options picker in the same panel are defined...
@@ -846,11 +846,11 @@ let slideshowController = new function () {
 
     /**
      * Expands the two-options picker.
-     * @param {String} key Key of the two-options picker.
+     * @param {String} id Id of the two-options picker.
      */
-    function expandTwoOptionsPicker(key) {
+    function expandTwoOptionsPicker(id) {
         // Gets the two-options picker
-        const twoOptionsPicker = twoOptionsPickers.get(key);
+        const twoOptionsPicker = twoOptionsPickers.get(id);
 
         // Makes the buttons visible
         twoOptionsPicker.firstButton.style.opacity = 1;
@@ -865,12 +865,12 @@ let slideshowController = new function () {
 
     /**
      * Shrinks the two-options picker.
-     * @param {String} key Key of the two-options picker.
+     * @param {String} id Id of the two-options picker.
      * @param {Boolean} isFirstOptionPicked True if the serif button is visible, false otherwise.
      */
-    function shrinkTwoOptionsPicker(key, isFirstOptionPicked) {
+    function shrinkTwoOptionsPicker(id, isFirstOptionPicked) {
         // Gets the two-options picker
-        const twoOptionsPicker = twoOptionsPickers.get(key);
+        const twoOptionsPicker = twoOptionsPickers.get(id);
 
         // Hides the serif or sans-serif button
         if (isFirstOptionPicked) {

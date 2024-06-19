@@ -37,24 +37,29 @@
 
 <body>
 
-    <!-- PAGE CONTENT -->
+    <!-- Page content -->
 
     <div id="page-container" class="page-container">
         <nav class="page-sidebar">
 
         </nav>
         <main class="page-content" id="page-content">
-            \(
-            \newcommand{\tc}{\: : \:}
-            \newcommand{\spR}{\mathbb{R}}
-            \newcommand{\vertarrowbox}[3][3pt]{
-            \begin{array}[t]{@{}c@{}}
-            #2 \\[-.4em]
-            \uparrow \\[-.4em]
-            {\scriptsize #3}
-            \end{array}%
-            }
-            \)
+
+            <!-- MathJax commands -->
+
+            <div style="visibility: hidden;">
+                \(
+                \newcommand{\tc}{\: : \:}
+                \newcommand{\spR}{\mathbb{R}}
+                \newcommand{\vertarrowbox}[3][3pt]{
+                \begin{array}[t]{@{}c@{}}
+                #2 \\[-.4em]
+                \uparrow \\[-.4em]
+                {\scriptsize #3}
+                \end{array}%
+                }
+                \)
+            </div>
 
             <div class="slide">
                 <h1>Title</h1>
@@ -73,6 +78,16 @@
                     examples of fonts, and other applications involving text where the use of all letters in the
                     alphabet is desired.
                 </p>
+            </div>
+
+            <div class="slide">
+                <div id="test-function-plot" class="plot-container">
+                    <canvas id="test-function-canvas" name="plot" class="plot main"
+                        style="width: 300px; height: 300px;"></canvas>
+                    <canvas id="line-test-function-canvas" name="plot" class="plot stacked"
+                        style="width: 300px; height: 300px;"></canvas>
+                    <div id="test-function-loader" name="plot-loader" class="plot loader"></div>
+                </div>
             </div>
 
             <div class="slide">
@@ -242,7 +257,7 @@
                         <svg class="toggle-icon alignment-button" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 -960 960 960">
                             <path
-                                d="M160-120q-17 0-28.5-11.5T120-160q0-17 11.5-28.5T160-200h640q17 0 28.5 11.5T840-160q0 17-11.5 28.5T800-120H160Zm0-160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360h640q17 0 28.5 11.5T840-320q0 17-11.5 28.5T800-280H160Zm0-160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h640q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H160Zm0-160q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680h640q17 0 28.5 11.5T840-640q0 17-11.5 28.5T800-600H160Zm0-160q-17 0-28.5-11.5T120-800q0-17 11.5-28.5T160-840h640q17 0 28.5 11.5T840-800q0 17-11.5 28.5T800-760H160Z" />
+                                d="M160-120q-17 0-28.5-11.5T120-160q0-17 11.5-28.5T160-200h640q17 0 28.5 11.5T840-160q0 17-11.5 28.5T800-120H160Zm0-160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360h400q17 0 28.5 11.5T600-320q0 17-11.5 28.5T560-280H160Zm0-160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h640q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H160Zm0-160q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680h400q17 0 28.5 11.5T600-640q0 17-11.5 28.5T560-600H160Zm0-160q-17 0-28.5-11.5T120-800q0-17 11.5-28.5T160-840h640q17 0 28.5 11.5T840-800q0 17-11.5 28.5T800-760H160Z" />
                         </svg>
                     </button>
                     <!-- Button for the second option (justify) -->
@@ -251,7 +266,7 @@
                         <svg class="toggle-icon alignment-button" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 -960 960 960">
                             <path
-                                d="M160-120q-17 0-28.5-11.5T120-160q0-17 11.5-28.5T160-200h640q17 0 28.5 11.5T840-160q0 17-11.5 28.5T800-120H160Zm0-160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360h400q17 0 28.5 11.5T600-320q0 17-11.5 28.5T560-280H160Zm0-160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h640q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H160Zm0-160q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680h400q17 0 28.5 11.5T600-640q0 17-11.5 28.5T560-600H160Zm0-160q-17 0-28.5-11.5T120-800q0-17 11.5-28.5T160-840h640q17 0 28.5 11.5T840-800q0 17-11.5 28.5T800-760H160Z" />
+                                d="M160-120q-17 0-28.5-11.5T120-160q0-17 11.5-28.5T160-200h640q17 0 28.5 11.5T840-160q0 17-11.5 28.5T800-120H160Zm0-160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360h640q17 0 28.5 11.5T840-320q0 17-11.5 28.5T800-280H160Zm0-160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h640q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H160Zm0-160q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680h640q17 0 28.5 11.5T840-640q0 17-11.5 28.5T800-600H160Zm0-160q-17 0-28.5-11.5T120-800q0-17 11.5-28.5T160-840h640q17 0 28.5 11.5T840-800q0 17-11.5 28.5T800-760H160Z" />
                         </svg>
                     </button>
                 </div>
@@ -364,15 +379,19 @@
         </div>
     </div>
 
-    <!-- SPINNING LOADER -->
+    <!-- Spinning loader -->
 
     <div id="loading-container" class="loading-container">
         <div class="general loader"></div>
     </div>
 
+    <!-- JS files -->
+
     <script src="js/src/slideshow/slideshow-controller.js"></script>
     <script src="js/src/util/utils.js"></script>
+    <script src="js/src/util/coordinate-system.js"></script>
     <script src="js/src/plots/plot-structure.js"></script>
+    <script src="js/src/plots/function-plot.js"></script>
     <script src="js/src/plots/plots-manager.js"></script>
 </body>
 

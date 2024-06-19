@@ -43,6 +43,7 @@
     --primary: #000000;
     --primary-rbg: 0, 0, 0;
     --highlight: #ffffff;
+    --very-light-grey: #e6e6e6;
     --light-grey: #c8c8c8;
     --transparent-light-grey: #ececec78;
     /* alternative transparent light-grey color: #f2f2f278 */
@@ -491,22 +492,7 @@ canvas.plot {
 
 canvas.plot.stacked {
     position: absolute;
-}
-
-/* Activate for focus outline */
-
-canvas.plot:focus {
-    outline: none;
-}
-
-canvas.plot.main:focus {
-    transform: translate(0px, -2px);
-    box-shadow: 0 0 20px #00000030;
-}
-
-canvas.focused {
-    /* transform: translate(0px, -2px); */
-    box-shadow: 0 0 20px #00000030;
+    pointer-events: none;
 }
 
 /* -- 2.4 slideshow -- */

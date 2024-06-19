@@ -28,7 +28,7 @@ let plotStructure = function (id, options = []) {
     |   Canvas
     */
 
-    const canvas = document.getElementById("canvas-" + id);
+    const canvas = document.getElementById(id + "-canvas");
     const ctx = canvas.getContext('2d', options);
 
     /**
