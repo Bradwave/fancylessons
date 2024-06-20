@@ -18,7 +18,7 @@ class CoordinateSystem {
      */
     #edges = {
         screen: { xMin: 0, xMax: undefined, yMin: 0, yMax: undefined },
-        cartesian: { xMin: -1000, xMax: 1000, yMin: -1000, yMax: 1000 }
+        cartesian: { xMin: -10000, xMax: 10000, yMin: -10000, yMax: 10000 }
     };
 
     /**
@@ -43,6 +43,16 @@ class CoordinateSystem {
      * Number of pixels per cartesian unit.
      */
     #pixelsPerUnit;
+
+    /**
+     * Minimum number of pixels per cartesian unit.
+     */
+    #minPixelsPerUnit;
+
+    /**
+     * Maximum number of pixels per cartesian unit.
+     */
+    #maxPixelsPerUnit = 100000;
 
     /**
      * Step for the main grid in both cartesian units and pixel units.
@@ -117,6 +127,18 @@ class CoordinateSystem {
     #setScreenEdges(width, height) {
         // Sets the edges of the screen frame of reference
         this.#edges.screen = { xMin: 0, xMax: width, yMin: 0, yMax: height }
+        // Stores the minimum number of pixels per cartesian unit
+        this.#minPixelsPerUnit = this.#getMinPixelsPerUnit();
+    }
+
+    /**
+     * Computes and gets the minimum number of pixels per unit, based on the canvas size and the cartesian edges.
+     */
+    #getMinPixelsPerUnit() {
+        return (this.#edges.screen.xMax >= this.#edges.screen.yMax) *
+            this.#edges.screen.xMax / (this.#edges.cartesian.xMax - this.#edges.cartesian.xMin) * 0.4 +
+            (this.#edges.screen.xMax < this.#edges.screen.yMax) *
+            this.#edges.screen.yMax / (this.#edges.cartesian.yMax - this.#edges.cartesian.yMin) * 0.4
     }
 
     /**
@@ -166,9 +188,9 @@ class CoordinateSystem {
      */
     #calcGridStep() {
         // Stores the cartesian width of the viewport
-        const cartesianWidth = this.#viewport.cartesian.xMax - this.#viewport.cartesian.xMin;
+        const cartesianWidth = (this.#viewport.screen.xMax - this.#viewport.screen.xMin) / this.#pixelsPerUnit;
         // Stores the cartesian height of the viewport
-        const cartesianHeight = this.#viewport.cartesian.yMax - this.#viewport.cartesian.yMin;
+        const cartesianHeight = (this.#viewport.screen.yMax - this.#viewport.screen.yMin) / this.#pixelsPerUnit;
         // Stores the maximum dimension of the viewport
         const maxCartesianDimension = Math.max(cartesianWidth, cartesianHeight);
 
@@ -293,10 +315,18 @@ class CoordinateSystem {
      * @param {Object} zoomCenter Center of the zoom in screen coordinates (x, y);
      */
     updateZoom(zoomFactor, zoomCenter) {
-        // Multiplies the pixels per unit by the zoom factor
-        this.#pixelsPerUnit *= zoomFactor;
+        // Stores the current number of pixels per cartesian unit
+        const oldPpu = this.#pixelsPerUnit;
+
+        // Constrains the pixels per unit
+        this.#pixelsPerUnit = constrain(
+            this.#pixelsPerUnit * zoomFactor, // New number of pixels per cartesian unit
+            this.#minPixelsPerUnit,// Min number of pixels per cartesian unit
+            this.#maxPixelsPerUnit // Max number of pixels per cartesian unit
+        );
+
         // Computes the scale change
-        const scaleChange = zoomFactor - 1;
+        const scaleChange = this.#pixelsPerUnit / oldPpu - 1;
 
         // Translates the origin in order to keep the center of zoom constant
         this.translateOrigin(

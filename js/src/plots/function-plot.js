@@ -59,7 +59,15 @@ let functionPlot = function (id, functions, options) {
      */
     let isLeftMouseDown = false;
 
+    /**
+     * Mouse or touch position in screen coordinates (x, y).
+     */
     let touchPosition;
+
+    /**
+     * Current zoom factor.
+     */
+    let currentZoom = 1;
 
     /*_______________________________________
     |   Methods
@@ -194,19 +202,68 @@ let functionPlot = function (id, functions, options) {
         publicAPIs.drawPlot();
     }
 
+    // Executes when the zoom-in button is pressed
     document.getElementById(id + "-plot-zoom-in").onclick = () => {
-        cs.updateZoom(1.5, { x: width / 2, y: height / 2 });
-        publicAPIs.drawPlot();
+        running = true;
+        currentZoom = 1;
+        // Animates the zoom-in
+        animate(() => {
+            const zoomInc = 1.05;
+            const maxZoom = 2;
+            zoomViewport(zoomInc, maxZoom, () => { return currentZoom > maxZoom / zoomInc });
+        });
     };
 
+    // Executes when the zoom-out button is pressed
     document.getElementById(id + "-plot-zoom-out").onclick = () => {
-        cs.updateZoom(1 / 1.5, { x: width / 2, y: height / 2 });
-        publicAPIs.drawPlot();
+        running = true;
+        currentZoom = 1;
+        // Animates the zoom-out
+        animate(() => {
+            const zoomInc = 1.05;
+            const minZoom = 1 / 2;
+            zoomViewport(1 / zoomInc, minZoom, () => { return currentZoom < minZoom * zoomInc });
+        });
     }
 
-    // axisPlot.getCanvas().onwheel = (e) => {
+    // Executes when the mouse wheel is scrolled
+    axisPlot.getCanvas().addEventListener("wheel", (e) => {
+        // Prevents page scrolling
+        e.preventDefault();
 
-    // };
+        // Bounding client rectangle
+        const rect = e.target.getBoundingClientRect();
+        // x position within the canvas
+        const zoomX = (e.clientX - rect.left) * dpi;
+        // y position within the canvas
+        const zoomY = (e.clientY - rect.top) * dpi;
+
+        // Updates the zoom level
+        cs.updateZoom(Math.exp(-e.deltaY / 1000), { x: zoomX, y: zoomY });
+        // Draws the plot
+        publicAPIs.drawPlot();
+        // "passive: false" allows preventDefault() to be called
+    }, { passive: false });
+
+    /**
+     * Zooms the viewport.
+     * @param {Number} zoomInc Zoom multiplication factor by which zoom is increased every frame.
+     * @param {Number} endZoom Maximum zoom multiplication factor
+     * @param {Function} condition Function returning true or false; when true, it ends the zoom.
+     */
+    function zoomViewport(zoomInc, endZoom, condition, zoomCenter) {
+        // Multiplies the current zoom by the zoom increment factor
+        currentZoom *= zoomInc;
+        // IF the end condition is met
+        if (condition()) {
+            // The zoom increment is set so that the final zoom matches endZoom
+            zoomInc = endZoom / currentZoom;
+            // Animations is gonna stop
+            running = false;
+        }
+        // Updates the zoom
+        cs.updateZoom(zoomInc, { x: width / 2, y: height / 2 });
+    }
 
     /*_______________________________________
     |   Plot
@@ -214,16 +271,19 @@ let functionPlot = function (id, functions, options) {
 
     /**
      * A (probably poor) implementation of the pause-able loop.
+     * @param {Function} action Function to be executed every frame.
      * @returns Early return if not playing.
      */
-    function animate() {
+    function animate(action) {
         if (!running) {
             return;
         }
+        // Executes action to be performed every frame
+        action();
         // Draws the ring
         publicAPIs.drawPlot();
         // Keeps executing this function
-        requestAnimationFrame(animate);
+        requestAnimationFrame(() => { animate(action); });
     }
 
     /**
