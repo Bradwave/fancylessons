@@ -43,7 +43,8 @@
     --primary: #000000;
     --primary-rbg: 0, 0, 0;
     --highlight: #ffffff;
-    --very-light-grey: #e6e6e6;
+    --transparent-highlight: #ffffff6e;
+    --very-light-grey: #e1e1e1;
     --light-grey: #c8c8c8;
     --transparent-light-grey: #ececec78;
     /* alternative transparent light-grey color: #f2f2f278 */
@@ -472,6 +473,18 @@ div.plot-container {
     position: relative;
     display: grid;
     place-items: center;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+div.plot {
+    position: relative;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: transparent;
+    overscroll-behavior: contain;
 }
 
 canvas {
@@ -483,19 +496,62 @@ canvas {
 }
 
 canvas.plot {
-    width: 100%;
-    height: 50%;
+    border: none;
+    outline: none;
+    background-color: transparent;
     z-index: 9;
-    border-radius: var(--small-border-radius);
+    border-radius: var(--button-radius);
     cursor: crosshair;
+    overscroll-behavior: contain;
 }
 
 canvas.plot.stacked {
     position: absolute;
+    top: 0;
+    left: 0;
     pointer-events: none;
 }
 
-/* -- 2.4 slideshow -- */
+button.plot-control {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    color: var(--mid-grey);
+    background-color: transparent;
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+}
+
+button.plot-control:hover {
+    color: var(--dark-grey);
+}
+
+button.plot-control:active {
+    background-color: var(--accent);
+    color: var(--highlight);
+    transform: scale(var(--active-button-scale));
+    user-select: none;
+    -webkit-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -moz-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -ms-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -o-transition: transform var(--button-active-transition-duration) ease-in-out;
+    transition: transform var(--button-active-transition-duration) ease-in-out;
+}
+
+button.zoom-in {
+    top: var(--options-margin);
+    right: calc(var(--options-margin) + var(--button-diameter) + var(--options-small-gap));
+}
+
+button.zoom-out {
+    top: var(--options-margin);
+    right: var(--options-margin);
+}
+
+span.bold-button {
+    font-weight: 600;
+    user-select: none;
+}
 
 div.plot-options {
     display: grid;
@@ -507,6 +563,8 @@ div.plot-options {
 div.play-pause-plot {
     position: relative;
 }
+
+/* -- 2.4 slideshow -- */
 
 div.slide, div.slide.hidden {
     padding: 5px 10px var(--slide-padding-bottom) 10px;

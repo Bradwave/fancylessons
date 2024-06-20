@@ -24,7 +24,7 @@ class CoordinateSystem {
     /**
      * Edges of the rendering viewport in cartesian and screen coordinates.
      */
-    #renderingEdges = {
+    #viewport = {
         screen: { xMin: undefined, xMax: undefined, yMin: undefined, yMax: undefined },
         cartesian: { xMin: undefined, xMax: undefined, yMin: undefined, yMax: undefined }
     };
@@ -44,12 +44,57 @@ class CoordinateSystem {
      */
     #pixelsPerUnit;
 
-    #zoom;
+    /**
+     * Step for the main grid in both cartesian units and pixel units.
+     */
+    #gridStep = { cartesian: undefined, screen: undefined };
 
+    /**
+     * Step for the secondary grid in both cartesian units and pixel units.
+     */
+    #secondaryGridStep = { cartesian: undefined, screen: undefined };
+
+    /**
+     * Main grid starting points in both cartesian and screen coordinates.
+     */
+    #grid = {
+        screen: { xMin: undefined, yMin: undefined },
+        cartesian: { xMin: undefined, yMin: undefined }
+    }
+
+    /**
+     * Secondary grid starting points in both cartesian and screen coordinates.
+     */
+    #secondaryGrid = {
+        screen: { xMin: undefined, yMin: undefined },
+        cartesian: { xMin: undefined, yMin: undefined }
+    }
+
+    /**
+     * Constructs the coordinate system.
+     * @param {Number} width Width of the canvas.
+     * @param {Number} height Height of the canvas.
+     * @param {Object} center Center of the canvas in cartesian coordinates (x, y);
+     * @param {Number} pixelsPerUnit Number of pixels per cartesian unit.
+     */
     constructor(width, height, center, pixelsPerUnit) {
         // Stores the pixels per unit
         this.#pixelsPerUnit = pixelsPerUnit;
 
+        // Updates the system.
+        this.updateSystem(width, height, center);
+    }
+
+    /**
+     * Updates the edges of the screen reference frame and the edges of the viewport.
+     * Computes the screen origin in cartesian coordinates and the cartesian origin in screen coordinates.
+     * @param {Number} width Width of the canvas.
+     * @param {*} height Height of the canvas.
+     */
+    updateSystem(width, height, center = {
+        x: this.toCartesianX(this.#edges.screen.xMax / 2),
+        y: this.toCartesianY(this.#edges.screen.yMax / 2)
+    }) {
         // Sets the edges of screen frame of reference, based on width and height of the canvas
         this.#setScreenEdges(width, height);
         // Computes the origin of the screen frames of reference in cartesian coordinates
@@ -57,7 +102,11 @@ class CoordinateSystem {
         // Computes the origin of the cartesian frame of reference in screen coordinates
         this.#calcCartesianOriginInScreen();
         // Computes the edges of the viewport
-        this.#calcRenderingEdges(width, height);
+        this.#calcViewport(width, height);
+        // Computes the grid skip
+        this.#calcGridStep();
+        // Computes the grid starting points
+        this.#calcGrid();
     }
 
     /**
@@ -94,32 +143,129 @@ class CoordinateSystem {
      * Computes the edges of the viewport, which needs to be rendered.
      * It requires the edges of the screen frame of reference to be computed already.
      */
-    #calcRenderingEdges() {
+    #calcViewport() {
         // Sets the edges in cartesian coordinates
-        this.#renderingEdges.cartesian = {
+        this.#viewport.cartesian = {
             xMin: Math.max(this.toCartesianX(this.#edges.screen.xMin), this.#edges.cartesian.xMin),
             xMax: Math.min(this.toCartesianX(this.#edges.screen.xMax), this.#edges.cartesian.xMax),
-            yMin: Math.max(this.toCartesianY(this.#edges.screen.xMin), this.#edges.cartesian.yMin),
-            yMax: Math.max(this.toCartesianY(this.#edges.screen.xMax), this.#edges.cartesian.yMax)
+            yMin: Math.max(this.toCartesianY(this.#edges.screen.yMin), this.#edges.cartesian.yMin),
+            yMax: Math.min(this.toCartesianY(this.#edges.screen.yMax), this.#edges.cartesian.yMax)
         };
 
         // Sets the edges in 
-        this.#renderingEdges.screen = {
-            xMin: Math.max(0, this.toScreenX(this.#edges.cartesian.xMin)),
-            xMax: Math.min(this.#edges.screen.xMax, this.toScreenX(this.#edges.cartesian.xMax)),
-            yMin: Math.max(0, this.toScreenY(this.#edges.cartesian.yMax)),
-            yMax: Math.min(this.#edges.screen.yMax, this.toScreenY(this.#edges.cartesian.yMin))
+        this.#viewport.screen = {
+            xMin: Math.max(this.toScreenX(this.#edges.cartesian.xMin), 0),
+            xMax: Math.min(this.toScreenX(this.#edges.cartesian.xMax), this.#edges.screen.xMax,),
+            yMin: Math.max(this.toScreenY(this.#edges.cartesian.yMax), 0),
+            yMax: Math.min(this.toScreenY(this.#edges.cartesian.yMin), this.#edges.screen.yMax,)
         }
     }
 
     /**
-     * Updates the edges of the screen reference frame and the edges of the viewport.
-     * @param {Number} width Width of the canvas.
-     * @param {*} height Height of the canvas.
+     * Computes the main and secondary grid steps
      */
-    updateEdges(width, height) {
-        this.#setScreenEdges(width, height);
-        this.#calcRenderingEdges();
+    #calcGridStep() {
+        // Stores the cartesian width of the viewport
+        const cartesianWidth = this.#viewport.cartesian.xMax - this.#viewport.cartesian.xMin;
+        // Stores the cartesian height of the viewport
+        const cartesianHeight = this.#viewport.cartesian.yMax - this.#viewport.cartesian.yMin;
+        // Stores the maximum dimension of the viewport
+        const maxCartesianDimension = Math.max(cartesianWidth, cartesianHeight);
+
+        // Computes the step of the main grid in cartesian units
+        this.#gridStep.cartesian = Math.pow(10, Math.ceil((Math.log10(maxCartesianDimension) - 1)));
+        // Converts the step for the main grid in pixel units.
+        this.#gridStep.screen = this.#gridStep.cartesian * this.#pixelsPerUnit;
+
+        // Computes the step of the secondary grid in cartesian units
+        this.#secondaryGridStep.cartesian = this.#gridStep.cartesian / 5;
+        // Computes the step of the secondary grid in pixel units
+        this.#secondaryGridStep.screen = this.#gridStep.screen / 5;
+    }
+
+    /**
+     * Computes the grid starting points
+     */
+    #calcGrid() {
+        /* -- Main grid -- */
+
+        // Computes the main grid starting point on the x axes in cartesian coordinates
+        this.#grid.cartesian.xMin = this.#computeGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.xMin, -1);
+        // Computes the main grid starting point on the x axes in screen coordinates
+        this.#grid.screen.xMin = this.toScreenX(this.#grid.cartesian.xMin);
+
+        // Computes the main grid starting point on the y axes in cartesian coordinates
+        this.#grid.cartesian.yMin = this.#computeGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.yMin, +1);
+        // Computes the main grid starting point on the y axes in screen coordinates
+        this.#grid.screen.yMin = this.toScreenY(this.#grid.cartesian.yMin);
+
+        /* -- Secondary grid -- */
+
+        // Computes the secondary grid starting point on the x axes in cartesian coordinates
+        this.#secondaryGrid.cartesian.xMin =
+            this.#computeGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.xMin, -1);
+        // Computes the secondary grid starting point on the x axes in screen coordinates
+        this.#secondaryGrid.screen.xMin = this.toScreenX(this.#secondaryGrid.cartesian.xMin)
+
+        // Computes the secondary grid starting point on the y axes in cartesian coordinates
+        this.#secondaryGrid.cartesian.yMin =
+            this.#computeGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.yMin, +1);
+        // Computes the secondary grid starting point on the y axes in screen coordinates
+        this.#secondaryGrid.screen.yMin = this.toScreenY(this.#secondaryGrid.cartesian.yMin)
+    }
+
+    /**
+     * Computes the starting point for a grid, given the step and the minimum viewport value.
+     * @param {Number} step Step of the grid.
+     * @param {Number} viewportMin Minimum value of the viewport along a certain axes.
+     * @param {Number} inc -1 for the x axes, +1 for the y axes.
+     * @returns 
+     */
+    #computeGridMin(step, viewportMin, inc) {
+        return step * (Math.floor(viewportMin / step) + inc)
+    }
+
+    /**
+     * Gets the main grid step, in pixels unit.
+     */
+    get screenGridStep() {
+        return this.#gridStep.screen;
+    }
+
+    /**
+     *  Gets the secondary grid step, in pixels unit.
+     */
+    get screenSecondaryGridStep() {
+        return this.#secondaryGridStep.screen;
+    }
+
+    /**
+     * Gets the main grid starting point along the x axes.
+     */
+    get screenGridXMin() {
+        return this.#grid.screen.xMin;
+    }
+
+    /**
+     * Gets the main grid starting point along the y axes.
+     */
+    get screenGridYMin() {
+        return this.#grid.screen.yMin;
+    }
+
+
+    /**
+     * Gets the secondary grid starting point along the x axes.
+     */
+    get screenSecondaryGridXMin() {
+        return this.#secondaryGrid.screen.xMin;
+    }
+
+    /**
+     * Gets the secondary grid starting point along the y axes.
+     */
+    get screenSecondaryGridYMin() {
+        return this.#secondaryGrid.screen.yMin;
     }
 
     /**
@@ -128,28 +274,63 @@ class CoordinateSystem {
      * @param {Number} y Translation amount along the y axes in screen units (pixels).
      */
     translateOrigin(x, y) {
+        // Moves the cartesian origin in screen coordinates
         this.#cartesianOriginInScreen.x += x;
         this.#cartesianOriginInScreen.y += y;
 
+        // Computes the screen origin in cartesian coordinates
         this.#screenOriginInCartesian = this.toCartesian(0, 0);
 
-        this.#calcRenderingEdges();
+        // Updates the viewport, the grid step and the grid starting points
+        this.#calcViewport();
+        this.#calcGridStep();
+        this.#calcGrid();
     }
 
-    get renderingXMin() {
-        return this.#renderingEdges.screen.xMin;
+    /**
+     * Updates the zoom level.
+     * @param {Number} zoomFactor Zoom multiplying factor.
+     * @param {Object} zoomCenter Center of the zoom in screen coordinates (x, y);
+     */
+    updateZoom(zoomFactor, zoomCenter) {
+        // Multiplies the pixels per unit by the zoom factor
+        this.#pixelsPerUnit *= zoomFactor;
+        // Computes the scale change
+        const scaleChange = zoomFactor - 1;
+
+        // Translates the origin in order to keep the center of zoom constant
+        this.translateOrigin(
+            -((zoomCenter.x - this.#cartesianOriginInScreen.x) * scaleChange),
+            ((this.#cartesianOriginInScreen.y - zoomCenter.y) * scaleChange),
+        );
     }
 
-    get renderingXMax() {
-        return this.#renderingEdges.screen.xMax;
+    /**
+     * Gets the rendering viewport minimum x value in screen coordinates.
+     */
+    get screenXMin() {
+        return this.#viewport.screen.xMin;
     }
 
-    get renderingYMin() {
-        return this.#renderingEdges.screen.yMin;
+    /**
+     * Gets the rendering viewport maximum x value in screen coordinates.
+     */
+    get screenXMax() {
+        return this.#viewport.screen.xMax;
     }
 
-    get renderingYMax() {
-        return this.#renderingEdges.screen.yMax;
+    /**
+     * Gets the rendering viewport minimum y value in screen coordinates.
+     */
+    get screenYMin() {
+        return this.#viewport.screen.yMin;
+    }
+
+    /**
+     * Gets the rendering viewport maximum y value in screen coordinates.
+     */
+    get screenYMax() {
+        return this.#viewport.screen.yMax;
     }
 
     /**

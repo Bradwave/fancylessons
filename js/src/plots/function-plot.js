@@ -36,6 +36,11 @@ let functionPlot = function (id, functions, options) {
     */
 
     /**
+     * Functions plots map.
+     */
+    let fPlots = new Map();
+
+    /**
      * Functions contexts map.
      */
     let fCtxs = new Map();
@@ -66,6 +71,7 @@ let functionPlot = function (id, functions, options) {
     function init() {
         functions.forEach((f) => {
             const functionPlot = new plotStructure(f.id + "-" + id, { alpha: true });
+            fPlots.set(f.id, functionPlot);
             fCtxs.set(f.id, functionPlot.getCtx());
         })
 
@@ -73,7 +79,7 @@ let functionPlot = function (id, functions, options) {
         updateCanvasDimension();
 
         // Create a new coordinate system
-        cs = new CoordinateSystem(width, height, { x: 0, y: 0 }, 0.1);
+        cs = new CoordinateSystem(width, height, { x: 0, y: 0 }, 10);
 
         // ------- STUFF HERE -------
     }
@@ -90,8 +96,11 @@ let functionPlot = function (id, functions, options) {
      */
     function updateCanvasDimension() {
         axisPlot.resizeCanvas();
-        width = axisPlot.getWidth();
-        height = axisPlot.getHeight();
+        fPlots.forEach((plot) => {
+            plot.resizeCanvas();
+        })
+        width = Math.ceil(axisPlot.getWidth());
+        height = Math.ceil(axisPlot.getHeight());
     }
 
 
@@ -102,7 +111,7 @@ let functionPlot = function (id, functions, options) {
         // Updates width and heigh of the canvas
         updateCanvasDimension();
         // Updates the edges of the canvas in the coordinate system
-        cs.updateEdges(width, height);
+        cs.updateSystem(width, height);
     }
 
     /*_______________________________________
@@ -185,6 +194,20 @@ let functionPlot = function (id, functions, options) {
         publicAPIs.drawPlot();
     }
 
+    document.getElementById(id + "-plot-zoom-in").onclick = () => {
+        cs.updateZoom(1.5, { x: width / 2, y: height / 2 });
+        publicAPIs.drawPlot();
+    };
+
+    document.getElementById(id + "-plot-zoom-out").onclick = () => {
+        cs.updateZoom(1 / 1.5, { x: width / 2, y: height / 2 });
+        publicAPIs.drawPlot();
+    }
+
+    // axisPlot.getCanvas().onwheel = (e) => {
+
+    // };
+
     /*_______________________________________
     |   Plot
     */
@@ -214,29 +237,117 @@ let functionPlot = function (id, functions, options) {
         drawGrid();
     }
 
-    /**
-     * Clears the plots.
-     */
-    publicAPIs.clearPlot = () => {
-        axisCtx.fillStyle = getCssVariable("very-light-grey");
-
-        axisCtx.beginPath();
-        axisCtx.rect(0, 0, width, height);
-        axisCtx.fill();
-    }
-
     function drawGrid() {
-        axisCtx.fillStyle = getCssVariable("accent");
+        /* -- Secondary grid  -- */
+
+        axisCtx.lineWidth = 1;
+        axisCtx.strokeStyle = getCssVariable("transparent-highlight");
 
         axisCtx.beginPath();
-        axisCtx.rect(cs.renderingXMin, cs.renderingYMin, cs.renderingXMax - cs.renderingXMin, cs.renderingYMax - cs.renderingYMin)
-        axisCtx.fill();
+        for (i = cs.screenSecondaryGridXMin; i < cs.screenXMax; i += cs.screenSecondaryGridStep) {
+            if (i > cs.screenXMin) {
+                axisCtx.moveTo(i, cs.screenYMin);
+                axisCtx.lineTo(i, cs.screenYMax);
+            }
+        }
+        for (j = cs.screenSecondaryGridYMin; j < cs.screenYMax; j += cs.screenSecondaryGridStep) {
+            if (j > cs.screenYMin) {
+                axisCtx.moveTo(cs.screenXMin, j);
+                axisCtx.lineTo(cs.screenXMax, j);
+            }
+        }
+        axisCtx.stroke();
+
+        /* -- Main grid  -- */
+
+        axisCtx.lineWidth = 1;
+        axisCtx.strokeStyle = getCssVariable("highlight");
+
+        axisCtx.beginPath();
+        for (i = cs.screenGridXMin; i < cs.screenXMax; i += cs.screenGridStep) {
+            if (i > cs.screenXMin) {
+                axisCtx.moveTo(i, cs.screenYMin);
+                axisCtx.lineTo(i, cs.screenYMax);
+            }
+        }
+        for (j = cs.screenGridYMin; j < cs.screenYMax; j += cs.screenGridStep) {
+            if (j > cs.screenYMin) {
+                axisCtx.moveTo(cs.screenXMin, j);
+                axisCtx.lineTo(cs.screenXMax, j);
+            }
+        }
+        axisCtx.stroke();
+
+        /* -- Plot border -- */
+
+        axisCtx.lineWidth = 2;
+
+        axisCtx.beginPath();
+        if (cs.screenXMin > 0) {
+            axisCtx.moveTo(cs.screenXMin, cs.screenYMin);
+            axisCtx.lineTo(cs.screenXMin, cs.screenYMax);
+        }
+        if (cs.screenXMin < width) {
+            axisCtx.moveTo(cs.screenXMax, cs.screenYMin);
+            axisCtx.lineTo(cs.screenXMax, cs.screenYMax);
+        }
+        if (cs.screenYMin > 0) {
+            axisCtx.moveTo(cs.screenXMin, cs.screenYMin);
+            axisCtx.lineTo(cs.screenXMax, cs.screenYMin);
+        }
+        if (cs.screenYMax < height) {
+            axisCtx.moveTo(cs.screenXMin, cs.screenYMax);
+            axisCtx.lineTo(cs.screenXMax, cs.screenYMax);
+        }
+        axisCtx.stroke();
+
+        /* -- Axis -- */
+
+        axisCtx.lineWidth = 3;
+
+        axisCtx.beginPath();
+        const xAxes = cs.toScreenX(0);
+        if (xAxes > cs.screenXMin) {
+            axisCtx.moveTo(xAxes, cs.screenYMin);
+            axisCtx.lineTo(xAxes, cs.screenYMax);
+        }
+        const yAxes = cs.toScreenY(0);
+        if (yAxes > cs.screenYMin) {
+            axisCtx.moveTo(cs.screenXMin, yAxes);
+            axisCtx.lineTo(cs.screenXMax, yAxes);
+        }
+        axisCtx.stroke();
+
+        /* -- Origin --  */
 
         axisCtx.fillStyle = getCssVariable("highlight");
 
         axisCtx.beginPath();
         axisCtx.arc(cs.toScreenX(0), cs.toScreenY(0), 5, 0, 2 * Math.PI);
+        axisCtx.arc(width / 2, height / 2, 2, 0, 2 * Math.PI);
         axisCtx.fill();
+
+        axisCtx.beginPath();
+        axisCtx.arc(cs.toScreenX(2), cs.toScreenY(3), 4, 0, 2 * Math.PI);
+        axisCtx.arc(cs.toScreenX(-3), cs.toScreenY(-2), 4, 0, 2 * Math.PI);
+        axisCtx.fill();
+    }
+
+    /**
+     * Clears the plots.
+     */
+    publicAPIs.clearPlot = () => {
+        axisCtx.clearRect(0, 0, width + 1, height + 1)
+
+        axisCtx.fillStyle = getCssVariable("very-light-grey");
+
+        axisCtx.beginPath();
+        axisCtx.rect(0, 0, width, height);
+        axisCtx.fill();
+
+        fCtxs.forEach((ctx) => {
+            ctx.clearRect(0, 0, width + 1, height + 1);
+        })
     }
 
     init();

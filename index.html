@@ -81,12 +81,26 @@
             </div>
 
             <div class="slide">
-                <div id="test-function-plot" class="plot-container">
-                    <canvas id="test-function-canvas" name="plot" class="plot main"
-                        style="width: 300px; height: 300px;"></canvas>
-                    <canvas id="line-test-function-canvas" name="plot" class="plot stacked"
-                        style="width: 300px; height: 300px;"></canvas>
-                    <div id="test-function-loader" name="plot-loader" class="plot loader"></div>
+                <div id="test-function-plot-container" class="plot-container">
+                    <div id="test-function-plot" class="plot">
+                        <canvas id="test-function-canvas" name="plot" class="plot main"
+                            style="width: 30vw; height: 30vw;">
+                        </canvas>
+                        <canvas id="line-test-function-canvas" name="plot" class="plot stacked"
+                            style="width: 30vw; height: 30vw;">
+                        </canvas>
+                        <button id="test-function-plot-zoom-out" class="plot-control round-button zoom-in">
+                            <span class="material-symbols-rounded bold-button">
+                                remove
+                            </span>
+                        </button>
+                        <button id="test-function-plot-zoom-in" class="plot-control round-button zoom-out">
+                            <span class="material-symbols-rounded bold-button">
+                                add
+                            </span>
+                        </button>
+                        <div id="test-function-loader" name="plot-loader" class="plot loader"></div>
+                    </div>
                 </div>
             </div>
 
