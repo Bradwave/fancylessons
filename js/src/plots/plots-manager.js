@@ -30,13 +30,22 @@ let plotsManager = new function () {
                 id: "line",
                 definition: "[x] + 2",
                 domain: [[-Infinity, +Infinity]],
+                color: "accent",
+                lineWidth: 3
             }
         ], {
             viewportCenter: { x: 0, y: 0 },
-            initialZoom: 1,
+            initialPixelsPerUnit: 10,
             parameters: [
                 { id: "t", name: "t" }
-            ]
+            ],
+            labelSize: 15,
+            backgroundColor: "very-light-grey",
+            axisColor: "highlight",
+            axisLineWidth: 3,
+            gridColor: "highlight",
+            gridLineWidth: 1,
+            isGridHidable: true
         }));
 
         plots.forEach((plot) => {

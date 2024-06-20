@@ -26,7 +26,6 @@
 
 /* -- Fonts -- */
 
-/* STIX Two Text, AtkinsonHyperlegible and Robot Mono from Google Font */
 /* See "fonts" folder */
 
 /* -- Variables -- */
@@ -44,7 +43,7 @@
     --primary-rbg: 0, 0, 0;
     --highlight: #ffffff;
     --transparent-highlight: #ffffff6e;
-    --very-light-grey: #e1e1e1;
+    --very-light-grey: #d2d2d2;
     --light-grey: #c8c8c8;
     --transparent-light-grey: #ececec78;
     /* alternative transparent light-grey color: #f2f2f278 */
@@ -52,6 +51,7 @@
     --mid-grey: #555555;
     --transparent-mid-grey: #d7d7d778;
     --dark-grey: #222222;
+    --transparent-dark-grey: #2222225d;
     --secondary: #333333;
     --thm-blue: #1484E6;
     --thm-blue-rgb: 20, 132, 230;
@@ -529,8 +529,9 @@ button.plot-control:hover {
 button.plot-control:active {
     background-color: var(--accent);
     color: var(--highlight);
-    transform: scale(var(--active-button-scale));
     user-select: none;
+    opacity: 1!important;
+    transform: scale(var(--active-button-scale));
     -webkit-transition: transform var(--button-active-transition-duration) ease-in-out;
     -moz-transition: transform var(--button-active-transition-duration) ease-in-out;
     -ms-transition: transform var(--button-active-transition-duration) ease-in-out;
@@ -548,9 +549,25 @@ button.zoom-out {
     right: var(--options-margin);
 }
 
+button.grid {
+    top: var(--options-margin);
+    left: calc(var(--options-margin) + var(--button-diameter) + var(--options-small-gap));
+    user-select: none;
+}
+
+button.plot-refresh {
+    top: var(--options-margin);
+    left: var(--options-margin);
+    user-select: none;
+}
+
 span.bold-button {
     font-weight: 600;
     user-select: none;
+}
+
+span.grid-icon {
+    font-size: 22px;
 }
 
 div.plot-options {

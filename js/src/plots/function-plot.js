@@ -52,7 +52,12 @@ let functionPlot = function (id, functions, options) {
     /**
      * True if the renderer is running, false otherwise.
      */
-    let running = true;
+    let isRunning = true;
+
+    /**
+     * True if the plot is being translated along a certain axes, false otherwise.
+     */
+    let isTranslating = { x: false, y: false };
 
     /**
      * True if touch on the canvas started, false otherwise.
@@ -69,6 +74,11 @@ let functionPlot = function (id, functions, options) {
      */
     let currentZoom = 1;
 
+    /**
+     * True if the grid is visible, false otherwise.
+     */
+    let isGridVisible = true;
+
     /*_______________________________________
     |   Methods
     */
@@ -77,19 +87,33 @@ let functionPlot = function (id, functions, options) {
      * Inits the plot.
      */
     function init() {
+        // Sets default parameters
+        if (options.parameters == undefined) options.parameters = [];
+        if (options.labelSize == undefined) options.labelSize = 15;
+        if (options.backgroundColor == undefined) options.backgroundColor = "highlight";
+        if (options.axisColor == undefined) options.axisColor = "dark-grey";
+        if (options.gridColor == undefined) options.gridColor = "mid-grey";
+        if (options.gridLineWidth == undefined) options.gridLineWidth = 1;
+        if (options.isGridHidable == undefined) options.isGridHidable = true;
+
         functions.forEach((f) => {
             const functionPlot = new plotStructure(f.id + "-" + id, { alpha: true });
+            // Stores the function plot
             fPlots.set(f.id, functionPlot);
+            // Stores the function plot context
             fCtxs.set(f.id, functionPlot.getCtx());
+
+            // Sets default function parameters
+            if (f.color == undefined) f.color = "accent";
+            if (f.lineWidth == undefined) f.lineWidth = 3;
         })
 
         // Updates width and heigh of the canvas
         updateCanvasDimension();
 
         // Create a new coordinate system
-        cs = new CoordinateSystem(width, height, { x: 0, y: 0 }, 10);
-
-        // ------- STUFF HERE -------
+        cs = new CoordinateSystem(width, height,
+            { x: options.viewportCenter.x, y: options.viewportCenter.y }, options.initialPixelsPerUnit);
     }
 
     /*_______________________________________
@@ -123,7 +147,7 @@ let functionPlot = function (id, functions, options) {
     }
 
     /*_______________________________________
-    |   Events
+    |   Events and controls
     */
 
     /* -- Axis translation -- */
@@ -204,24 +228,30 @@ let functionPlot = function (id, functions, options) {
 
     // Executes when the zoom-in button is pressed
     document.getElementById(id + "-plot-zoom-in").onclick = () => {
-        running = true;
+        isRunning = true;
+        // Stores current zoom as 1
         currentZoom = 1;
+        // Sets the zoom increment factor
+        const zoomInc = 1.05;
+        // Sets the maximum zoom, compared to current (which is set to 1)
+        const maxZoom = 2;
         // Animates the zoom-in
         animate(() => {
-            const zoomInc = 1.05;
-            const maxZoom = 2;
             zoomViewport(zoomInc, maxZoom, () => { return currentZoom > maxZoom / zoomInc });
         });
     };
 
     // Executes when the zoom-out button is pressed
     document.getElementById(id + "-plot-zoom-out").onclick = () => {
-        running = true;
+        isRunning = true;
+        // Stores current zoom as 1
         currentZoom = 1;
+        // Sets the zoom increment factor
+        const zoomInc = 1.05;
+        // Sets the minimum zoom, compared to current (which is set to 1)
+        const minZoom = 1 / 2;
         // Animates the zoom-out
         animate(() => {
-            const zoomInc = 1.05;
-            const minZoom = 1 / 2;
             zoomViewport(1 / zoomInc, minZoom, () => { return currentZoom < minZoom * zoomInc });
         });
     }
@@ -245,28 +275,89 @@ let functionPlot = function (id, functions, options) {
         // "passive: false" allows preventDefault() to be called
     }, { passive: false });
 
+    if (options.isGridHidable) {
+        // Toggle grid button
+        const gridButton = document.getElementById(id + "-plot-grid");
+        // On click
+        gridButton.onclick = () => {
+            isGridVisible = !isGridVisible;
+            // Styles the button
+            gridButton.style.opacity = isGridVisible ? "1" : "0.4";
+            // Draws the plot
+            publicAPIs.drawPlot();
+        }
+    }
+
+    document.getElementById(id + "-plot-refresh").onclick = () => {
+        isRunning = true;
+
+        /* -- Zoom setup -- */
+
+        // Stores current zoom level as 1
+        currentZoom = 1;
+        // Computes the end zoom level, compared to current (which is set to 1)
+        const endZoom = options.initialPixelsPerUnit / cs.pixelsPerUnit;
+        // Sets the zoom increment factor
+        const zoomInc = 1.05;
+        // Zoom needs to be performed by default (not locked)
+        let isZoomLocked = false;
+
+        /* -- Translation setup -- */
+
+        // The translation is performed by default
+        isTranslating = { x: true, y: true };
+
+        /* -- Animation -- */
+
+        animate(() => {
+            // Animates the zoom-in or zoom-out
+            zoomViewport(endZoom > 1 ? zoomInc : (1 / zoomInc), endZoom,
+                () => {
+                    if (endZoom > 1) return currentZoom > endZoom / zoomInc;
+                    else return currentZoom <= endZoom * zoomInc
+                }, cs.toScreen(0, 0), isZoomLocked);
+
+            // If the zoom animation is stopped, the zoom is locked
+            // The value of "running" could change depending on the translation animation
+            if (!isRunning) {
+                isZoomLocked = true;
+            }
+
+            // Animates the translation
+            autoTranslate(options.viewportCenter, 0.05);
+
+            // The animation keeps running until both the zoom and the translation stop
+            isRunning = isRunning || isTranslating.x || isTranslating.y
+        });
+    }
+
     /**
      * Zooms the viewport.
      * @param {Number} zoomInc Zoom multiplication factor by which zoom is increased every frame.
      * @param {Number} endZoom Maximum zoom multiplication factor
      * @param {Function} condition Function returning true or false; when true, it ends the zoom.
+     * @param {Boolean} isLocked True if zoom must not be performed, false otherwise. 
      */
-    function zoomViewport(zoomInc, endZoom, condition, zoomCenter) {
-        // Multiplies the current zoom by the zoom increment factor
-        currentZoom *= zoomInc;
-        // IF the end condition is met
-        if (condition()) {
-            // The zoom increment is set so that the final zoom matches endZoom
-            zoomInc = endZoom / currentZoom;
-            // Animations is gonna stop
-            running = false;
+    function zoomViewport(zoomInc, endZoom, condition,
+        zoomCenter = { x: width / 2, y: height / 2 }, isLocked = false) {
+        // If zoom isn't locked (needed in case another animations is playing as well, translating e.g.)
+        if (!isLocked) {
+            // Multiplies the current zoom by the zoom increment factor
+            currentZoom *= zoomInc;
+            // IF the end condition is met
+            if (condition()) {
+                // The zoom increment is set so that the final zoom matches endZoom
+                zoomInc = endZoom / (currentZoom / zoomInc);
+                // Animations is gonna stop
+                isRunning = false;
+            }
+            // Updates the zoom
+            cs.updateZoom(zoomInc, { x: zoomCenter.x, y: zoomCenter.y });
         }
-        // Updates the zoom
-        cs.updateZoom(zoomInc, { x: width / 2, y: height / 2 });
     }
 
     /*_______________________________________
-    |   Plot
+    |   Animations
     */
 
     /**
@@ -275,7 +366,7 @@ let functionPlot = function (id, functions, options) {
      * @returns Early return if not playing.
      */
     function animate(action) {
-        if (!running) {
+        if (!isRunning) {
             return;
         }
         // Executes action to be performed every frame
@@ -287,6 +378,52 @@ let functionPlot = function (id, functions, options) {
     }
 
     /**
+     * Performs a step in the auto translation animation to center a given point.
+     * @param {Object} endingPoint Ending point which needs to moved in the middle of the screen.
+     * @param {*} translationFactor Translation factor.
+     */
+    function autoTranslate(endingPoint, translationFactor) {
+        // Screen center in cartesian coordinates
+        const screenCenterInCartesian = cs.toCartesian(width / 2, height / 2);
+        // Total translation vector from current point to ending point, measured in pixels
+        const totalTranslation = {
+            x: (screenCenterInCartesian.x - endingPoint.x) * cs.pixelsPerUnit,
+            y: -(screenCenterInCartesian.y - endingPoint.y) * cs.pixelsPerUnit
+        }
+        // Sign of the translation vector components
+        const translationSign = {
+            x: Math.sign(totalTranslation.x),
+            y: Math.sign(totalTranslation.y)
+        }
+        // Translation increment (always positive)
+        const tInc = {
+            x: translationFactor * Math.abs(totalTranslation.x) + 1,
+            y: translationFactor * Math.abs(totalTranslation.y) + 1,
+        }
+        // Executes if, along the x axes, the increment is greater than the total translation magnitude
+        if (tInc.x > Math.abs(totalTranslation.x)) {
+            // Increment is set equal to the total translation along the x axes
+            tInc.x = Math.abs(totalTranslation.x);
+            // Translation is stopped along the x axes
+            isTranslating.x = false;
+        }
+        // Executes if, along the y axes, the increment is greater than the total translation magnitude
+        if (tInc.y > Math.abs(totalTranslation.y)) {
+            // Increment is set equal to the total translation the y axes
+            tInc.y = Math.abs(totalTranslation.y);
+            // Translation is stopped along the y axes
+            isTranslating.y = false;
+        }
+
+        // The translation is performed
+        cs.translateOrigin(translationSign.x * tInc.x, translationSign.y * tInc.y);
+    }
+
+    /*_______________________________________
+    |   Plot
+    */
+
+    /**
      * Draws the plots.
      */
     publicAPIs.drawPlot = () => {
@@ -294,103 +431,273 @@ let functionPlot = function (id, functions, options) {
         publicAPIs.clearPlot();
 
         // ------- STUFF HERE -------
-        drawGrid();
+        drawAxisPlot();
     }
 
-    function drawGrid() {
-        /* -- Secondary grid  -- */
+    function drawAxisPlot() {
+        if (isGridVisible) {
+            /* -- Secondary grid  -- */
+            drawGrid({ x: cs.screenSecondaryGridXMin, y: cs.screenSecondaryGridYMin }, cs.screenSecondaryGridStep,
+                getCssVariable("transparent-" + options.gridColor), options.gridLineWidth
+            );
 
-        axisCtx.lineWidth = 1;
-        axisCtx.strokeStyle = getCssVariable("transparent-highlight");
+            /* -- Main grid  -- */
+            drawGrid({ x: cs.screenGridXMin, y: cs.screenGridYMin }, cs.screenGridStep,
+                getCssVariable(options.gridColor), options.gridLineWidth
+            );
 
-        axisCtx.beginPath();
-        for (i = cs.screenSecondaryGridXMin; i < cs.screenXMax; i += cs.screenSecondaryGridStep) {
-            if (i > cs.screenXMin) {
-                axisCtx.moveTo(i, cs.screenYMin);
-                axisCtx.lineTo(i, cs.screenYMax);
-            }
+            /* -- Axis -- */
+            drawAxis(getCssVariable(options.axisColor), options.axisLineWidth);
         }
-        for (j = cs.screenSecondaryGridYMin; j < cs.screenYMax; j += cs.screenSecondaryGridStep) {
-            if (j > cs.screenYMin) {
-                axisCtx.moveTo(cs.screenXMin, j);
-                axisCtx.lineTo(cs.screenXMax, j);
-            }
-        }
-        axisCtx.stroke();
-
-        /* -- Main grid  -- */
-
-        axisCtx.lineWidth = 1;
-        axisCtx.strokeStyle = getCssVariable("highlight");
-
-        axisCtx.beginPath();
-        for (i = cs.screenGridXMin; i < cs.screenXMax; i += cs.screenGridStep) {
-            if (i > cs.screenXMin) {
-                axisCtx.moveTo(i, cs.screenYMin);
-                axisCtx.lineTo(i, cs.screenYMax);
-            }
-        }
-        for (j = cs.screenGridYMin; j < cs.screenYMax; j += cs.screenGridStep) {
-            if (j > cs.screenYMin) {
-                axisCtx.moveTo(cs.screenXMin, j);
-                axisCtx.lineTo(cs.screenXMax, j);
-            }
-        }
-        axisCtx.stroke();
 
         /* -- Plot border -- */
+        drawBorders(getCssVariable(options.gridColor), options.gridLineWidth + 1);
 
-        axisCtx.lineWidth = 2;
+        if (isGridVisible) {
+            /* -- Labels -- */
+            drawLabels(getCssVariable(options.gridColor), 3);
+
+            /* -- Origin --  */
+            drawOrigin(getCssVariable(options.axisColor), 4);
+        }
+    }
+
+    /**
+     * Draws a grid, given the (x, y) starting points and the step.
+     * @param {Object} gridMin Starting points of the grid (x, y).
+     * @param {Number} gridStep Grid step value.
+     * @param {String} color Color of the grid.
+     * @param {Number} lineWidth Line width of the grid lines.
+     */
+    function drawGrid(gridMin, gridStep, color, lineWidth) {
+        // Sets the style
+        axisCtx.strokeStyle = color;
+        axisCtx.lineWidth = lineWidth;
 
         axisCtx.beginPath();
-        if (cs.screenXMin > 0) {
-            axisCtx.moveTo(cs.screenXMin, cs.screenYMin);
-            axisCtx.lineTo(cs.screenXMin, cs.screenYMax);
+        // Draws the vertical grid lines
+        for (i = gridMin.x; i < cs.screenXMax; i += gridStep) {
+            if (i > cs.screenXMin) {
+                axisCtx.moveTo(i, cs.screenYMin);
+                axisCtx.lineTo(i, cs.screenYMax);
+            }
         }
-        if (cs.screenXMin < width) {
-            axisCtx.moveTo(cs.screenXMax, cs.screenYMin);
-            axisCtx.lineTo(cs.screenXMax, cs.screenYMax);
-        }
-        if (cs.screenYMin > 0) {
-            axisCtx.moveTo(cs.screenXMin, cs.screenYMin);
-            axisCtx.lineTo(cs.screenXMax, cs.screenYMin);
-        }
-        if (cs.screenYMax < height) {
-            axisCtx.moveTo(cs.screenXMin, cs.screenYMax);
-            axisCtx.lineTo(cs.screenXMax, cs.screenYMax);
+        // Draws the horizontal grid lines
+        for (j = gridMin.y; j < cs.screenYMax; j += gridStep) {
+            if (j > cs.screenYMin) {
+                axisCtx.moveTo(cs.screenXMin, j);
+                axisCtx.lineTo(cs.screenXMax, j);
+            }
         }
         axisCtx.stroke();
+    }
 
-        /* -- Axis -- */
-
-        axisCtx.lineWidth = 3;
+    /**
+     * Draws the axis of the plot.
+     * @param {String} color Color of the axis.
+     * @param {Number} lineWidth Line width of the axis.
+     */
+    function drawAxis(color, lineWidth) {
+        // Sets the style
+        axisCtx.strokeStyle = color;
+        axisCtx.lineWidth = lineWidth;
 
         axisCtx.beginPath();
+        // Draws the x axes
         const xAxes = cs.toScreenX(0);
         if (xAxes > cs.screenXMin) {
             axisCtx.moveTo(xAxes, cs.screenYMin);
             axisCtx.lineTo(xAxes, cs.screenYMax);
         }
+        // Draws the y axes
         const yAxes = cs.toScreenY(0);
         if (yAxes > cs.screenYMin) {
             axisCtx.moveTo(cs.screenXMin, yAxes);
             axisCtx.lineTo(cs.screenXMax, yAxes);
         }
         axisCtx.stroke();
+    }
 
-        /* -- Origin --  */
-
-        axisCtx.fillStyle = getCssVariable("highlight");
+    /**
+     * Draws the origin dot.
+     * @param {String} color Color of the origin dot.
+     * @param {Number} size Size of the origin dot.
+     */
+    function drawOrigin(color, size) {
+        axisCtx.fillStyle = color;
 
         axisCtx.beginPath();
-        axisCtx.arc(cs.toScreenX(0), cs.toScreenY(0), 5, 0, 2 * Math.PI);
-        axisCtx.arc(width / 2, height / 2, 2, 0, 2 * Math.PI);
+        axisCtx.arc(cs.toScreenX(0), cs.toScreenY(0), size, 0, 2 * Math.PI);
         axisCtx.fill();
+    }
+
+    /**
+     * Draws the border of the plot.
+     * @param {String} color Color of the border.
+     * @param {Number} lineWidth Line width of the border.
+     */
+    function drawBorders(color, lineWidth) {
+        // Sets the style
+        axisCtx.strokeStyle = color;
+        axisCtx.lineWidth = lineWidth;
 
         axisCtx.beginPath();
-        axisCtx.arc(cs.toScreenX(2), cs.toScreenY(3), 4, 0, 2 * Math.PI);
-        axisCtx.arc(cs.toScreenX(-3), cs.toScreenY(-2), 4, 0, 2 * Math.PI);
-        axisCtx.fill();
+        // Draws the right border
+        if (cs.screenXMin > 0) {
+            axisCtx.moveTo(cs.screenXMin, cs.screenYMin);
+            axisCtx.lineTo(cs.screenXMin, cs.screenYMax);
+        }
+        // Draws the left border
+        if (cs.screenXMin < width) {
+            axisCtx.moveTo(cs.screenXMax, cs.screenYMin);
+            axisCtx.lineTo(cs.screenXMax, cs.screenYMax);
+        }
+        // Draws the top border
+        if (cs.screenYMin > 0) {
+            axisCtx.moveTo(cs.screenXMin, cs.screenYMin);
+            axisCtx.lineTo(cs.screenXMax, cs.screenYMin);
+        }
+        // Draws the bottom border
+        if (cs.screenYMax < height) {
+            axisCtx.moveTo(cs.screenXMin, cs.screenYMax);
+            axisCtx.lineTo(cs.screenXMax, cs.screenYMax);
+        }
+        axisCtx.stroke();
+    }
+
+    function drawLabels(color, lineWidth) {
+        // Sets the style of the outline
+        axisCtx.strokeStyle = getCssVariable(options.backgroundColor);
+        axisCtx.lineWidth = lineWidth;
+
+        // Sets the style of the label
+        axisCtx.fillStyle = color;
+        axisCtx.font = options.labelSize + "px sans-serif";
+
+        // Computes the axis coordinates
+        const xAxes = cs.toScreenX(0);
+        const yAxes = cs.toScreenY(0);
+
+        axisCtx.beginPath();
+
+        /* -- Labels along the x axes -- */
+
+        for (i = cs.screenGridXMin; i < cs.screenXMax + 2; i += cs.screenGridStep) {
+            if (i > cs.screenXMin - 2) {
+                // Label numerical value
+                const labelValue = roundNumberDigit(cs.toCartesianX(i), cs.maxNumberOfGridLabelDigits);
+
+                // If it's not the origin
+                if (labelValue != 0) {
+                    // Label text
+                    const labelText = labelValue.toString();
+                    // Label measure
+                    const labelMeasure = axisCtx.measureText(labelText);
+                    // Horizontal position of the label
+                    const xPos = i -
+                        // Moves to the left by half the label width
+                        (labelMeasure.width
+                            // Moves to the left if negative, to compensate for minus sign
+                            + (labelValue < 0 ? axisCtx.measureText("-").width : 0)) / 2;
+                    // Vertical position
+                    const yPos = getLabelPosition(yAxes, cs.screenYMin, cs.screenYMax,
+                        {
+                            min: 0,
+                            max: -5 - options.labelSize * dpi
+                        },
+                        {
+                            default: options.labelSize * dpi,
+                            min: options.labelSize * dpi,
+                            max: -5
+                        }
+                    );
+
+                    // Draws the label
+                    axisCtx.strokeText(labelValue, xPos, yPos);
+                    axisCtx.fillText(labelValue, xPos, yPos);
+                }
+            }
+        }
+
+        /* -- Labels along the y axes -- */
+
+        for (j = cs.screenGridYMin; j < cs.screenYMax + 2; j += cs.screenGridStep) {
+            if (j > cs.screenYMin - 2) {
+                // Label numerical value
+                const labelValue = roundNumberDigit(cs.toCartesianY(j), cs.maxNumberOfGridLabelDigits);
+
+                // If it's not the origin
+                if (labelValue != 0) {
+                    // Label text
+                    const labelText = labelValue.toString();
+                    // Label measure
+                    const labelMeasure = axisCtx.measureText(labelText);
+                    // Horizontal label offset
+                    const xOffset = labelMeasure.width + 8;
+                    // Horizontal position of the label; the label is moved to the left by its width
+                    const xPos = getLabelPosition(xAxes, cs.screenXMin, cs.screenXMax,
+                        {
+                            min: xOffset + 8,
+                            max: 0
+                        },
+                        {
+                            default: -xOffset,
+                            min: 5,
+                            max: -xOffset
+                        }
+                    );
+                    // Vertical position, the label is moved up by half its height
+                    const yPos = j + (options.labelSize / 2) / dpi;
+
+                    // Draws the label
+                    axisCtx.strokeText(labelValue, xPos, yPos);
+                    axisCtx.fillText(labelValue, xPos, yPos);
+                }
+
+            }
+        }
+
+        /* -- Origin label -- */
+
+        // Cartesian origin in screen coordinates
+        const origin = cs.toScreen(0, 0)
+        // Origin label text
+        const labelText = "0";
+        // Label measure
+        const labelMeasure = axisCtx.measureText(labelText);
+
+        // If the origin in on screen
+        if (origin.x > cs.screenXMin && origin.x < cs.screenXMax + labelMeasure.width + 8 &&
+            origin.y > cs.screenYMin - options.labelSize * dpi && origin.y < cs.screenYMax) {
+            // Horizontal position
+            const xPos = origin.x - labelMeasure.width - 8;
+            // Vertical position
+            const yPos = origin.y + options.labelSize * dpi;
+            // Draws the label
+            axisCtx.strokeText("0", xPos, yPos);
+            axisCtx.fillText("0", xPos, yPos);
+        }
+
+        axisCtx.closePath();
+    }
+
+    /**
+     * Gets the label position given the axes coordinate, the viewport edges and the offset.
+     * @param {Number} axes Screen coordinate of the axes.
+     * @param {*} minValue Min screen coordinate along the perpendicular axes.
+     * @param {*} maxValue Max screen coordinate along the perpendicular axes
+     * @param {*} tolerance Tolerance when reaching the min and max screen coordinates.
+     * @param {Object} offset Label offset.
+     * @returns The label position.
+     */
+    const getLabelPosition = (axes, minValue, maxValue, tolerance, offset) => {
+        if (axes < minValue + tolerance.min) {
+            return minValue + offset.min;
+        } else if (axes > maxValue + tolerance.max) {
+            return maxValue + offset.max;
+        } else {
+            return axes + offset.default;
+        }
     }
 
     /**
@@ -399,7 +706,7 @@ let functionPlot = function (id, functions, options) {
     publicAPIs.clearPlot = () => {
         axisCtx.clearRect(0, 0, width + 1, height + 1)
 
-        axisCtx.fillStyle = getCssVariable("very-light-grey");
+        axisCtx.fillStyle = getCssVariable(options.backgroundColor);
 
         axisCtx.beginPath();
         axisCtx.rect(0, 0, width, height);

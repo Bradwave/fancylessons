@@ -4,7 +4,7 @@ seamless.polyfill();
 /**
  * Device dpi.
  */
-let dpi;
+let dpi = window.devicePixelRatio;
 
 /**
  * slideshow mode controller.
@@ -155,9 +155,6 @@ let slideshowController = new function () {
             // Start the slideshow
             toggleSlideshow(true, { timeout: 1000 });
         }
-
-        // Get the device dpi
-        dpi = window.devicePixelRatio;
     }
 
     /**

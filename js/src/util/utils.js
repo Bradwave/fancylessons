@@ -71,3 +71,7 @@ const getCssVariable = (variableName, options = {
 const getCssTimeInMs = (variableName) => {
     return parseFloat(getCssVariable(variableName)) * 1000;
 }
+
+const roundNumberDigit = (number, numberOfDecimalDigits) => {
+    return Math.round(number * Math.pow(10, numberOfDecimalDigits)) / Math.pow(10, numberOfDecimalDigits)
+}

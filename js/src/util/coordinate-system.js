@@ -1,3 +1,7 @@
+/**
+ * Manages the coordinate system of a plot.
+ * It handles the conversion between the cartesian and screen frames of reference.
+ */
 class CoordinateSystem {
 
     /*
@@ -12,6 +16,11 @@ class CoordinateSystem {
         v ......     ..... | .....
         y
     */
+
+    #initialConfig = {
+        center: { x: undefined, y: undefined },
+        pixelsPerUnit: undefined
+    };
 
     /**
      * Edges of the screen and cartesian frames of reference.
@@ -88,6 +97,12 @@ class CoordinateSystem {
      * @param {Number} pixelsPerUnit Number of pixels per cartesian unit.
      */
     constructor(width, height, center, pixelsPerUnit) {
+        // Stores the initial config
+        this.#initialConfig = {
+            center: center,
+            pixelsPerUnit: pixelsPerUnit
+        }
+
         // Stores the pixels per unit
         this.#pixelsPerUnit = pixelsPerUnit;
 
@@ -191,11 +206,11 @@ class CoordinateSystem {
         const cartesianWidth = (this.#viewport.screen.xMax - this.#viewport.screen.xMin) / this.#pixelsPerUnit;
         // Stores the cartesian height of the viewport
         const cartesianHeight = (this.#viewport.screen.yMax - this.#viewport.screen.yMin) / this.#pixelsPerUnit;
-        // Stores the maximum dimension of the viewport
-        const maxCartesianDimension = Math.max(cartesianWidth, cartesianHeight);
+        // Stores the min dimension of the viewport
+        const minCartesianDimension = Math.min(cartesianWidth, cartesianHeight);
 
         // Computes the step of the main grid in cartesian units
-        this.#gridStep.cartesian = Math.pow(10, Math.ceil((Math.log10(maxCartesianDimension) - 1)));
+        this.#gridStep.cartesian = Math.pow(10, Math.ceil((Math.log10(minCartesianDimension) - 1)));
         // Converts the step for the main grid in pixel units.
         this.#gridStep.screen = this.#gridStep.cartesian * this.#pixelsPerUnit;
 
@@ -212,12 +227,12 @@ class CoordinateSystem {
         /* -- Main grid -- */
 
         // Computes the main grid starting point on the x axes in cartesian coordinates
-        this.#grid.cartesian.xMin = this.#computeGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.xMin, -1);
+        this.#grid.cartesian.xMin = this.#getGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.xMin, -1);
         // Computes the main grid starting point on the x axes in screen coordinates
         this.#grid.screen.xMin = this.toScreenX(this.#grid.cartesian.xMin);
 
         // Computes the main grid starting point on the y axes in cartesian coordinates
-        this.#grid.cartesian.yMin = this.#computeGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.yMin, +1);
+        this.#grid.cartesian.yMin = this.#getGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.yMin, +1);
         // Computes the main grid starting point on the y axes in screen coordinates
         this.#grid.screen.yMin = this.toScreenY(this.#grid.cartesian.yMin);
 
@@ -225,13 +240,13 @@ class CoordinateSystem {
 
         // Computes the secondary grid starting point on the x axes in cartesian coordinates
         this.#secondaryGrid.cartesian.xMin =
-            this.#computeGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.xMin, -1);
+            this.#getGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.xMin, -1);
         // Computes the secondary grid starting point on the x axes in screen coordinates
         this.#secondaryGrid.screen.xMin = this.toScreenX(this.#secondaryGrid.cartesian.xMin)
 
         // Computes the secondary grid starting point on the y axes in cartesian coordinates
         this.#secondaryGrid.cartesian.yMin =
-            this.#computeGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.yMin, +1);
+            this.#getGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.yMin, +1);
         // Computes the secondary grid starting point on the y axes in screen coordinates
         this.#secondaryGrid.screen.yMin = this.toScreenY(this.#secondaryGrid.cartesian.yMin)
     }
@@ -243,7 +258,7 @@ class CoordinateSystem {
      * @param {Number} inc -1 for the x axes, +1 for the y axes.
      * @returns 
      */
-    #computeGridMin(step, viewportMin, inc) {
+    #getGridMin(step, viewportMin, inc) {
         return step * (Math.floor(viewportMin / step) + inc)
     }
 
@@ -275,7 +290,6 @@ class CoordinateSystem {
         return this.#grid.screen.yMin;
     }
 
-
     /**
      * Gets the secondary grid starting point along the x axes.
      */
@@ -288,6 +302,10 @@ class CoordinateSystem {
      */
     get screenSecondaryGridYMin() {
         return this.#secondaryGrid.screen.yMin;
+    }
+
+    get maxNumberOfGridLabelDigits() {
+        return Math.round(Math.log10(this.#maxPixelsPerUnit) - 2);
     }
 
     /**
@@ -333,6 +351,13 @@ class CoordinateSystem {
             -((zoomCenter.x - this.#cartesianOriginInScreen.x) * scaleChange),
             ((this.#cartesianOriginInScreen.y - zoomCenter.y) * scaleChange),
         );
+    }
+
+    /**
+     * Gets the pixels per cartesian unit.
+     */
+    get pixelsPerUnit() {
+        return this.#pixelsPerUnit;
     }
 
     /**
