@@ -389,6 +389,48 @@ class CoordinateSystem {
     }
 
     /**
+     * Gets the rendering viewport minimum x value in screen coordinates.
+     */
+    get cartesianXMin() {
+        return this.#viewport.cartesian.xMin;
+    }
+
+    /**
+     * Gets the rendering viewport maximum x value in cartesian coordinates.
+     */
+    get cartesianXMax() {
+        return this.#viewport.cartesian.xMax;
+    }
+
+    /**
+     * Gets the rendering viewport minimum y value in cartesian coordinates.
+     */
+    get cartesianYMin() {
+        return this.#viewport.cartesian.yMin;
+    }
+
+    /**
+     * Gets the rendering viewport maximum y value in cartesian coordinates.
+     */
+    get cartesianYMax() {
+        return this.#viewport.cartesian.yMax;
+    }
+
+    /**
+     * Gets the cartesian coordinate of the left edge of the plot.
+     */
+    get cartesianEdgeXMin() {
+        return this.#edges.cartesian.xMin;
+    }
+
+    /**
+     * Gets the cartesian coordinate of the right edge of the plot.
+     */
+    get cartesianEdgeXMax() {
+        return this.#edges.cartesian.xMax;
+    }
+
+    /**
      * Converts x in screen coordinates to cartesian coordinates.
      * It requires cartesian origin in screen coordinates to be computed.
      * @param {Number} sx x in screen coordinates.

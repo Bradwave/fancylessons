@@ -432,6 +432,44 @@ let functionPlot = function (id, functions, options) {
 
         // ------- STUFF HERE -------
         drawAxisPlot();
+        drawFunctions();
+    }
+
+    /**
+     * Draws the functions
+     */
+    function drawFunctions() {
+        // For each function
+        functions.forEach((f) => {
+            // Stores the corresponding context
+            let fCtx = fCtxs.get(f.id);
+
+            // Sets the style
+            fCtx.strokeStyle = getCssVariable(f.color);
+            fCtx.lineWidth = f.lineWidth;
+
+            // For each domain interval
+            f.domain.forEach((interval) => {
+                // If the interval is at least partially framed
+                if (interval[0] <= cs.cartesianXMin || interval[1] >= cs.cartesianYMax) {
+                    // Checks if the interval boundary are infinite (and constrains them if necessary)
+                    const intervalStart = interval[0] == -Infinity ? cs.cartesianEdgeXMin : interval[0];
+                    const intervalEnd = interval[1] == Infinity ? cs.cartesianEdgeXMax : interval[1];
+                    // Computes the loop starting and ending point
+                    const loopStart = Math.max(cs.toScreenX(intervalStart), cs.screenXMin);
+                    const loopEnd = Math.min(cs.toScreenX(intervalEnd), cs.screenXMax);
+
+                    // Draws the function
+                    fCtx.beginPath();
+                    fCtx.moveTo(loopStart, cs.toScreenY(f.definition(cs.toCartesianX(loopStart))))
+                    for (i = loopStart + 1; i <= loopEnd; i++) {
+                        // The function is evaluated using the definition
+                        fCtx.lineTo(i, cs.toScreenY(f.definition(cs.toCartesianX(i))));
+                    }
+                    fCtx.stroke();
+                }
+            });
+        })
     }
 
     function drawAxisPlot() {

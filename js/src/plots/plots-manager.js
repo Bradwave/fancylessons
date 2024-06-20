@@ -28,8 +28,8 @@ let plotsManager = new function () {
         plots.set('test-function', new functionPlot("test-function", [
             {
                 id: "line",
-                definition: "[x] + 2",
-                domain: [[-Infinity, +Infinity]],
+                definition: (x) => { return Math.sin(x) },
+                domain: [[-50, +50], [100, 150]],
                 color: "accent",
                 lineWidth: 3
             }
