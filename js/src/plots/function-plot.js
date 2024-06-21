@@ -303,10 +303,10 @@ let functionPlot = function (id, functions, options) {
 
         if (options.isGridToggleActive) {
             // Executes when the grid button is pressed
-            document.getElementById(id + "-plot-grid").onclick = () => {
+            document.getElementById(id + "-plot-toggle-grid").onclick = () => {
                 isGridVisible = !isGridVisible;
                 // Styles the button
-                document.getElementById(id + "-plot-grid").style.opacity = isGridVisible ? "1" : "0.4";
+                document.getElementById(id + "-plot-toggle-grid").style.opacity = isGridVisible ? "1" : "0.4";
                 // Draws the plot
                 publicAPIs.drawPlot();
             }
@@ -360,12 +360,13 @@ let functionPlot = function (id, functions, options) {
 
         if (options.isFullscreenToggleActive) {
             // Executes when the fullscreen button is pressed
-            document.getElementById(id + "-plot-fullscreen").onclick = () => {
+            document.getElementById(id + "-plot-toggle-fullscreen").onclick = () => {
                 // Changes the fullscreen status
                 isFullscreen = !isFullscreen;
 
                 // Changes the icon
-                document.getElementById(id + "-plot-fullscreen-icon").innerText = isFullscreen ? "fullscreen_exit" : "fullscreen";
+                document.getElementById(id + "-plot-toggle-fullscreen-icon").innerText =
+                    isFullscreen ? "fullscreen_exit" : "fullscreen";
 
                 // Stores the fullscreen and original container
                 let fullscreenContainer = document.getElementById("fullscreen-container");

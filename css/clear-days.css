@@ -4,19 +4,69 @@
     Table of content
     ----------------
     1. Global
-        - Fonts
-        - Variables
-        - Selection
-        - Scrollbar
+        1.1 Fonts
+        1.2 Variables
+        1.3 Selection
+        1.4 Scrollbar
+        1.5 Focus
     2. Components
-        2.1 Body
-        2.2 Grid Layouts, Images & Separators
+        2.1 Body and page container
+          - 2.1.1 Body
+          - 2.1.2 Page container and content
+          - 2.1.3 Text
+        2.2 Content layout
+          - 2.2.1 Grid layouts
+          - 2.2.2 Images
+          - 2.2.3 Separators
+          - 2.2.4 Bubble containers
         2.3 Canvas
-        2.4 slideshow
+          - 2.3.1 Plot container
+          - 2.3.2 Plot
+          - 2.3.3 Canvas
+          - 2.3.4 Plot controls buttons
+            - 2.3.4.1 Plot controls buttons
+            - 2.3.4.2 Plot controls icons
+        2.4 Slideshow
+          - 2.4.1 Slides
+          - 2.4.2 Options panel
+            - 2.4.2.1 Panel groups
+            - 2.4.2.2 Group items
+          - 2.4.3 Options buttons
+            - 2.4.3.1 Round button
+            - 2.4.3.2 Glass button
+            - 2.4.3.3 Toggle button
+            - 2.4.3.4 Button icons
+            - 2.4.3.5 Two-options picker
+              - 2.4.3.5.1 Serif picker
+              - 2.4.3.5.2 Text alignment picker
+            - 2.4.3.6 Slideshow controls
+              - 2.4.3.6.1 Slide number
+              - 2.4.3.6.2 Arrows
         2.5 Tooltip
+          - 2.5.1 Tooltip container
+          - 2.5.2 Tooltip text
+          - 2.5.3 Tooltip arrow
+          - 2.5.4 Animations
         2.6 Loaders
-        2.7 Input Boxes and Sliders
+          - 2.6.1 Plot loader
+          - 2.6.2 General loader
+          - 2.6.3 Loading container
+        2.7 Input boxes and sliders
+          - 2.7.1 Input box
+          - 2.7.2 Slider
+            - 2.7.2.1 Slider base
+            - 2.7.2.2 Slider progress bar
+            - 2.7.2.3 Slider
+            - 2.7.2.4 Slider handle
+            - 2.7.2.5 Slider icon
         2.8 Math Environments
+          - 2.8.1 Definition
+          - 2.8.2 Theorem
+          - 2.8.3 Lemma
+          - 2.8.4 Corollary
+          - 2.8.5 Proposition
+          - 2.8.6 Property
+          - 2.8.6 Proof
         
 ===================================== */
 
@@ -24,11 +74,11 @@
     1. Global
     =============================== */
 
-/* -- Fonts -- */
+/* === 1.1 Fonts === */
 
 /* See "fonts" folder */
 
-/* -- Variables -- */
+/* === 1.2 Variables === */
 
 :root {
     /* -- Colors -- */
@@ -154,15 +204,13 @@
     --slider-general-transition-duration: 0.1s;
 }
 
-/* -- Selection -- */
+/* === 1.3 Selection === */
 
 /* Disable highlight rectangle on mobile */
 
 * {
     -webkit-tap-highlight-color: transparent;
 }
-
-/* -- Selection -- */
 
 ::-moz-selection {
     color: var(--highlight);
@@ -174,7 +222,7 @@
     background: var(--accent);
 }
 
-/* -- Scrollbar -- */
+/* === 1.4 Scrollbar === */
 
 ::-webkit-scrollbar {
     width: var(--scrollbar-width);
@@ -196,7 +244,7 @@
     background: var(--accent);
 }
 
-/* -- Focus -- */
+/* === 1.5 Focus === */
 
 *:focus-visible:not(input.input-box) {
     outline: solid var(--accent) 3px;
@@ -207,64 +255,9 @@
     2. Components
 =============================== */
 
-/* -- 2.1 Page container -- */
+/* === 2.1 Body and page container === */
 
-.page-container {
-    display: grid;
-    gap: var(--small-gap-size);
-    grid-template-columns: minmax(var(--page-sidebar-min-width), 1fr) 5fr minmax(var(--page-sidebar-min-width), 1fr);
-    font-family: var(--sans-serif-font);
-    visibility: hidden;
-    opacity: 0;
-    -webkit-transition: opacity 0.1s ease-in-6ut, grid-template-columns 0.5s ease-in-out;
-    -moz-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
-    -ms-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
-    -o-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
-    transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
-}
-
-.page-content {
-    padding: var(--small-page-padding);
-    font-size: var(--default-font-size);
-    -webkit-transition: all var(--general-transition-duration) ease-in-out;
-    -moz-transition: all var(--general-transition-duration) ease-in-out;
-    -ms-transition: all var(--general-transition-duration) ease-in-out;
-    -o-transition: all var(--general-transition-duration) ease-in-out;
-    transition: all var(--general-transition-duration) ease-in-out;
-}
-
-@media (max-width:1400px) {
-    .page-container {
-        grid-template-columns: minmax(var(--lateral-column-min-width), 1fr) 6fr minmax(var(--lateral-column-min-width), 1fr);
-    }
-}
-
-@media (max-width: 768px), (orientation: portrait), (hover: none) {
-    .page-container {
-        grid-template-columns: none;
-    }
-
-    .page-content {
-        padding: var(--large-page-padding);
-    }
-}
-
-/* -- Spacing -- */
-
-.spaced {
-    margin-top: 5%;
-    margin-bottom: 5%;
-}
-
-.spaced-top {
-    margin-top: 5%;
-}
-
-.spaced-bottom {
-    margin-bottom: 5%;
-}
-
-/* -- 2.2 Body -- */
+/* -- 2.2.1 Body -- */
 
 body {
     margin: 0;
@@ -280,7 +273,53 @@ body {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
-/* -- 2.2.1 Text -- */
+/* === 2.2.2 Body === */
+
+/* The page container contains the page content, but it doesn't contain the controllers. */
+.page-container {
+    display: grid;
+    gap: var(--small-gap-size);
+    grid-template-columns: minmax(var(--page-sidebar-min-width), 1fr) 5fr minmax(var(--page-sidebar-min-width), 1fr);
+    font-family: var(--sans-serif-font);
+    visibility: hidden;
+    opacity: 0;
+    -webkit-transition: opacity 0.1s ease-in-6ut, grid-template-columns 0.5s ease-in-out;
+    -moz-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    -ms-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    -o-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+    transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
+}
+
+/* The page content is the main column of the page container layout. */
+.page-content {
+    padding: var(--small-page-padding);
+    font-size: var(--default-font-size);
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
+}
+
+/* Automatically sets the size of the column layout (average and large screens). */
+@media (max-width:2800px) {
+    .page-container {
+        grid-template-columns: minmax(var(--lateral-column-min-width), 1fr) 6fr minmax(var(--lateral-column-min-width), 1fr);
+    }
+}
+
+/* Automatically sets the size of the column layout (small screens and mobile). */
+@media (max-width: 768px), (orientation: portrait), (hover: none) {
+    .page-container {
+        grid-template-columns: none;
+    }
+
+    .page-content {
+        padding: var(--large-page-padding);
+    }
+}
+
+/* -- 2.1.3 Text -- */
 
 /* -- Headers -- */
 
@@ -368,9 +407,9 @@ a {
     color: var(--accent);
 }
 
-/* -- 2.2 Grid Layouts, Images & Separators -- */
+/* == 2.2 Content layout == */
 
-/* -- Grid Layouts -- */
+/* -- 2.2.1 Grid Layouts -- */
 
 .grid-2 {
     display: grid;
@@ -412,6 +451,8 @@ a {
     text-align: center;
 }
 
+/* -- 2.2.2 Images -- */
+
 /* -- Image Labels -- */
 
 span.img-label {
@@ -443,7 +484,7 @@ span.img-label.grey {
     color: #555555;
 }
 
-/* -- Separators -- */
+/* -- 2.2.3 Separators -- */
 
 div.separator {
     margin-top: 5%;
@@ -456,6 +497,8 @@ div.medium-separator {
 div.large-separator {
     margin-top: 10%;
 }
+
+/* -- 2.2.4 Bubble containers -- */
 
 /* -- Bubble containers */
 
@@ -472,8 +515,11 @@ div.large-separator {
     place-items: center;
 }
 
-/* -- 2.3 Canvas -- */
+/* === 2.3 Canvas === */
 
+/* -- 2.3.1 Plot container -- */
+
+/* Div element used to center the plot. */
 div.plot-container {
     position: relative;
     display: grid;
@@ -483,6 +529,23 @@ div.plot-container {
     background-color: transparent;
 }
 
+/* Div container. When a plot goes to fullscreen mode, it goes here. */
+div.fullscreen-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    opacity: 1;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
+}
+
+/* -- 2.3.2 Plot -- */
+
+/* Div container, parent of the plot. It's also used to move plot to fullscreen mode .*/
 div.plot {
     position: relative;
     border: none;
@@ -497,19 +560,7 @@ div.plot {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
-div.fullscreen-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    visibility: hidden;
-    opacity: 1;
-    -webkit-transition: all var(--general-transition-duration) ease-in-out;
-    -moz-transition: all var(--general-transition-duration) ease-in-out;
-    -ms-transition: all var(--general-transition-duration) ease-in-out;
-    -o-transition: all var(--general-transition-duration) ease-in-out;
-    transition: all var(--general-transition-duration) ease-in-out;
-}
-
+/* Class added to the plot when in fullscreen mode. */
 div.fullscreen {
     position: fixed;
     top: 0;
@@ -521,6 +572,8 @@ div.fullscreen {
     border-radius: 0;
     z-index: 999;
 }
+
+/* -- 2.3.3 Canvas -- */
 
 canvas {
     -webkit-transition: all var(--general-transition-duration) ease-in-out;
@@ -549,6 +602,9 @@ canvas.plot.stacked {
     pointer-events: none;
 }
 
+/* -- 2.3.4 Plot controls -- */
+
+/* General plot control button */
 button.plot-control {
     position: absolute;
     display: grid;
@@ -577,55 +633,57 @@ button.plot-control:active {
     transition: transform var(--button-active-transition-duration) ease-in-out;
 }
 
+/* -- 2.3.4.1 Plot controls buttons -- */
+
+/* Zoom-in button (upper right corner) */
 button.zoom-in {
     top: var(--options-margin);
     right: calc(var(--options-margin) + var(--button-diameter) + var(--options-small-gap));
 }
 
+/* Zoom-out button (upper right corner) */
 button.zoom-out {
     top: var(--options-margin);
     right: var(--options-margin);
 }
 
-button.grid {
+/* Toggle grid button */
+button.toggle-grid {
     top: var(--options-margin);
     left: calc(var(--options-margin) + var(--button-diameter) + var(--options-small-gap));
     user-select: none;
 }
 
+/* Refresh plot button */
 button.plot-refresh {
     top: var(--options-margin);
     left: var(--options-margin);
     user-select: none;
 }
 
+/* Toggle fullscreen */
 button.fullscreen {
     bottom: var(--options-margin);
     right: var(--options-margin);
     user-select: none;
 }
 
+/* Makes the button icon bold */
 span.bold-button {
     font-weight: 600;
     user-select: none;
 }
 
+/* -- 2.3.4.2 Plot controls icons -- */
+
+/* Decreases the size of the grid icon */
 span.grid-icon {
     font-size: 22px;
 }
 
-div.plot-options {
-    display: grid;
-    place-items: center;
-    transition: all .3s ease-in-out;
-    user-select: none;
-}
+/* === 2.4 slideshow === */
 
-div.play-pause-plot {
-    position: relative;
-}
-
-/* -- 2.4 slideshow -- */
+/* -- 2.4.1 Slides -- */
 
 div.slide, div.slide.hidden {
     padding: 5px 10px var(--slide-padding-bottom) 10px;
@@ -634,6 +692,9 @@ div.slide, div.slide.hidden {
     transition: all .3s ease-in-out;
 }
 
+/* -- 2.4.2 Options panel -- */
+
+/* Panel containing options and controls */
 div.options-panel {
     margin: var(--options-margin);
     padding: var(--options-padding);
@@ -649,6 +710,7 @@ div.options-panel {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
+/* Options panel containing the format options for the page content */
 #format-options-panel {
     width: var(--expanded-format-options-panel-width);
     position: fixed;
@@ -658,6 +720,7 @@ div.options-panel {
     height: var(--format-options-panel-height);
 }
 
+/* Options panel containing the slideshow controls */
 #slideshow-navigation-options-panel {
     position: fixed;
     bottom: 0;
@@ -671,6 +734,9 @@ div.options-panel {
     transition: all var(--general-long-transition-duration) ease-in-out;
 }
 
+/* -- 2.4.2.1 Panel groups -- */
+
+/* Group of buttons and sliders inside an options panel, arranged horizontally */
 div.options-panel-group {
     display: flex;
     height: var(--button-diameter);
@@ -689,6 +755,7 @@ div.options-panel-group {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
+/* Group of buttons and sliders inside an options panel, arranged vertically */
 div.vertical-options-panel-group {
     display: flex;
     flex-flow: column nowrap;
@@ -706,27 +773,38 @@ div.vertical-options-panel-group {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
+/* Group containing the options and slideshow toggle */
 #toggles-options-panel-group {
     justify-content: flex-end;
 }
 
+/* Group containing all the format options */
 #complete-format-options-panel-group {
     margin-top: calc(2 * var(--options-gap));
     visibility: hidden;
     opacity: 0;
 }
 
+/* Group containing the font options */
 #font-options-panel-group {
     justify-content: flex-end;
 }
 
+/*Group containing the page size options */
 #page-size-options-panel-group {
     justify-content: flex-end;
 }
 
+/* Group containing slideshow navigation controls */
 #slideshow-navigation-options-panel-group {
     width: 100%;
     justify-content: space-between;
+}
+
+/* -- 2.4.2.2 Group items -- */
+
+#slideshow-toggle {
+    background-color: transparent;
 }
 
 #font-size-picker {
@@ -749,52 +827,9 @@ div.vertical-options-panel-group {
     background-color: transparent;
 }
 
-#slideshow-toggle {
-    background-color: transparent;
-}
+/* -- 2.4.3 Options buttons -- */
 
-.round-capsule {
-    width: var(--button-diameter);
-    height: var(--button-diameter);
-    vertical-align: middle;
-    margin: 0;
-    padding: 0;
-    border: none;
-    border-radius: var(--button-radius);
-}
-
-button.toggle-button {
-    display: grid;
-    place-items: center;
-    padding: 0;
-    border: none;
-    outline: none;
-    cursor: pointer;
-}
-
-svg.toggle-icon {
-    -webkit-transition: all var(--general-transition-duration) ease-in-out;
-    -moz-transition: all var(--general-transition-duration) ease-in-out;
-    -ms-transition: all var(--general-transition-duration) ease-in-out;
-    -o-transition: all var(--general-transition-duration) ease-in-out;
-    transition: all var(--general-transition-duration) ease-in-out;
-}
-
-svg.button-icon {
-    width: var(--button-icon-diameter);
-    height: var(--button-icon-diameter);
-    fill: currentColor;
-}
-
-svg.alignment-button {
-    width: calc(0.9 * var(--button-icon-diameter));
-    height: calc(0.9 * var(--button-icon-diameter));
-    fill: currentColor;
-}
-
-#portrait-toggle-icon {
-    transform: rotate(90deg);
-}
+/* -- 2.4.3.1 Round button -- */
 
 button.round-button {
     width: var(--button-diameter);
@@ -811,6 +846,8 @@ button.round-button {
     -o-transition: all var(--general-transition-duration) ease-in-out;
     transition: all var(--general-transition-duration) ease-in-out;
 }
+
+/* -- 2.4.3.2 Glass button -- */
 
 button.glass-grey {
     background-color: var(--light-grey);
@@ -832,13 +869,47 @@ button.glass-grey:active {
     transition: transform var(--button-active-transition-duration) ease-in-out;
 }
 
-button.two-options-picker-button {
-    vertical-align: middle;
-    background-color: transparent;
-    color: var(--dark-grey);
-    font-weight: var(--bold-weight);
+/* -- 2.4.3.3 Toggle button -- */
+
+button.toggle-button {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
 }
 
+svg.toggle-icon {
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
+}
+
+/* -- 2.4.3.4 Button icons -- */
+
+svg.button-icon {
+    width: var(--button-icon-diameter);
+    height: var(--button-icon-diameter);
+    fill: currentColor;
+}
+
+svg.alignment-button {
+    width: calc(0.9 * var(--button-icon-diameter));
+    height: calc(0.9 * var(--button-icon-diameter));
+    fill: currentColor;
+}
+
+/* Rotates the portrait toggle by default */
+#portrait-toggle-icon {
+    transform: rotate(90deg);
+}
+
+/* -- 2.4.3.5 Two-options picker -- */
+
+/* Capsule that can be expanded and shrunk */
 .two-options-picker-capsule {
     display: flex;
     height: var(--button-diameter);
@@ -859,6 +930,7 @@ button.two-options-picker-button {
     z-index: var(--two-options-capsule-index);
 }
 
+/* Selection circle that moves */
 .two-options-picker-selection-circle {
     position: absolute;
     width: var(--button-diameter);
@@ -877,6 +949,17 @@ button.two-options-picker-button {
     z-index: var(--two-options-picker-lower-index);
 }
 
+/* Button inside the capsule */
+button.two-options-picker-button {
+    vertical-align: middle;
+    background-color: transparent;
+    color: var(--dark-grey);
+    font-weight: var(--bold-weight);
+}
+
+/* -- 2.4.3.5.1 Serif picker -- */
+
+/*  */
 #serif-button {
     position: absolute;
     order: 1;
@@ -899,6 +982,8 @@ button.two-options-picker-button {
     z-index: var(--two-options-picker-higher-index);
 }
 
+/* -- 2.4.3.5.2 Text alignment picker -- */
+
 #align-left-button {
     position: absolute;
     order: 1;
@@ -912,6 +997,10 @@ button.two-options-picker-button {
     opacity: 0;
     z-index: var(--two-options-picker-middle-index);
 }
+
+/* -- 2.4.3.6 Slideshow controls -- */
+
+/* -- 2.4.3.6.1 Slide number -- */
 
 #slide-number-button {
     min-width: var(--button-diameter);
@@ -944,6 +1033,9 @@ button.two-options-picker-button {
     font-size: var(--button-radius);
 }
 
+/* -- 2.4.3.6.2 Arrows -- */
+
+/* Arrows container */
 #arrows {
     position: relative;
     width: var(--arrows-capsule-width);
@@ -964,6 +1056,7 @@ button.two-options-picker-button {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
+/* Arrow button */
 button.arrow-button {
     cursor: pointer;
 }
@@ -973,22 +1066,25 @@ button.arrow-button:active {
     background-color: var(--accent);
 }
 
+/* Previous slide button */
+#previous {
+    width: var(--button-diameter);
+}
+
+/* Next slide button */
+#next {
+    width: var(--button-diameter);
+}
+
+/* Arrow button icon */
 svg.arrow-icon {
     fill: currentColor;
     color: inherit;
 }
 
-#previous {
-    width: var(--button-diameter);
-}
+/* === 2.5 Tooltip === */
 
-#next {
-    width: var(--button-diameter);
-}
-
-/* -- 2.5 Tooltip -- */
-
-/* Tooltip container */
+/* -- 2.5.1 Tooltip container -- */
 
 .tooltip {
     position: relative;
@@ -998,7 +1094,7 @@ svg.arrow-icon {
     cursor: pointer;
 }
 
-/* Tooltip text */
+/* -- 2.5.2 Tooltip text -- */
 
 .tooltip .tooltip-text {
     visibility: collapse;
@@ -1027,7 +1123,7 @@ svg.arrow-icon {
     top: 100%;
 }
 
-/* Tooltip arrow */
+/* -- 2.5.3 Tooltip arrow -- */
 
 .tooltip .tooltip-text::after {
     content: "";
@@ -1047,6 +1143,8 @@ svg.arrow-icon {
     bottom: 98%;
 }
 
+/* -- 2.5.4 Animations -- */
+
 /* Show the tooltip text when you mouse over the tooltip container */
 
 .tooltip:hover .tooltip-text {
@@ -1062,7 +1160,7 @@ svg.arrow-icon {
     transform: translate(-50%, 10px);
 }
 
-/* -- 2.6 Loaders -- */
+/* === 2.6 Loaders === */
 
 .loader, .loader:after {
     border-radius: 50%;
@@ -1092,7 +1190,7 @@ svg.arrow-icon {
     }
 }
 
-/* Plot loader */
+/* -- 2.6.1 Plot loader -- */
 
 .loader.plot {
     position: absolute;
@@ -1101,7 +1199,7 @@ svg.arrow-icon {
     border-left: 1.75em solid #00000090;
 }
 
-/* General loader */
+/* -- 2.6.2 General loader -- */
 
 .loader.general {
     top: 6pt;
@@ -1112,7 +1210,7 @@ svg.arrow-icon {
     animation-play-state: running;
 }
 
-/* Loading container */
+/* -- 2.6.3 Loading container -- */
 
 div.loading-container {
     position: fixed;
@@ -1129,10 +1227,11 @@ div.loading-container {
     transition: opacity 0.1s ease-in-out;
 }
 
-/* -- 2.7 Input Boxes and Sliders -- */
+/* == 2.7 Input boxes and sliders == */
 
-/* Input box */
+/* -- 2.7.1 Input box -- */
 
+/* Container to center the input box */
 div.input-container {
     display: grid;
     place-items: center;
@@ -1142,6 +1241,7 @@ div.input-container {
     font-weight: var(--bold-weight);
 }
 
+/* Input box */
 input.input-box {
     min-width: 10px;
     width: 40px;
@@ -1169,7 +1269,6 @@ input.input-box:hover {
 }
 
 /* Hides arrows of input box */
-
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
@@ -1180,7 +1279,9 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-/* Sliders */
+/* -- 2.7.2 Slider -- */
+
+/* -- 2.7.2.1 Slider base -- */
 
 div.slider-base {
     height: var(--button-diameter);
@@ -1196,18 +1297,29 @@ div.slider-base {
     transition: all var(--slider-general-transition-duration) ease-in-out;
 }
 
+/* Slider base for the font size slider */
 #font-size-slider-base {
     width: var(--format-options-panel-slider-width);
 }
 
+/* Slider base for the font line height slider */
+#line-height-slider-base {
+    width: var(--format-options-panel-slider-width);
+}
+
+/* Slider base for the page size slider */
 #page-size-slider-base {
     width: var(--format-options-panel-slider-width);
 }
 
+/* Slider base for the slide picker slider */
 #slideshow-slider-base {
     width: 100%;
 }
 
+/* -- 2.7.2.2 Slider progress bar -- */
+
+/* Slider progress bar */
 div.slider-progress {
     position: absolute;
     height: var(--button-diameter);
@@ -1225,21 +1337,27 @@ div.slider-progress {
     z-index: --(slider-progress-index);
 }
 
+/* Slider progress bar for the font size slider */
 #font-size-slider-progress {
     width: 45px;
 }
 
+/* Slider progress bar for the line height slider */
 #line-height-slider-progress {
     width: 45px;
 }
 
+/* Slider progress bar for the page size slider */
 #page-size-slider-progress {
     width: 45px;
 }
 
+/* Slider progress bar for the slide picker slider */
 #slideshow-slider-progress {
     width: var(--button-diameter);
 }
+
+/* -- 2.7.2.3 Slider -- */
 
 .slider {
     position: absolute;
@@ -1262,21 +1380,27 @@ div.slider-progress {
     z-index: var(--slider-index);
 }
 
+/* Font size slider */
 #font-size-slider {
     width: var(--format-options-panel-slider-width);
 }
 
+/* Line height slider */
 #line-height-slider {
     width: var(--format-options-panel-slider-width);
 }
 
+/* Page size slider */
 #page-size-slider {
     width: var(--format-options-panel-slider-width);
 }
 
+/* Slide picker slider */
 #slideshow-slider {
     width: var(--slideshow-slider-width);
 }
+
+/* -- 2.7.2.4 Slider handle -- */
 
 /* The slider handle  */
 .slider::-webkit-slider-thumb {
@@ -1300,6 +1424,8 @@ div.slider-progress {
     cursor: inherit;
 }
 
+/* -- 2.7.2.5 Slider icon -- */
+
 svg.slider-icon {
     width: var(--slider-icon-size);
     height: var(--slider-icon-size);
@@ -1318,23 +1444,19 @@ span.slider-icon {
     font-size: calc(0.8 * var(--slider-icon-size));
 }
 
-#slideshow-slider-icon {
-    font-family: var(--mono-font);
-    font-style: var(--bold-weight);
-    color: var(--dark-grey);
-}
-
+/* Slider icon for the font size slider (moves slightly to the left) */
 #font-size-slider-icon {
     transform: translateX(-1px);
 }
 
+/* Slider icon for the page size slider (rotates by 90 degrees) */
 #page-size-slider-icon {
     transform: rotate(90deg);
 }
 
 /* -- 2.8 Math Environments -- */
 
-/* Definition */
+/* -- 2.8.1 Definition -- */
 
 div.definition {
     margin-top: 15px;
@@ -1382,8 +1504,7 @@ span.definition-label.no-dash::after {
     content: ")\00a0";
 }
 
-
-/* Theorem */
+/*-- 2.8.2 Theorem -- */
 
 div.theorem {
     margin-top: 15px;
@@ -1427,7 +1548,7 @@ span.theorem-label::after {
     color: var(--primary);
 }
 
-/* Lemma */
+/* -- 2.8.3 Lemma -- */
 
 div.theorem.lemma::before {
     content: "Lemma "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
@@ -1437,19 +1558,19 @@ div.theorem.lemma.named::before {
     content: "Lemma "counter(chapter) "."counter(section) "/"counter(theorem);
 }
 
-/* Corollary */
+/* -- 2.8.4 Corollary -- */
 
 div.theorem.corollary::before {
     content: "Corollario "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
 }
 
-/* Proposition */
+/* -- 2.8.5 Proposition -- */
 
 div.theorem.proposition::before {
     content: "Proposizione "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
 }
 
-/* Property */
+/* -- 2.8.6 Property -- */
 
 div.theorem.property::before {
     content: "Proprietà "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
@@ -1465,7 +1586,7 @@ div.theorem.properties::before {
     content: "Proprietà "counter(chapter) "."counter(section) "/"counter(theorem) "\00a0\00a0—\00a0";
 }
 
-/* -- Proof -- */
+/* -- 2.8.7 Proof -- */
 
 div.proof {
     margin-top: 15px;
