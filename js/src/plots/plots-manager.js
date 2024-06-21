@@ -30,7 +30,7 @@ let plotsManager = new function () {
                 id: "line",
                 definition: (x) => { return Math.sin(x) },
                 domain: [[-50, +50], [100, 150]],
-                color: "accent",
+                color: getCssVariable("accent"),
                 lineWidth: 3
             }
         ], {
@@ -40,12 +40,13 @@ let plotsManager = new function () {
                 { id: "t", name: "t" }
             ],
             labelSize: 15,
-            backgroundColor: "very-light-grey",
-            axisColor: "highlight",
+            backgroundColor: getCssVariable("very-light-grey"),
+            axisColor: getCssVariable("highlight"),
             axisLineWidth: 3,
-            gridColor: "highlight",
+            gridColor: getCssVariable("highlight"),
             gridLineWidth: 1,
-            isGridHidable: true
+            secondaryGridColor: getCssVariable("transparent-highlight"),
+            secondaryGridLineWidth: 1
         }));
 
         plots.forEach((plot) => {

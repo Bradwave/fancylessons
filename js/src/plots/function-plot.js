@@ -79,6 +79,11 @@ let functionPlot = function (id, functions, options) {
      */
     let isGridVisible = true;
 
+    /**
+     * True if the plot is full screen, false otherwise.
+     */
+    let isFullscreen = false;
+
     /*_______________________________________
     |   Methods
     */
@@ -90,11 +95,21 @@ let functionPlot = function (id, functions, options) {
         // Sets default parameters
         if (options.parameters == undefined) options.parameters = [];
         if (options.labelSize == undefined) options.labelSize = 15;
-        if (options.backgroundColor == undefined) options.backgroundColor = "highlight";
-        if (options.axisColor == undefined) options.axisColor = "dark-grey";
-        if (options.gridColor == undefined) options.gridColor = "mid-grey";
+        if (options.backgroundColor == undefined) options.backgroundColor = "#ffffff";
+        if (options.axisColor == undefined) options.axisColor = "#3c3c3c";
+        if (options.gridColor == undefined) options.gridColor = "#777777";
         if (options.gridLineWidth == undefined) options.gridLineWidth = 1;
-        if (options.isGridHidable == undefined) options.isGridHidable = true;
+        if (options.secondaryGridColor == undefined) options.secondaryGridColor = "#7777776e";
+        if (options.secondaryGridLineWidth == undefined) options.secondaryGridLineWidth = 1
+        if (options.isGridVisible == undefined) options.isGridVisible = true;
+        if (options.isGridToggleActive == undefined) options.isGridToggleActive = true;
+        if (options.isRefreshActive == undefined) options.isRefreshActive = true;
+        if (options.isTranslationActive == undefined) options.isTranslationActive = true;
+        if (options.isZoomActive == undefined) options.isZoomActive = true;
+        if (options.isFullscreenToggleActive == undefined) options.isFullscreenToggleActive = true;
+
+        // Sets the grid visibility
+        isGridVisible = options.isGridVisible;
 
         functions.forEach((f) => {
             const functionPlot = new plotStructure(f.id + "-" + id, { alpha: true });
@@ -104,7 +119,7 @@ let functionPlot = function (id, functions, options) {
             fCtxs.set(f.id, functionPlot.getCtx());
 
             // Sets default function parameters
-            if (f.color == undefined) f.color = "accent";
+            if (f.color == undefined) f.color = "#1484e6";
             if (f.lineWidth == undefined) f.lineWidth = 3;
         })
 
@@ -114,6 +129,9 @@ let functionPlot = function (id, functions, options) {
         // Create a new coordinate system
         cs = new CoordinateSystem(width, height,
             { x: options.viewportCenter.x, y: options.viewportCenter.y }, options.initialPixelsPerUnit);
+
+        // Adds event listeners
+        addEventListener();
     }
 
     /*_______________________________________
@@ -150,185 +168,285 @@ let functionPlot = function (id, functions, options) {
     |   Events and controls
     */
 
-    /* -- Axis translation -- */
+    function addEventListener() {
 
-    // Executes when a mouse button si pressed the canvas
-    axisPlot.getCanvas().onmousedown = (e) => {
-        // If the left button is clicked
-        if (e.button == 0) {
-            isLeftMouseDown = true;
-            // The mouse position is stored
-            touchPosition = { x: e.clientX * dpi, y: e.clientY * dpi };
-        }
-    };
+        /* -- Axis translation -- */
 
-    // Executes when a mouse button is released on the whole document
-    document.onmouseup = (e) => {
-        if (e.button == 0) {
-            isLeftMouseDown = false;
-        }
-    };
-
-    // Executes when the mouse is moved on the whole document
-    document.onmousemove = (e) => {
-        // If the left mouse is pressed
-        if (isLeftMouseDown) {
-            // Stores the current mouse position
-            const newTouchPosition = { x: e.clientX * dpi, y: e.clientY * dpi }
-            // Translates the axis
-            translateAxis(newTouchPosition);
-        }
-    };
-
-    // Executes when the touch starts on the canvas
-    axisPlot.getCanvas().ontouchstart = (e) => {
-        // Stores the current touch position
-        touchPosition = getTouchPosition(e);
-    };
-
-
-    // Executes when a touch move event is detected
-    document.ontouchmove = (e) => {
-        // Stores the current touch position
-        const newTouchPosition = getTouchPosition(e);
-        // Translates the axis
-        translateAxis(newTouchPosition);
-    };
-
-    /**
-     * Store the latest touch position.
-     * @param {*} e Event
-     * @returns The current touch position.
-     */
-    const getTouchPosition = (e) => {
-        e.preventDefault();
-        // Stores the touches
-        let touches = e.changedTouches;
-        return {
-            x: touches[0].pageX * dpi,
-            y: touches[0].pageY * dpi
-        }
-    }
-
-    /**
-     * Translates the axis according to the latest touch/mouse position and the starting touch/mouse position.
-     * @param {Object} newTouchPosition The latest touch/mouse position (x, y);
-     */
-    function translateAxis(newTouchPosition) {
-        // Translates the origin
-        cs.translateOrigin(
-            newTouchPosition.x - touchPosition.x,
-            newTouchPosition.y - touchPosition.y
-        );
-        // Updates the touch position
-        touchPosition = newTouchPosition;
-        // Draws the updated plot
-        publicAPIs.drawPlot();
-    }
-
-    // Executes when the zoom-in button is pressed
-    document.getElementById(id + "-plot-zoom-in").onclick = () => {
-        isRunning = true;
-        // Stores current zoom as 1
-        currentZoom = 1;
-        // Sets the zoom increment factor
-        const zoomInc = 1.05;
-        // Sets the maximum zoom, compared to current (which is set to 1)
-        const maxZoom = 2;
-        // Animates the zoom-in
-        animate(() => {
-            zoomViewport(zoomInc, maxZoom, () => { return currentZoom > maxZoom / zoomInc });
-        });
-    };
-
-    // Executes when the zoom-out button is pressed
-    document.getElementById(id + "-plot-zoom-out").onclick = () => {
-        isRunning = true;
-        // Stores current zoom as 1
-        currentZoom = 1;
-        // Sets the zoom increment factor
-        const zoomInc = 1.05;
-        // Sets the minimum zoom, compared to current (which is set to 1)
-        const minZoom = 1 / 2;
-        // Animates the zoom-out
-        animate(() => {
-            zoomViewport(1 / zoomInc, minZoom, () => { return currentZoom < minZoom * zoomInc });
-        });
-    }
-
-    // Executes when the mouse wheel is scrolled
-    axisPlot.getCanvas().addEventListener("wheel", (e) => {
-        // Prevents page scrolling
-        e.preventDefault();
-
-        // Bounding client rectangle
-        const rect = e.target.getBoundingClientRect();
-        // x position within the canvas
-        const zoomX = (e.clientX - rect.left) * dpi;
-        // y position within the canvas
-        const zoomY = (e.clientY - rect.top) * dpi;
-
-        // Updates the zoom level
-        cs.updateZoom(Math.exp(-e.deltaY / 1000), { x: zoomX, y: zoomY });
-        // Draws the plot
-        publicAPIs.drawPlot();
-        // "passive: false" allows preventDefault() to be called
-    }, { passive: false });
-
-    if (options.isGridHidable) {
-        // Toggle grid button
-        const gridButton = document.getElementById(id + "-plot-grid");
-        // On click
-        gridButton.onclick = () => {
-            isGridVisible = !isGridVisible;
-            // Styles the button
-            gridButton.style.opacity = isGridVisible ? "1" : "0.4";
-            // Draws the plot
-            publicAPIs.drawPlot();
-        }
-    }
-
-    document.getElementById(id + "-plot-refresh").onclick = () => {
-        isRunning = true;
-
-        /* -- Zoom setup -- */
-
-        // Stores current zoom level as 1
-        currentZoom = 1;
-        // Computes the end zoom level, compared to current (which is set to 1)
-        const endZoom = options.initialPixelsPerUnit / cs.pixelsPerUnit;
-        // Sets the zoom increment factor
-        const zoomInc = 1.05;
-        // Zoom needs to be performed by default (not locked)
-        let isZoomLocked = false;
-
-        /* -- Translation setup -- */
-
-        // The translation is performed by default
-        isTranslating = { x: true, y: true };
-
-        /* -- Animation -- */
-
-        animate(() => {
-            // Animates the zoom-in or zoom-out
-            zoomViewport(endZoom > 1 ? zoomInc : (1 / zoomInc), endZoom,
-                () => {
-                    if (endZoom > 1) return currentZoom > endZoom / zoomInc;
-                    else return currentZoom <= endZoom * zoomInc
-                }, cs.toScreen(0, 0), isZoomLocked);
-
-            // If the zoom animation is stopped, the zoom is locked
-            // The value of "running" could change depending on the translation animation
-            if (!isRunning) {
-                isZoomLocked = true;
+        if (options.isTranslationActive) {
+            // Executes when a mouse button si pressed the canvas
+            axisPlot.getCanvas().onmousedown = (e) => {
+                // If the left button is clicked
+                if (e.button == 0) {
+                    isLeftMouseDown = true;
+                    // The mouse position is stored
+                    touchPosition = { x: e.clientX * dpi, y: e.clientY * dpi };
+                }
             }
 
-            // Animates the translation
-            autoTranslate(options.viewportCenter, 0.05);
+            // Executes when a mouse button is released on the whole document
+            document.onmouseup = (e) => {
+                if (e.button == 0) {
+                    isLeftMouseDown = false;
+                }
+            }
 
-            // The animation keeps running until both the zoom and the translation stop
-            isRunning = isRunning || isTranslating.x || isTranslating.y
-        });
+            // Executes when the mouse is moved on the whole document
+            document.onmousemove = (e) => {
+                // If the left mouse is pressed
+                if (isLeftMouseDown) {
+                    // Stores the current mouse position
+                    const newTouchPosition = { x: e.clientX * dpi, y: e.clientY * dpi }
+                    // Translates the axis
+                    translateAxis(newTouchPosition);
+                }
+            }
+
+            // Executes when the touch starts on the canvas
+            axisPlot.getCanvas().ontouchstart = (e) => {
+                // Stores the current touch position
+                touchPosition = getTouchPosition(e);
+            }
+
+
+            // Executes when a touch move event is detected
+            document.ontouchmove = (e) => {
+                // Stores the current touch position
+                const newTouchPosition = getTouchPosition(e);
+                // Translates the axis
+                translateAxis(newTouchPosition);
+            }
+
+            /**
+             * Store the latest touch position.
+             * @param {*} e Event
+             * @returns The current touch position.
+             */
+            const getTouchPosition = (e) => {
+                e.preventDefault();
+                // Stores the touches
+                let touches = e.changedTouches;
+                return {
+                    x: touches[0].pageX * dpi,
+                    y: touches[0].pageY * dpi
+                }
+            }
+
+            /**
+             * Translates the axis according to the latest touch/mouse position and the starting touch/mouse position.
+             * @param {Object} newTouchPosition The latest touch/mouse position (x, y);
+             */
+            function translateAxis(newTouchPosition) {
+                // Translates the origin
+                cs.translateOrigin(
+                    newTouchPosition.x - touchPosition.x,
+                    newTouchPosition.y - touchPosition.y
+                );
+                // Updates the touch position
+                touchPosition = newTouchPosition;
+                // Draws the updated plot
+                publicAPIs.drawPlot();
+            }
+        }
+
+        /* -- Zoom -- */
+
+        if (options.isZoomActive) {
+            // Executes when the zoom-in button is pressed
+            document.getElementById(id + "-plot-zoom-in").onclick = () => {
+                isRunning = true;
+                // Stores current zoom as 1
+                currentZoom = 1;
+                // Sets the zoom increment factor
+                const zoomInc = 1.05;
+                // Sets the maximum zoom, compared to current (which is set to 1)
+                const maxZoom = 2;
+                // Animates the zoom-in
+                animate(() => {
+                    zoomViewport(zoomInc, maxZoom, () => { return currentZoom > maxZoom / zoomInc });
+                });
+            }
+
+            // Executes when the zoom-out button is pressed
+            document.getElementById(id + "-plot-zoom-out").onclick = () => {
+                isRunning = true;
+                // Stores current zoom as 1
+                currentZoom = 1;
+                // Sets the zoom increment factor
+                const zoomInc = 1.05;
+                // Sets the minimum zoom, compared to current (which is set to 1)
+                const minZoom = 1 / 2;
+                // Animates the zoom-out
+                animate(() => {
+                    zoomViewport(1 / zoomInc, minZoom, () => { return currentZoom < minZoom * zoomInc });
+                });
+            }
+
+            // Executes when the mouse wheel is scrolled
+            axisPlot.getCanvas().addEventListener("wheel", (e) => {
+                // Prevents page scrolling
+                e.preventDefault();
+
+                // Bounding client rectangle
+                const rect = e.target.getBoundingClientRect();
+                // x position within the canvas
+                const zoomX = (e.clientX - rect.left) * dpi;
+                // y position within the canvas
+                const zoomY = (e.clientY - rect.top) * dpi;
+
+                // Updates the zoom level
+                cs.updateZoom(Math.exp(-e.deltaY / 1000), { x: zoomX, y: zoomY });
+                // Draws the plot
+                publicAPIs.drawPlot();
+                // "passive: false" allows preventDefault() to be called
+            }, { passive: false });
+        }
+
+        if (options.isGridToggleActive) {
+            // Executes when the grid button is pressed
+            document.getElementById(id + "-plot-grid").onclick = () => {
+                isGridVisible = !isGridVisible;
+                // Styles the button
+                document.getElementById(id + "-plot-grid").style.opacity = isGridVisible ? "1" : "0.4";
+                // Draws the plot
+                publicAPIs.drawPlot();
+            }
+        }
+
+        if (options.isRefreshActive) {
+            // Executes when the refresh button is pressed
+            document.getElementById(id + "-plot-refresh").onclick = () => {
+                isRunning = true;
+
+                /* -- Zoom setup -- */
+
+                // Stores current zoom level as 1
+                currentZoom = 1;
+                // Computes the end zoom level, compared to current (which is set to 1)
+                const endZoom = options.initialPixelsPerUnit / cs.pixelsPerUnit;
+                // Sets the zoom increment factor
+                const zoomInc = 1.05;
+                // Zoom needs to be performed by default (not locked)
+                let isZoomLocked = false;
+
+                /* -- Translation setup -- */
+
+                // The translation is performed by default
+                isTranslating = { x: true, y: true };
+
+                /* -- Animation -- */
+
+                animate(() => {
+                    // Animates the zoom-in or zoom-out
+                    zoomViewport(endZoom > 1 ? zoomInc : (1 / zoomInc), endZoom,
+                        () => {
+                            if (endZoom > 1) return currentZoom > endZoom / zoomInc;
+                            else return currentZoom <= endZoom * zoomInc
+                        }, cs.toScreen(0, 0), isZoomLocked);
+
+                    // If the zoom animation is stopped, the zoom is locked
+                    // The value of "running" could change depending on the translation animation
+                    if (!isRunning) {
+                        isZoomLocked = true;
+                    }
+
+                    // Animates the translation
+                    autoTranslate(options.viewportCenter, 0.05);
+
+                    // The animation keeps running until both the zoom and the translation stop
+                    isRunning = isRunning || isTranslating.x || isTranslating.y
+                });
+            }
+        }
+
+        if (options.isFullscreenToggleActive) {
+            // Executes when the fullscreen button is pressed
+            document.getElementById(id + "-plot-fullscreen").onclick = () => {
+                // Changes the fullscreen status
+                isFullscreen = !isFullscreen;
+
+                // Changes the icon
+                document.getElementById(id + "-plot-fullscreen-icon").innerText = isFullscreen ? "fullscreen_exit" : "fullscreen";
+
+                // Stores the fullscreen and original container
+                let fullscreenContainer = document.getElementById("fullscreen-container");
+                let originalContainer = document.getElementById(id + "-plot-container");
+
+                // Sets the body opacity to zero
+                document.body.style.opacity = "0";
+
+                // Executes after the body opacity is lowered
+                setTimeout(() => {
+                    // Makes the fullscreen container visible (if fullscreen) or hidden
+                    fullscreenContainer.style.visibility = isFullscreen ? "visible" : "hidden";
+                    // Makes the scrollbar visible (if not fullscreen) or hidden
+                    document.body.style.overflow = isFullscreen ? "hidden" : "visible";
+
+                    if (isFullscreen) {
+                        // Moves the plot into the full screen container
+                        moveHTML(originalContainer, fullscreenContainer);
+                        // Styles the plot as fullscreen
+                        document.getElementById(id + "-plot").classList.add("fullscreen");
+                    } else {
+                        // Moves the plot into its original container
+                        moveHTML(fullscreenContainer, originalContainer)
+                        // Removes the fullscreen class and style
+                        document.getElementById(id + "-plot").classList.remove("fullscreen");
+                    }
+
+                    // Changes the border radius of the axis canvas
+                    document.getElementById(id + "-canvas").style.borderRadius = isFullscreen ? "0" : "var(--button-radius)";
+                    // Changes the border radius of every function canvas
+                    fPlots.forEach((fPlot) => {
+                        fPlot.getCanvas().style.borderRadius = isFullscreen ? "0" : "var(--button-radius)";
+                    })
+
+                    // Resizes the canvas
+                    publicAPIs.resizeCanvas();
+                    // Draws the plot
+                    publicAPIs.drawPlot();
+                }, 200);
+
+                // After the transition between fullscreen and non-fullscreen (or viceversa) is completed...
+                setTimeout(() => {
+                    // ...resets the body opacity
+                    document.body.style.opacity = "1";
+                }, 300);
+            }
+        }
+    }
+
+    /* -- Utils -- */
+
+    /**
+     * Moves an HTML element and its children to a new parent.
+     * @param {HTMLElement} oldParent Old parent HTML element.
+     * @param {HTMLElement} newParent New parent HTML element.
+     */
+    function moveHTML(oldParent, newParent) {
+        while (oldParent.childNodes.length > 0) {
+            newParent.appendChild(oldParent.childNodes[0]);
+        }
+    }
+
+    /*_______________________________________
+    |   Animations
+    */
+
+    /**
+     * A (probably poor) implementation of the pause-able loop.
+     * @param {Function} action Function to be executed every frame.
+     * @returns Early return if not playing.
+     */
+    function animate(action) {
+        if (!isRunning) {
+            return;
+        }
+        // Executes action to be performed every frame
+        action();
+        // Draws the ring
+        publicAPIs.drawPlot();
+        // Keeps executing this function
+        requestAnimationFrame(() => { animate(action); });
     }
 
     /**
@@ -354,27 +472,6 @@ let functionPlot = function (id, functions, options) {
             // Updates the zoom
             cs.updateZoom(zoomInc, { x: zoomCenter.x, y: zoomCenter.y });
         }
-    }
-
-    /*_______________________________________
-    |   Animations
-    */
-
-    /**
-     * A (probably poor) implementation of the pause-able loop.
-     * @param {Function} action Function to be executed every frame.
-     * @returns Early return if not playing.
-     */
-    function animate(action) {
-        if (!isRunning) {
-            return;
-        }
-        // Executes action to be performed every frame
-        action();
-        // Draws the ring
-        publicAPIs.drawPlot();
-        // Keeps executing this function
-        requestAnimationFrame(() => { animate(action); });
     }
 
     /**
@@ -445,7 +542,7 @@ let functionPlot = function (id, functions, options) {
             let fCtx = fCtxs.get(f.id);
 
             // Sets the style
-            fCtx.strokeStyle = getCssVariable(f.color);
+            fCtx.strokeStyle = f.color;
             fCtx.lineWidth = f.lineWidth;
 
             // For each domain interval
@@ -476,27 +573,27 @@ let functionPlot = function (id, functions, options) {
         if (isGridVisible) {
             /* -- Secondary grid  -- */
             drawGrid({ x: cs.screenSecondaryGridXMin, y: cs.screenSecondaryGridYMin }, cs.screenSecondaryGridStep,
-                getCssVariable("transparent-" + options.gridColor), options.gridLineWidth
+                options.secondaryGridColor, options.secondaryGridLineWidth
             );
 
             /* -- Main grid  -- */
             drawGrid({ x: cs.screenGridXMin, y: cs.screenGridYMin }, cs.screenGridStep,
-                getCssVariable(options.gridColor), options.gridLineWidth
+                options.gridColor, options.gridLineWidth
             );
 
             /* -- Axis -- */
-            drawAxis(getCssVariable(options.axisColor), options.axisLineWidth);
+            drawAxis(options.axisColor, options.axisLineWidth);
         }
 
         /* -- Plot border -- */
-        drawBorders(getCssVariable(options.gridColor), options.gridLineWidth + 1);
+        drawBorders(options.gridColor, options.gridLineWidth + 1);
 
         if (isGridVisible) {
             /* -- Labels -- */
-            drawLabels(getCssVariable(options.gridColor), 3);
+            drawLabels(options.gridColor, 3);
 
             /* -- Origin --  */
-            drawOrigin(getCssVariable(options.axisColor), 4);
+            drawOrigin(options.axisColor, 4);
         }
     }
 
@@ -605,7 +702,7 @@ let functionPlot = function (id, functions, options) {
 
     function drawLabels(color, lineWidth) {
         // Sets the style of the outline
-        axisCtx.strokeStyle = getCssVariable(options.backgroundColor);
+        axisCtx.strokeStyle = options.backgroundColor;
         axisCtx.lineWidth = lineWidth;
 
         // Sets the style of the label
@@ -744,7 +841,7 @@ let functionPlot = function (id, functions, options) {
     publicAPIs.clearPlot = () => {
         axisCtx.clearRect(0, 0, width + 1, height + 1)
 
-        axisCtx.fillStyle = getCssVariable(options.backgroundColor);
+        axisCtx.fillStyle = options.backgroundColor;
 
         axisCtx.beginPath();
         axisCtx.rect(0, 0, width, height);

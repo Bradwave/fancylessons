@@ -43,7 +43,7 @@
     --primary-rbg: 0, 0, 0;
     --highlight: #ffffff;
     --transparent-highlight: #ffffff6e;
-    --very-light-grey: #d2d2d2;
+    --very-light-grey: #e1e1e1;
     --light-grey: #c8c8c8;
     --transparent-light-grey: #ececec78;
     /* alternative transparent light-grey color: #f2f2f278 */
@@ -273,6 +273,11 @@ body {
     counter-reset: chapter section subsection definition definition theorem;
     scroll-behavior: smooth;
     scrollbar-width: thin;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
 }
 
 /* -- 2.2.1 Text -- */
@@ -485,6 +490,36 @@ div.plot {
     background-color: transparent;
     color: transparent;
     overscroll-behavior: contain;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
+}
+
+div.fullscreen-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    opacity: 1;
+    -webkit-transition: all var(--general-transition-duration) ease-in-out;
+    -moz-transition: all var(--general-transition-duration) ease-in-out;
+    -ms-transition: all var(--general-transition-duration) ease-in-out;
+    -o-transition: all var(--general-transition-duration) ease-in-out;
+    transition: all var(--general-transition-duration) ease-in-out;
+}
+
+div.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100vw;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    z-index: 999;
 }
 
 canvas {
@@ -496,11 +531,13 @@ canvas {
 }
 
 canvas.plot {
+    width: 100%;
+    height: 100%;
     border: none;
     outline: none;
     background-color: transparent;
-    z-index: 9;
     border-radius: var(--button-radius);
+    z-index: 9;
     cursor: crosshair;
     overscroll-behavior: contain;
 }
@@ -518,8 +555,9 @@ button.plot-control {
     place-items: center;
     color: var(--mid-grey);
     background-color: transparent;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(5px);
     cursor: pointer;
+    z-index: 9;
 }
 
 button.plot-control:hover {
@@ -530,7 +568,7 @@ button.plot-control:active {
     background-color: var(--accent);
     color: var(--highlight);
     user-select: none;
-    opacity: 1!important;
+    opacity: 1 !important;
     transform: scale(var(--active-button-scale));
     -webkit-transition: transform var(--button-active-transition-duration) ease-in-out;
     -moz-transition: transform var(--button-active-transition-duration) ease-in-out;
@@ -558,6 +596,12 @@ button.grid {
 button.plot-refresh {
     top: var(--options-margin);
     left: var(--options-margin);
+    user-select: none;
+}
+
+button.fullscreen {
+    bottom: var(--options-margin);
+    right: var(--options-margin);
     user-select: none;
 }
 

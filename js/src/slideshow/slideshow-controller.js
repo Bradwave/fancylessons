@@ -955,27 +955,6 @@ let slideshowController = new function () {
         }, animationDuration);
     }
 
-    /* ------ Page visibility ------ */
-
-    /**
-     * Temporarily hides the page container to perform an action.
-     * @param {Function} action Function to execute while the page container is not visible.
-     * @param {Number} hidingDuration Hiding duration in ms.
-     */
-    function hidePageContainerTemporarily(action, hidingDuration) {
-        // Hides the page container
-        document.getElementById("page-container").style.opacity = "0";
-
-        // Styles the page size slider and the page container
-        setTimeout(() => {
-            action();
-        }, hidingDuration);
-        // Displays the page container
-        setTimeout(() => {
-            document.getElementById("page-container").style.opacity = "1";
-        }, hidingDuration * 2);
-    }
-
     /*_______________________________________
     |   Slideshow related methods
     */

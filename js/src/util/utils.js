@@ -72,6 +72,12 @@ const getCssTimeInMs = (variableName) => {
     return parseFloat(getCssVariable(variableName)) * 1000;
 }
 
+/**
+ * Rounds the number of digits in a given float.
+ * @param {Number} number Float whose digits need to be rounded.
+ * @param {Number} numberOfDecimalDigits Number of digits.
+ * @returns The float with rounded number of digits.
+ */
 const roundNumberDigit = (number, numberOfDecimalDigits) => {
     return Math.round(number * Math.pow(10, numberOfDecimalDigits)) / Math.pow(10, numberOfDecimalDigits)
 }
