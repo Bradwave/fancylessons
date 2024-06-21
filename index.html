@@ -39,11 +39,11 @@
 
     <!-- Page content -->
 
-    <div id="page-container" class="page-container">
+    <div id="page-container" class="page-container hidden transparent sans-serif-font">
         <nav class="page-sidebar">
 
         </nav>
-        <main class="page-content" id="page-content">
+        <main id="page-content" class="page-content small-padding">
 
             <!-- MathJax commands -->
 
@@ -200,7 +200,7 @@
                         S
                     </button>
                     <!-- Button for the second options (sans serif) -->
-                    <button id="sans-serif-button" class="toggle-button round-button two-option-picker-button">
+                    <button id="sans-serif-button" class="toggle-button round-button two-options-picker-button">
                         S
                     </button>
                 </div>
@@ -246,7 +246,8 @@
                         </svg>
                     </button>
                     <!-- Button for the second option (justify) -->
-                    <button id="justify-button" class="toggle-button round-button two-options-picker-button">
+                    <button id="justify-button"
+                        class="toggle-button round-button two-options-picker-button">
                         <!-- SVG "Format Align Justify" icon -->
                         <svg class="toggle-icon alignment-button" xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 -960 960 960">
@@ -285,7 +286,8 @@
                 <div id="portrait-toggle" class="options-panel-group-item">
                     <button id="portrait-toggle-button" class="toggle-button round-button glass-grey">
                         <!-- SVG "Screenshot Frame" icon (rotates by 90 deg on click) -->
-                        <svg id="portrait-toggle-icon" class="toggle-icon button-icon" "http://www.w3.org/2000/svg"
+                        <svg id="portrait-toggle-icon"
+                            class="toggle-icon button-icon rotated-90deg" "http://www.w3.org/2000/svg"
                             viewBox="0 -960 960 960">
                             <path
                                 d="M240-680q-17 0-28.5-11.5T200-720v-80q0-33 23.5-56.5T280-880h80q17 0 28.5 11.5T400-840q0 17-11.5 28.5T360-800h-80v80q0 17-11.5 28.5T240-680Zm40 600q-33 0-56.5-23.5T200-160v-80q0-17 11.5-28.5T240-280q17 0 28.5 11.5T280-240v80h80q17 0 28.5 11.5T400-120q0 17-11.5 28.5T360-80h-80Zm440-600q-17 0-28.5-11.5T680-720v-80h-80q-17 0-28.5-11.5T560-840q0-17 11.5-28.5T600-880h80q33 0 56.5 23.5T760-800v80q0 17-11.5 28.5T720-680ZM600-80q-17 0-28.5-11.5T560-120q0-17 11.5-28.5T600-160h80v-80q0-17 11.5-28.5T720-280q17 0 28.5 11.5T760-240v80q0 33-23.5 56.5T680-80h-80Z" />
@@ -297,7 +299,7 @@
 
                 <div id="page-size-picker" class="options-panel-group-item">
                     <!-- Slider base -->
-                    <div id="page-size-slider-base" class="slider-base">
+                    <div id="page-size-slider-base" class="slider-base pointer-cursor">
                         <!-- Progress bar -->
                         <div id="page-size-slider-progress" class="slider-progress">
                             <!-- SVG "Expand" icon (rotated by 90 deg) -->

@@ -194,6 +194,8 @@ let functionPlot = function (id, functions, options) {
             document.onmousemove = (e) => {
                 // If the left mouse is pressed
                 if (isLeftMouseDown) {
+                    // Stops running animations
+                    isRunning = false;
                     // Stores the current mouse position
                     const newTouchPosition = { x: e.clientX * dpi, y: e.clientY * dpi }
                     // Translates the axis
@@ -306,7 +308,8 @@ let functionPlot = function (id, functions, options) {
             document.getElementById(id + "-plot-toggle-grid").onclick = () => {
                 isGridVisible = !isGridVisible;
                 // Styles the button
-                document.getElementById(id + "-plot-toggle-grid").style.opacity = isGridVisible ? "1" : "0.4";
+                if (isGridVisible) document.getElementById(id + "-plot-toggle-grid").classList.remove("transparent");
+                else document.getElementById(id + "-plot-toggle-grid").classList.add("transparent")
                 // Draws the plot
                 publicAPIs.drawPlot();
             }
@@ -373,32 +376,38 @@ let functionPlot = function (id, functions, options) {
                 let originalContainer = document.getElementById(id + "-plot-container");
 
                 // Sets the body opacity to zero
-                document.body.style.opacity = "0";
+                document.body.classList.add("transparent");
 
                 // Executes after the body opacity is lowered
                 setTimeout(() => {
-                    // Makes the fullscreen container visible (if fullscreen) or hidden
-                    fullscreenContainer.style.visibility = isFullscreen ? "visible" : "hidden";
-                    // Makes the scrollbar visible (if not fullscreen) or hidden
-                    document.body.style.overflow = isFullscreen ? "hidden" : "visible";
-
                     if (isFullscreen) {
+                        // Makes the container for fullscreen content visible
+                        fullscreenContainer.classList.add("visible");
+                        // Hides the scrollbar
+                        document.body.classList.add("hidden-overflow");
                         // Moves the plot into the full screen container
                         moveHTML(originalContainer, fullscreenContainer);
                         // Styles the plot as fullscreen
                         document.getElementById(id + "-plot").classList.add("fullscreen");
+                        // Makes the plot canvas borders squared
+                        document.getElementById(id + "-canvas").classList.add("squared-border");
                     } else {
+                        // Hides the container for fullscreen content
+                        fullscreenContainer.classList.add("visible");
+                        // Displays the scrollbar
+                        document.body.classList.remove("hidden-overflow");
                         // Moves the plot into its original container
                         moveHTML(fullscreenContainer, originalContainer)
                         // Removes the fullscreen class and style
                         document.getElementById(id + "-plot").classList.remove("fullscreen");
+                        // Makes the plot canvas borders rounded
+                        document.getElementById(id + "-canvas").classList.remove("squared-border")
                     }
 
-                    // Changes the border radius of the axis canvas
-                    document.getElementById(id + "-canvas").style.borderRadius = isFullscreen ? "0" : "var(--button-radius)";
                     // Changes the border radius of every function canvas
                     fPlots.forEach((fPlot) => {
-                        fPlot.getCanvas().style.borderRadius = isFullscreen ? "0" : "var(--button-radius)";
+                        if (isFullscreen) fPlot.getCanvas().classList.add("squared-border");
+                        else fPlot.getCanvas().classList.remove("squared-border")
                     })
 
                     // Resizes the canvas
@@ -410,7 +419,7 @@ let functionPlot = function (id, functions, options) {
                 // After the transition between fullscreen and non-fullscreen (or viceversa) is completed...
                 setTimeout(() => {
                     // ...resets the body opacity
-                    document.body.style.opacity = "1";
+                    document.body.classList.remove("transparent");
                 }, 300);
             }
         }

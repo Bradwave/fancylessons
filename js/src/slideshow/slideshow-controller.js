@@ -36,6 +36,11 @@ let slideshowController = new function () {
     let isSlidePickerVisible = true;
 
     /**
+     * True if the options panel is visible, false otherwise.
+     */
+    let isFormatOptionsPanelExpanded = false;
+
+    /**
      * Available page sizes (5 options).
      */
     const fractionalPageSizes = [3, 4, 5, 10, "full"];
@@ -96,20 +101,6 @@ let slideshowController = new function () {
     let twoOptionsPickers = new Map();
 
     /*_______________________________________
-    |   Styles
-    */
-
-    /**
-     * String containing the non selected slide style.
-     */
-    const nonSelectedSlideStyle = "opacity: 0.5; filter: blur(4px);";
-
-    /**
-     * String containing the selected slide style.
-     */
-    const selectedSlideStyle = "opacity: 1; filter: blur(0);";
-
-    /*_______________________________________
     |   HTML related methods
     */
 
@@ -126,36 +117,47 @@ let slideshowController = new function () {
         setLocallyStoredPortraitMode();
         setLocallyStoredPageSize();
 
-        // Get the location hash property
-        let hash = location.hash;
+        // Init the slideshow and the slide index
+        initSlideshow();
 
-        // Executes if the hash exists, meaning the slideshow was ongoing
-        if (hash) {
-            // Sets the current slide to the hash value
-            currentSlideIndex = parseInt(hash.substring(1));
-            isSlideshowMode = true;
-        }
-
+        // Sets the visibility of the slide picker
         setLocallyStoredSlidePickerVisibility();
     });
 
     window.onload = () => {
+        // Makes page content visible
+        document.getElementById("page-container").classList.add("visible");
+        document.getElementById("page-container").classList.remove("hidden");
+
         setTimeout(() => {
             // Removes the spinning loader
-            document.getElementById("loading-container").style.opacity = 0;
+            document.getElementById("loading-container").classList.add("transparent")
             setTimeout(() => {
                 document.getElementById("loading-container").remove();
-            }, 200);
-            // Makes page content visible 
-            document.getElementById("page-container").style.visibility = "visible";
-            document.getElementById("page-container").style.opacity = 1;
-        }, 300);
+            }, 400);
+
+            // Makes page content visible
+            document.getElementById("page-container").classList.remove("transparent");
+
+            // If slideshow mode isn't active
+            if (!isSlideshowMode) {
+                // Scrolls to stored scroll position
+                let scrollPosition = localStorage.getItem("scrollPosition");
+                if (scrollPosition) window.scrollTo({ top: scrollPosition, behavior: "smooth" });
+            }
+        }, 1000);
 
         if (isSlideshowMode) {
             // Start the slideshow
-            toggleSlideshow(true, { timeout: 1000 });
+            toggleSlideshow(true, { timeout: 1500 });
         }
     }
+
+    // Executes before reload
+    window.onbeforeunload = function (e) {
+        // Stores the current scroll position
+        localStorage.setItem("scrollPosition", window.scrollY);
+    };
 
     /**
      * Initializes the HTML elements and their listeners.
@@ -251,6 +253,9 @@ let slideshowController = new function () {
         addSlider("line-height");
         addSlider("page-size");
         addSlider("slideshow");
+
+        // Styles the slider as inactive
+        setDefaultSlidersStyle();
 
         /* -- Font size slider -- */
 
@@ -405,16 +410,10 @@ let slideshowController = new function () {
         // Gets the locally stored font style
         const fontStyle = localStorage.getItem("fontStyle");
         // Sets the locally stored font style if present (otherwise is set to sans serif)
-        setFontStyle(fontStyle);
-        // Makes the serif button visible if necessary
-        if (fontStyle == "serif") {
-            // Sans-serif button
-            twoOptionsPickers.get("serif").secondButton.style.opacity = 0;
-            setTimeout(() => {
-                // Serif button
-                twoOptionsPickers.get("serif").firstButton.style.opacity = 1;
-            }, 100);
-        };
+        setFontStyle(fontStyle == "serif" ? fontStyle : "sans-serif");
+        // Shows and hides the corresponding buttons
+        if (fontStyle == "serif") twoOptionsPickers.get("serif").secondButton.classList.add("transparent");
+        else twoOptionsPickers.get("serif").firstButton.classList.add("transparent");
     }
 
     /**
@@ -424,12 +423,14 @@ let slideshowController = new function () {
     function setFontStyle(fontStyle) {
         // True if serif, false otherwise
         const isSerif = (fontStyle == "serif");
+
         // Saves the font style status
         twoOptionsPickers.get("serif").isFirstOptionPicked = isSerif;
-        if (!isSerif) fontStyle = "sans-serif";
+
         // Sets the font style
         hidePageContainerTemporarily(() => {
-            document.getElementById("page-container").style.fontFamily = "var(--" + fontStyle + "-font)";
+            document.getElementById("page-container").classList.remove(isSerif ? "sans-serif-font" : "serif-font");
+            document.getElementById("page-container").classList.add(fontStyle + "-font");
         }, 100);
     }
 
@@ -460,7 +461,7 @@ let slideshowController = new function () {
             getCssVariable("max-font-size", { format: "int" })
         )
         // Sets the font size
-        pageContent.style = "font-size: " + fontSize + "pt";
+        document.documentElement.style.setProperty("--font-size", fontSize + "pt");
         // Changes the font size slider value if necessary
         sliders.get("font-size").slider.value = fontSize;
         // Resizes the progress bar for the font size slider
@@ -480,10 +481,7 @@ let slideshowController = new function () {
         twoOptionsPickers.get("text-alignment").isFirstOptionPicked = isAlignedLeft;
         // Sets the desired text alignment for all paragraphs
         hidePageContainerTemporarily(() => {
-            document.querySelectorAll("p").forEach((paragraph) => {
-                paragraph.style.textAlign = isAlignedLeft ? "left" : "justify";
-                // paragraph.style.hyphen = isAlignedLeft ? "none" : "auto";
-            });
+            document.documentElement.style.setProperty("--text-alignment", isAlignedLeft ? "left" : "justify");
         }, 100);
     }
 
@@ -495,9 +493,10 @@ let slideshowController = new function () {
         const textAlignment = localStorage.getItem("textAlignment");
         // Sets the locally stored text alignment if present (otherwise is set to align left by default)
         setTextAlignment(textAlignment == "justify" ? textAlignment : "align-left");
-        // Makes the align-left button visible if necessary
-        twoOptionsPickers.get("text-alignment").secondButton.style.opacity = (textAlignment == "justify") ? "1" : "0";
-        twoOptionsPickers.get("text-alignment").firstButton.style.opacity = (textAlignment == "justify") ? "0" : "1";
+
+        // Hides or shows the corresponding button
+        if (textAlignment == "justify") twoOptionsPickers.get("text-alignment").firstButton.classList.add("transparent");
+        else twoOptionsPickers.get("text-alignment").secondButton.classList.add("transparent");
     }
 
     /* ------ Line height ------ */
@@ -521,9 +520,7 @@ let slideshowController = new function () {
      */
     function setLineHeight(lineHeight) {
         // Sets the line spacing
-        document.querySelectorAll("p").forEach((paragraph) => {
-            paragraph.style.lineHeight = lineHeight;
-        });
+        document.documentElement.style.setProperty("--line-height", lineHeight);
         // Resizes the progress bar for the line spacing
         resizeSliderProgress("line-height", lineHeights.indexOf(lineHeight));
     }
@@ -534,8 +531,22 @@ let slideshowController = new function () {
      * Sets the locally stored portrait mode.
      */
     function setLocallyStoredPortraitMode() {
-        // Sets the locally stored portrait mode if present (otherwise it's displayed by default)
-        setPortraitMode((localStorage.getItem("isPortraitMode") == "true"));
+        // Portrait mode status is defaulted to false
+        let isPortrait = false;
+        // Gets the stored value for the portrait mode status
+        const storedIsPortraitMode = localStorage.getItem("isPortraitMode");
+        // If the stored value for the portrait mode is undefined..
+        if (storedIsPortraitMode == undefined) {
+            // ...checks the device orientation
+            if (window.innerWidth < 1.1 * window.innerHeight) {
+                isPortrait = true;
+            }
+        } else {
+            // Otherwise sets the status according to the stored value
+            isPortrait = storedIsPortraitMode == "true";
+        }
+        // Sets the portrait mode
+        setPortraitMode(isPortrait);
     }
 
     /**
@@ -550,25 +561,34 @@ let slideshowController = new function () {
         toggleButtons.get("portrait").status = isPortraitMode;
 
         // Rotates the icon
-        toggleButtons.get("portrait").icon.style.transform = isPortraitMode ? "rotate(0)" : "rotate(90deg)";
+        if (isPortraitMode) {
+            toggleButtons.get("portrait").icon.classList.remove("rotated-90deg");
+        } else {
+            toggleButtons.get("portrait").icon.classList.add("rotated-90deg");
+
+        }
 
         // Styles the page size slider and the page container
         hidePageContainerTemporarily(() => {
             if (isPortraitMode) {
-                // Removes the grid template
-                document.getElementById("page-container").style.gridTemplateColumns = "none";
+                // Removes the grid template, by adding the "portrait-mode" class
+                document.getElementById("page-container").classList.add("portrait-mode")
                 // Sets the padding as large
-                pageContent.style.padding = "var(--small-page-padding)";
+                pageContent.classList.add("large-padding");
                 // Locks the page size slider
                 styleSlider(sliders.get("page-size"), "locked");
-                sliders.get("page-size").base.style.cursor = "default";
+                // Changes the cursor
+                sliders.get("page-size").base.classList.add("default-cursor");
             } else {
+                // Removes the "portrait-mode" class
+                document.getElementById("page-container").classList.remove("portrait-mode")
                 // Resets the grid template
                 setLocallyStoredPageSize();
                 // Unlocks the page size slider (status bust be changed first, or style can't be changed)
                 sliders.get("page-size").status = "unlocked";
                 styleSlider(sliders.get("page-size"), "inactive");
-                sliders.get("page-size").base.style.cursor = "pointer";
+                // Changes the cursor
+                sliders.get("page-size").base.classList.remove("default-cursor");
             }
         }, 200);
     }
@@ -591,15 +611,19 @@ let slideshowController = new function () {
      */
     function setPageSize(fractionalPageSize) {
         if (fractionalPageSize == "full") {
-            // Sets the font size
-            document.getElementById("page-container").style.gridTemplateColumns = "0fr 1fr 0fr";
-            pageContent.style.padding = "var(--large-page-padding)";
+            // Sets the page container layout, by setting the sidebar and the page size
+            document.documentElement.style.setProperty("--sidebar-size", "0fr");
+            document.documentElement.style.setProperty("--page-content-size", "1fr");
+            // Sets the page content padding to large
+            pageContent.classList.add("large-padding");
         } else {
             // Converts to numbers
             fractionalPageSize = parseInt(fractionalPageSize);
-            // Sets the font size
-            document.getElementById("page-container").style.gridTemplateColumns = "1fr " + fractionalPageSize + "fr 1fr";
-            pageContent.style.padding = "var(--small-page-padding)";
+            // Sets the page container layout, by setting the sidebar and the page size
+            document.documentElement.style.setProperty("--sidebar-size", "1fr");
+            document.documentElement.style.setProperty("--page-content-size", fractionalPageSize + "fr");
+            // Sets the page content padding to large
+            pageContent.classList.remove("large-padding");
         }
         // Resizes the progress bar for the font size slider
         resizeSliderProgress("page-size", fractionalPageSizes.indexOf(fractionalPageSize));
@@ -653,6 +677,16 @@ let slideshowController = new function () {
     /* ------ Element styling ------ */
 
     /**
+     * Sets the default slider style ("inactive").
+     */
+    function setDefaultSlidersStyle() {
+        sliders.forEach((s) => {
+            s.progress.classList.add("inactive");
+            s.progress.classList.add("inactive");
+        });
+    }
+
+    /**
      * Styles the slider according to its status (active/hover/inactive/locked/unlocked).
      * @param {*} slider Slider.
      * @param {String} status Can be "active", "inactive", "hover", "locked", "unlocked".
@@ -660,34 +694,42 @@ let slideshowController = new function () {
     function styleSlider(slider, status) {
         // Executes only if the status has changed
         if (slider.status !== status && slider.status !== "locked") {
+            // Styles the slider progress bar
+            slider.progress.classList.add(status);
+            if (slider.status == "unlocked") slider.progress.classList.remove("locked");
+            else slider.progress.classList.remove(slider.status);
+
+            // Styles the slider icon
+            slider.icon.classList.add(status);
+            if (slider.status == "unlocked") slider.icon.classList.remove("locked");
+            else slider.icon.classList.remove(slider.status);
+
             // Changes the status
             slider.status = status;
-            // Styles the slider
-            slider.progress.style.backgroundColor = "var(--button-" + status + "-color)";
-            slider.progress.style.opacity = "var(--button-" + status + "-opacity)";
-            slider.icon.style.color = "var(--button-text-" + status + "-color)";
-            slider.icon.style.fill = "var(--button-text-" + status + "-color)";
         }
     }
 
     /**
      * Styles the toggle button and sets its status.
      * @param {String} id Id of the toggle button.
-     * @param {*} status Status of the toggle.
+     * @param {Boolean} isToggled True if toggled, false otherwise.
      */
-    function styleToggleButton(id, status) {
+    function styleToggleButton(id, isToggled) {
         // Gets the correct toggle button
         const toggleButton = toggleButtons.get(id);
         // Sets the status
-        toggleButton.status = status;
-        // Styles the button
-        toggleButton.button.style.backgroundColor = status ?
-            "var(--accent)" : "var(--light-grey)";
-        // Styles the icon
-        toggleButton.icon.style.fill = status ?
-            "var(--highlight)" : "var(--dark-grey)";
-        toggleButton.icon.style.color = status ?
-            "var(--highlight)" : "var(--dark-grey)";
+        toggleButton.status = isToggled;
+        if (isToggled) {
+            // Styles the button
+            toggleButton.button.classList.add("toggled");
+            // Styles the icon
+            toggleButton.icon.classList.add("toggled");
+        } else {
+            // Styles the button
+            toggleButton.button.classList.remove("toggled");
+            // Styles the icon
+            toggleButton.icon.classList.remove("toggled");
+        }
     }
 
     /* ------ Slider resize ------ */
@@ -723,19 +765,23 @@ let slideshowController = new function () {
      * @param {Duration} animationDelay Animation delay.
      */
     function toggleFormatOptionsPanel(isExpanded, animationDelay = 150) {
+        // Sets the corresponding variable
+        isFormatOptionsPanelExpanded = isExpanded;
         // Delays the contraction
         setTimeout(() => {
-            formatOptionsPanel.style.width = isExpanded ?
-                "var(--expanded-format-options-panel-width)" : "var(--format-options-panel-width)";
-            formatOptionsPanel.style.height = isExpanded ?
-                "var(--expanded-format-options-panel-height)" : "var(--format-options-panel-height)";
+            document.documentElement.style.setProperty("--format-options-panel-width", isFormatOptionsPanelExpanded ?
+                "var(--expanded-format-options-panel-width)" : "var(--shrunk-format-options-panel-width)");
+            document.documentElement.style.setProperty("--format-options-panel-height", isFormatOptionsPanelExpanded ?
+                "var(--expanded-format-options-panel-height)" : "var(--shrunk-format-options-panel-height)");
             // Displays/hides the options panel groups
-            document.getElementById("complete-format-options-panel-group").style.visibility = isExpanded ? "visible" : "hidden";
-        }, isExpanded ? 0 : animationDelay);
+            if (isFormatOptionsPanelExpanded) document.getElementById("complete-format-options-panel-group").classList.add("visible")
+            else document.getElementById("complete-format-options-panel-group").classList.remove("visible")
+        }, isFormatOptionsPanelExpanded ? 0 : animationDelay);
         // Delays the opacity animation
         setTimeout(() => {
-            document.getElementById("complete-format-options-panel-group").style.opacity = isExpanded ? "1" : "0";
-        }, isExpanded ? animationDelay : 0);
+            if (isFormatOptionsPanelExpanded) document.getElementById("complete-format-options-panel-group").classList.add("opaque")
+            else document.getElementById("complete-format-options-panel-group").classList.remove("opaque")
+        }, isFormatOptionsPanelExpanded ? animationDelay : 0);
     }
 
     /* ------ Two-options picker ------ */
@@ -746,7 +792,7 @@ let slideshowController = new function () {
      */
     function toggleSerifPicker(isSerifClicked) {
         toggleTwoOptionsPicker("serif", isSerifClicked, {
-            panel: formatOptionsPanel,
+            panelWidthVariable: "--format-options-panel-width",
             shrunkPanelWidth: "var(--expanded-format-options-panel-width)",
             expandedPanelWidth: "var(--extended-format-options-panel-width)",
             otherPickers: [twoOptionsPickers.get("text-alignment")]
@@ -768,7 +814,7 @@ let slideshowController = new function () {
      */
     function toggleTextAlignmentPicker(isAlignLeftClicked) {
         toggleTwoOptionsPicker("text-alignment", isAlignLeftClicked, {
-            panel: formatOptionsPanel,
+            panelWidthVariable: "--format-options-panel-width",
             shrunkPanelWidth: "var(--expanded-format-options-panel-width)",
             expandedPanelWidth: "var(--extended-format-options-panel-width)",
             otherPickers: [twoOptionsPickers.get("serif")]
@@ -791,7 +837,7 @@ let slideshowController = new function () {
      * @param {*} Options Options.
      */
     function toggleTwoOptionsPicker(id, isFirstButtonClicked, options = {
-        panel: null,
+        panelWidthVariable: null,
         shrunkPanelWidth: null,
         expandedPanelWidth: null,
         otherPickers: []
@@ -805,12 +851,14 @@ let slideshowController = new function () {
             // Expands the toggle if the picker started
             expandTwoOptionsPicker(id);
             // Expands the format options panel
-            if (options.panel !== null) options.panel.style.width = options.expandedPanelWidth;
+            if (options.panelWidthVariable !== null) {
+                document.documentElement.style.setProperty(options.panelWidthVariable, options.expandedPanelWidth);
+            }
         } else {
             // If the selection was already ongoing...
-            // Moves the picker selection circle
-            twoOptionsPicker.selectionCircle.style.transform = isFirstButtonClicked ?
-                "translateX(calc(-1 * var(--two-options-picker-offset)))" : "translateX(0)";
+            // ...moves the picker selection circle
+            if (isFirstButtonClicked) twoOptionsPicker.selectionCircle.classList.add("translated");
+            else twoOptionsPicker.selectionCircle.classList.remove("translated");
             // Shrinks the toggle after the selection circle is moved
             setTimeout(() => {
                 shrinkTwoOptionsPicker(id, isFirstButtonClicked);
@@ -830,7 +878,9 @@ let slideshowController = new function () {
 
                 if (isPanelShrinkable) {
                     // Shrinks the format options panel
-                    if (options.panel !== null) options.panel.style.width = options.shrunkPanelWidth;
+                    if (options.panelWidthVariable !== null) {
+                        document.documentElement.style.setProperty(options.panelWidthVariable, options.shrunkPanelWidth);
+                    }
                 }
             }, twoOptionsPicker.isFirstOptionPicked * isFirstButtonClicked == 0 ?
                 getCssTimeInMs("general-transition-duration") : 0
@@ -850,14 +900,15 @@ let slideshowController = new function () {
         const twoOptionsPicker = twoOptionsPickers.get(id);
 
         // Makes the buttons visible
-        twoOptionsPicker.firstButton.style.opacity = 1;
-        twoOptionsPicker.secondButton.style.opacity = 1;
+
+
+        if (!twoOptionsPicker.isFirstOptionPicked) twoOptionsPicker.firstButton.classList.remove("transparent")
+        else twoOptionsPicker.secondButton.classList.remove("transparent");
 
         // Expands the toggle
-        twoOptionsPicker.firstButton.style.transform = "translateX(calc(-1 * var(--two-options-picker-offset)))";
-        twoOptionsPicker.selectionCircle.style.transform = twoOptionsPicker.isFirstOptionPicked ?
-            "translateX(calc(-1 * var(--two-options-picker-offset)))" : "transform: translateX(0)";
-        twoOptionsPicker.capsule.style.width = "var(--extended-two-options-picker-capsule-width)";
+        twoOptionsPicker.firstButton.classList.add("translated");
+        if (twoOptionsPicker.isFirstOptionPicked) twoOptionsPicker.selectionCircle.classList.add("translated");
+        twoOptionsPicker.capsule.classList.add("expanded");
     }
 
     /**
@@ -870,20 +921,13 @@ let slideshowController = new function () {
         const twoOptionsPicker = twoOptionsPickers.get(id);
 
         // Hides the serif or sans-serif button
-        if (isFirstOptionPicked) {
-            twoOptionsPicker.secondButton.style.opacity = 0;
-            twoOptionsPicker.secondButton.style.zIndex = "var(--two-options-picker-lower-index)"
-            twoOptionsPicker.firstButton.style.zIndex = "var(--two-options-picker-higher-index)"
-        } else {
-            twoOptionsPicker.firstButton.style.opacity = 0;
-            twoOptionsPicker.firstButton.style.zIndex = "var(--two-options-picker-lower-index)"
-            twoOptionsPicker.secondButton.style.zIndex = "var(--two-options-picker-higher-index)"
-        }
+        if (isFirstOptionPicked) twoOptionsPicker.secondButton.classList.add("transparent");
+        else twoOptionsPicker.firstButton.classList.add("transparent");
 
         // Shrinks the toggle and the options panel
-        twoOptionsPicker.firstButton.style.transform = "translateX(0)"
-        twoOptionsPicker.selectionCircle.style.transform = "translateX(0)"
-        twoOptionsPicker.capsule.style.width = "var(--two-options-picker-capsule-width)";
+        twoOptionsPicker.firstButton.classList.remove("translated");
+        twoOptionsPicker.selectionCircle.classList.remove("translated");
+        twoOptionsPicker.capsule.classList.remove("expanded")
     }
 
     /* ------ Slide picker visibility ------ */
@@ -907,33 +951,38 @@ let slideshowController = new function () {
         isSlidePickerVisible = slidePickerVisibility;
 
         // Changes the control panel width
-        slideshowNavigationOptionsPanel.style.width = isSlidePickerVisible ?
-            "var(--slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)";
+        document.documentElement.style.setProperty("--slideshow-navigation-width", isSlidePickerVisible ?
+            "var(--visible-slideshow-navigation-width)" : "var(--collapsed-slideshow-navigation-width)");
 
         // Hides or displays the slide picker
         setTimeout(() => {
             // Waits before changing the opacity if the control panel is expanding
-            sliders.get("slideshow").base.style.opacity = isSlidePickerVisible ? "1" : "0";
+            if (isSlidePickerVisible) sliders.get("slideshow").base.classList.remove("transparent");
+            else sliders.get("slideshow").base.classList.add("transparent");
         }, isSlidePickerVisible ? getCssTimeInMs("general-long-transition-duration") * .9 : 0);
 
         setTimeout(() => {
             // Waits before setting the visibility to "hidden" if the control panel is collapsing
-            sliders.get("slideshow").base.style.visibility = isSlidePickerVisible ? "visible" : "hidden";
+            if (isSlidePickerVisible) sliders.get("slideshow").base.classList.remove("hidden");
+            else sliders.get("slideshow").base.classList.add("transparent");
         }, isSlidePickerVisible ? 0 : getCssTimeInMs("slider-general-transition-duration"));
 
         setTimeout(() => {
             // Makes adjustments to the margin of the slide number button to counter the spare gap
-            document.getElementById("slide-number-button").style.marginRight = isSlidePickerVisible ?
-                "0" : "calc(-1 * var(--options-gap))";
-            document.getElementById("slide-number-button").style.marginLeft = isSlidePickerVisible ?
-                "calc(-1 * var(--options-small-gap))" : "0";
+            if (isSlidePickerVisible) {
+                document.getElementById("slide-number-button").classList.remove("compressed-right-margin");
+                document.getElementById("slide-number-button").classList.add("extended-left-margin")
+            } else {
+                document.getElementById("slide-number-button").classList.add("compressed-right-margin");
+                document.getElementById("slide-number-button").classList.remove("extended-left-margin")
+            }
         }, isSlidePickerVisible ? 50 : getCssTimeInMs("general-long-transition-duration") * 0.75);
 
         // Resizes the progress bar for the slide picker and readjust the right margin of the slide number button
         if (isSlidePickerVisible) {
             setTimeout(() => {
                 resizeSliderProgress("slideshow", currentSlideIndex);
-                document.getElementById("slide-number-button").style.marginLeft = "0";
+                document.getElementById("slide-number-button").classList.remove("extended-left-margin")
             }, getCssTimeInMs("general-long-transition-duration"));
         }
     }
@@ -948,10 +997,10 @@ let slideshowController = new function () {
         // Updates the slide number
         document.getElementById("slide-number").innerText = currentSlideIndex;
         // Animates the slider number
-        document.getElementById("slide-number-button").style.animation = "enlarge " + (animationDuration / 1000) + "s ease-in-out 1";
+        document.getElementById("slide-number-button").classList.add("active-animation")
         // Removes the animation (necessary to add the animation again at a later time)
         setTimeout(() => {
-            document.getElementById("slide-number-button").style.animation = "none";
+            document.getElementById("slide-number-button").classList.remove("active-animation");
         }, animationDuration);
     }
 
@@ -964,7 +1013,7 @@ let slideshowController = new function () {
      */
     function hidePageContainerTemporarily(action, hidingDuration) {
         // Hides the page container
-        document.getElementById("page-container").style.opacity = "0";
+        document.getElementById("page-container").classList.add("transparent");
 
         // Styles the page size slider and the page container
         setTimeout(() => {
@@ -972,13 +1021,33 @@ let slideshowController = new function () {
         }, hidingDuration);
         // Displays the page container
         setTimeout(() => {
-            document.getElementById("page-container").style.opacity = "1";
+            document.getElementById("page-container").classList.remove("transparent")
         }, hidingDuration * 2);
     }
 
     /*_______________________________________
     |   Slideshow related methods
     */
+
+    /**
+     * Inits the slideshow and the slide number
+     */
+    function initSlideshow() {
+        // Get the location hash property
+        let hash = location.hash;
+
+        // Executes if the hash exists, meaning the slideshow was ongoing
+        if (hash) {
+            // Sets the current slide to the hash value
+            currentSlideIndex = parseInt(hash.substring(1));
+            isSlideshowMode = true;
+        } else {
+            // Retrieves the slide number from local storage
+            storedSlideIndex = parseInt(localStorage.getItem("slide-index"));
+            // Sets the slide number if stored (0 otherwise)
+            currentSlideIndex = isNaN(storedSlideIndex) ? 0 : storedSlideIndex;
+        }
+    }
 
     /**
      * Starts or pauses the slideshow.
@@ -990,11 +1059,22 @@ let slideshowController = new function () {
 
         // Sets the opacity of the hidden slides div elements
         hiddenSlides.forEach(slide => {
-            slide.style = isSlideshowMode ? nonSelectedSlideStyle : selectedSlideStyle;
+            if (isSlideshowMode) slide.classList.add("hidden")
+            else slide.classList.remove("hidden")
         })
 
-        // Shows or hides the options for the slideshow
-        slideshowNavigationOptionsPanel.style.opacity = isSlideshowMode ? "1" : "0";
+        // If the slideshow mode is active...
+        if (isSlideshowMode) {
+            // ...displays the navigation panel
+            slideshowNavigationOptionsPanel.classList.add("visible", "opaque");
+        } else {
+            // If it isn't, it first lowers the opacity...
+            slideshowNavigationOptionsPanel.classList.remove("opaque");
+            // ...and then - once the animation is completed - it hides the panel
+            setTimeout(() => {
+                slideshowNavigationOptionsPanel.classList.remove("visible");
+            }, getCssTimeInMs("general-long-transition-duration"));
+        }
         // Styles the toggle button
         styleToggleButton("slideshow", isSlideshowMode);
 
@@ -1005,9 +1085,9 @@ let slideshowController = new function () {
             // Sets the hash as the currently selected slide index
             window.location.hash = currentSlideIndex;
         } else {
-            // Lightens all the slides background
+            // Makes all the slides visible and non blurred
             slides.forEach(slide => {
-                slide.style = selectedSlideStyle;
+                slide.classList.remove("non-selected");
             });
 
             // Deletes the hash
@@ -1062,10 +1142,13 @@ let slideshowController = new function () {
     function updateSlides(timeout) {
         // Sets the hash to the currently selected slide index
         window.location.hash = currentSlideIndex;
+        // Stores the current slide index
+        localStorage.setItem("slide-index", currentSlideIndex);
 
         // Lowers the opacity of every slides and blurs them, aside from the currently selected one
         for (let i = 0; i < slides.length; i++) {
-            slides[i].style = i == currentSlideIndex ? selectedSlideStyle : nonSelectedSlideStyle;
+            if (i == currentSlideIndex) slides[i].classList.remove("non-selected");
+            else slides[i].classList.add("non-selected");
         }
 
         // Updates the progress bar

@@ -124,6 +124,8 @@
     --default-font-size-value: 14;
     --min-font-size-value: 12;
     --max-font-size-value: 28;
+    /* Current font-size */
+    --font-size: 14pt;
     /* Font weights */
     --regular-weight: 400;
     --bold-weight: 700;
@@ -132,12 +134,18 @@
     --default-line-height: 1.25;
     --min-line-height: 1.15;
     --max-line-height: 1.75;
+    /* Current line height */
+    --line-height: 1.25;
+    /* -- Font families -- */
     --sans-serif-font: 'Noto Sans', sans-serif;
     --serif-font: 'Noto Serif', serif;
     --mono-font: 'Noto Sans Mono', monospace;
+    /* -- Text alignment -- */
+    --text-alignment: left;
     /* -- Dimensions -- */
     /* Page and general dimensions */
-    --page-sidebar-min-width: 150px;
+    --sidebar-size: 1fr;
+    --page-content-size: 5fr;
     --slide-padding-bottom: 50px;
     --small-gap-size: 10px;
     --small-page-padding: 20px;
@@ -163,19 +171,22 @@
     --two-options-picker-offset: calc(var(--button-diameter) + var(--two-options-picker-gap));
     --extended-two-options-picker-capsule-width: calc(var(--two-options-picker-capsule-width) + var(--two-options-picker-offset));
     /* Font size slider */
-    /* --font-size-slider-width: calc(8px * (var(--max-font-size-value) - var(--min-font-size-value))); */
     --format-options-panel-slider-width: calc(4 * var(--button-diameter) + 3 * var(--options-gap));
     /* View options toolbar */
-    --format-options-panel-width: calc(2 * var(--button-diameter) + var(--options-gap));
+    --shrunk-format-options-panel-width: calc(2 * var(--button-diameter) + var(--options-gap));
     --expanded-format-options-panel-width: calc(var(--button-diameter) + var(--format-options-panel-slider-width) + 1 * var(--options-gap));
     --extended-format-options-panel-width: calc(var(--expanded-format-options-panel-width) + var(--two-options-picker-offset));
-    --format-options-panel-height: var(--button-diameter);
+    --format-options-panel-width: var(--shrunk-format-options-panel-width);
+    /* current value */
+    --shrunk-format-options-panel-height: var(--button-diameter);
     --expanded-format-options-panel-height: calc(4 * var(--button-diameter) + 4 * var(--options-gap));
+    --format-options-panel-height: var(--shrunk-format-options-panel-height);
     /* Navigation options */
     --arrows-capsule-width: calc(2 * var(--button-diameter) + var(--options-small-margin));
     /* Navigation options toolbar */
-    --slideshow-navigation-width: calc(100% - 2 * var(--options-margin) - 2 * var(--options-padding));
+    --visible-slideshow-navigation-width: calc(100% - 2 * var(--options-margin) - 2 * var(--options-padding));
     --collapsed-slideshow-navigation-width: calc(var(--arrows-capsule-width) + var(--options-gap) + var(--button-diameter));
+    --slideshow-navigation-width: var(--visible-slideshow-navigation-width);
     /* Slideshow slider */
     --slideshow-slider-width: calc(100% - 2 * var(--options-padding) - 2 * var(--options-gap) - var(--arrows-capsule-width) - var(--button-diameter));
     --slider-icon-size: calc(var(--button-diameter) * 2 / 3);
@@ -263,6 +274,7 @@ body {
     margin: 0;
     background-color: var(--background);
     color: var(--secondary);
+    opacity: 1;
     counter-reset: chapter section subsection definition definition theorem;
     scroll-behavior: smooth;
     scrollbar-width: thin;
@@ -273,16 +285,26 @@ body {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
-/* === 2.2.2 Body === */
+/* Sets the body opacity to 0 */
+body.transparent {
+    opacity: 0;
+}
+
+/* Hides the scrollbar of the body */
+body.hidden-overflow {
+    overflow: hidden;
+}
+
+/* -- 2.2.2 Page container and content -- */
 
 /* The page container contains the page content, but it doesn't contain the controllers. */
 .page-container {
     display: grid;
     gap: var(--small-gap-size);
-    grid-template-columns: minmax(var(--page-sidebar-min-width), 1fr) 5fr minmax(var(--page-sidebar-min-width), 1fr);
+    grid-template-columns: var(--sidebar-size) var(--page-content-size) var(--sidebar-size);
     font-family: var(--sans-serif-font);
-    visibility: hidden;
-    opacity: 0;
+    visibility: visible;
+    opacity: 1;
     -webkit-transition: opacity 0.1s ease-in-6ut, grid-template-columns 0.5s ease-in-out;
     -moz-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
     -ms-transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
@@ -290,10 +312,45 @@ body {
     transition: opacity 0.1s ease-in-out, grid-template-columns 0.5s ease-in-out;
 }
 
+/* Removes the column layout when portrait mode is active */
+.page-container.portrait-mode {
+    grid-template-columns: none;
+}
+
+/* The page container is hidden */
+.page-container.hidden {
+    visibility: hidden;
+}
+
+/* The page container is visible*/
+.page-container.visible {
+    visibility: visible;
+}
+
+/* The page container opacity is set to 0 */
+.page-container.transparent {
+    opacity: 0;
+}
+
+/* The page container opacity is set to 1 */
+.page-container.opaque {
+    opacity: 1;
+}
+
+/* The serif font family is applied */
+.page-container.serif-font {
+    font-family: var(--serif-font);
+}
+
+/* The sans-serif font family is applied */
+.page-container.sans-serif-font {
+    font-family: var(--sans-serif-font);
+}
+
 /* The page content is the main column of the page container layout. */
 .page-content {
     padding: var(--small-page-padding);
-    font-size: var(--default-font-size);
+    font-size: var(--font-size);
     -webkit-transition: all var(--general-transition-duration) ease-in-out;
     -moz-transition: all var(--general-transition-duration) ease-in-out;
     -ms-transition: all var(--general-transition-duration) ease-in-out;
@@ -301,22 +358,9 @@ body {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
-/* Automatically sets the size of the column layout (average and large screens). */
-@media (max-width:2800px) {
-    .page-container {
-        grid-template-columns: minmax(var(--lateral-column-min-width), 1fr) 6fr minmax(var(--lateral-column-min-width), 1fr);
-    }
-}
-
-/* Automatically sets the size of the column layout (small screens and mobile). */
-@media (max-width: 768px), (orientation: portrait), (hover: none) {
-    .page-container {
-        grid-template-columns: none;
-    }
-
-    .page-content {
-        padding: var(--large-page-padding);
-    }
+/* Large padding for page content */
+.page-content.large-padding {
+    padding: var(--large-page-padding);
 }
 
 /* -- 2.1.3 Text -- */
@@ -383,7 +427,8 @@ h5 {
 p {
     font-size: 100%;
     font-weight: var(--regular-weight);
-    line-height: 1.5;
+    line-height: var(--line-height);
+    text-align: var(--text-alignment);
     -webkit-transition: all var(--general-transition-duration) ease-in-out;
     -moz-transition: all var(--general-transition-duration) ease-in-out;
     -ms-transition: all var(--general-transition-duration) ease-in-out;
@@ -501,7 +546,6 @@ div.large-separator {
 /* -- 2.2.4 Bubble containers -- */
 
 /* -- Bubble containers */
-
 .bubble-container {
     display: -ms-inline-grid;
     display: -moz-inline-grid;
@@ -529,7 +573,7 @@ div.plot-container {
     background-color: transparent;
 }
 
-/* Div container. When a plot goes to fullscreen mode, it goes here. */
+/* Div container for fullscreen content: hen a plot goes to fullscreen mode, it goes here */
 div.fullscreen-container {
     position: absolute;
     top: 0;
@@ -543,9 +587,14 @@ div.fullscreen-container {
     transition: all var(--general-transition-duration) ease-in-out;
 }
 
+/* Makes the fullscreen container visible */
+div.fullscreen-container.visible {
+    visibility: visible;
+}
+
 /* -- 2.3.2 Plot -- */
 
-/* Div container, parent of the plot. It's also used to move plot to fullscreen mode .*/
+/* Div container, parent of the plot; it's also used to move plot to fullscreen mode */
 div.plot {
     position: relative;
     border: none;
@@ -561,7 +610,7 @@ div.plot {
 }
 
 /* Class added to the plot when in fullscreen mode. */
-div.fullscreen {
+div.plot.fullscreen {
     position: fixed;
     top: 0;
     left: 0;
@@ -595,6 +644,7 @@ canvas.plot {
     overscroll-behavior: contain;
 }
 
+/* Needed when plots need to be stacked one on another */
 canvas.plot.stacked {
     position: absolute;
     top: 0;
@@ -602,7 +652,14 @@ canvas.plot.stacked {
     pointer-events: none;
 }
 
+/* Squares the border of the plot canvas */
+canvas.plot.squared-border {
+    border-radius: 0;
+}
+
 /* -- 2.3.4 Plot controls -- */
+
+/* -- 2.3.4.1 Plot controls buttons -- */
 
 /* General plot control button */
 button.plot-control {
@@ -614,6 +671,10 @@ button.plot-control {
     backdrop-filter: blur(5px);
     cursor: pointer;
     z-index: 9;
+}
+
+button.plot-control.transparent {
+    opacity: 0.4;
 }
 
 button.plot-control:hover {
@@ -632,8 +693,6 @@ button.plot-control:active {
     -o-transition: transform var(--button-active-transition-duration) ease-in-out;
     transition: transform var(--button-active-transition-duration) ease-in-out;
 }
-
-/* -- 2.3.4.1 Plot controls buttons -- */
 
 /* Zoom-in button (upper right corner) */
 button.zoom-in {
@@ -668,13 +727,13 @@ button.fullscreen {
     user-select: none;
 }
 
+/* -- 2.3.4.2 Plot controls icons -- */
+
 /* Makes the button icon bold */
 span.bold-button {
     font-weight: 600;
     user-select: none;
 }
-
-/* -- 2.3.4.2 Plot controls icons -- */
 
 /* Decreases the size of the grid icon */
 span.grid-icon {
@@ -685,11 +744,23 @@ span.grid-icon {
 
 /* -- 2.4.1 Slides -- */
 
-div.slide, div.slide.hidden {
+div.slide {
     padding: 5px 10px var(--slide-padding-bottom) 10px;
     border-radius: var(--button-radius);
     opacity: 1;
+    filter: blur(0);
     transition: all .3s ease-in-out;
+}
+
+div.slide.hidden {
+    opacity: 0.075;
+    filter: blur(4px);
+}
+
+/* Blurs the slide and lowers its opacity when not selected */
+div.slide.non-selected {
+    opacity: 0.5;
+    filter: blur(4px);
 }
 
 /* -- 2.4.2 Options panel -- */
@@ -726,12 +797,23 @@ div.options-panel {
     bottom: 0;
     right: 0;
     width: var(--slideshow-navigation-width);
+    visibility: hidden;
     opacity: 0;
     -webkit-transition: all var(--general-long-transition-duration) ease-in-out;
     -moz-transition: all var(--general-long-transition-duration) ease-in-out;
     -ms-transition: all var(--general-long-transition-duration) ease-in-out;
     -o-transition: all var(--general-long-transition-duration) ease-in-out;
     transition: all var(--general-long-transition-duration) ease-in-out;
+}
+
+/* Hides the slideshow navigation panel */
+#slideshow-navigation-options-panel.visible {
+    visibility: visible;
+}
+
+/* Sets the opacity of the slideshow navigation panel to 0 */
+#slideshow-navigation-options-panel.opaque {
+    opacity: 1;
 }
 
 /* -- 2.4.2.1 Panel groups -- */
@@ -783,6 +865,16 @@ div.vertical-options-panel-group {
     margin-top: calc(2 * var(--options-gap));
     visibility: hidden;
     opacity: 0;
+}
+
+/* Makes the options panel group visible */
+#complete-format-options-panel-group.visible {
+    visibility: visible;
+}
+
+/* Sets the options panel group opacity to 1 */
+#complete-format-options-panel-group.opaque {
+    opacity: 1;
 }
 
 /* Group containing the font options */
@@ -880,12 +972,24 @@ button.toggle-button {
     cursor: pointer;
 }
 
+/* Changes the color fo the button when toggled */
+button.toggle-button.toggled {
+    background-color: var(--accent);
+}
+
 svg.toggle-icon {
+    fill: currentColor;
+    color: var(--dark-grey);
     -webkit-transition: all var(--general-transition-duration) ease-in-out;
     -moz-transition: all var(--general-transition-duration) ease-in-out;
     -ms-transition: all var(--general-transition-duration) ease-in-out;
     -o-transition: all var(--general-transition-duration) ease-in-out;
     transition: all var(--general-transition-duration) ease-in-out;
+}
+
+/* Changes the color of the icon when the button is toggled */
+svg.toggle-icon.toggled {
+    color: var(--highlight);
 }
 
 /* -- 2.4.3.4 Button icons -- */
@@ -902,8 +1006,8 @@ svg.alignment-button {
     fill: currentColor;
 }
 
-/* Rotates the portrait toggle by default */
-#portrait-toggle-icon {
+/* The portrait toggle is rotated by 90 degrees */
+#portrait-toggle-icon.rotated-90deg {
     transform: rotate(90deg);
 }
 
@@ -930,6 +1034,11 @@ svg.alignment-button {
     z-index: var(--two-options-capsule-index);
 }
 
+/* Expands the capsule when selection is ongoing */
+.two-options-picker-capsule.expanded {
+    width: var(--extended-two-options-picker-capsule-width);
+}
+
 /* Selection circle that moves */
 .two-options-picker-selection-circle {
     position: absolute;
@@ -947,6 +1056,12 @@ svg.alignment-button {
     -o-transition: all var(--general-transition-duration) ease-in-out;
     transition: all var(--general-transition-duration) ease-in-out;
     z-index: var(--two-options-picker-lower-index);
+    transform: translateX(0);
+}
+
+/* Translates the circle to the left when the first option is selected */
+.two-options-picker-selection-circle.translated {
+    transform: translateX(calc(-1 * var(--two-options-picker-offset)));
 }
 
 /* Button inside the capsule */
@@ -954,12 +1069,26 @@ button.two-options-picker-button {
     vertical-align: middle;
     background-color: transparent;
     color: var(--dark-grey);
+    opacity: 1;
     font-weight: var(--bold-weight);
+}
+
+/* The button has opacity 1 */
+button.two-options-picker-button.opaque {
+    opacity: 1;
+}
+
+/* The button has opacity 0 */
+button.two-options-picker-button.transparent {
+    opacity: 0;
+}
+
+button.two-options-picker-button.translated {
+    transform: translateX(calc(-1 * var(--two-options-picker-offset)));
 }
 
 /* -- 2.4.3.5.1 Serif picker -- */
 
-/*  */
 #serif-button {
     position: absolute;
     order: 1;
@@ -967,7 +1096,6 @@ button.two-options-picker-button {
     font-weight: bold;
     font-size: 18px;
     background-color: transparent;
-    opacity: 0;
     z-index: var(--two-options-picker-middle-index);
 }
 
@@ -978,7 +1106,6 @@ button.two-options-picker-button {
     font-weight: bold;
     font-size: 18px;
     background-color: transparent;
-    opacity: 1;
     z-index: var(--two-options-picker-higher-index);
 }
 
@@ -987,14 +1114,12 @@ button.two-options-picker-button {
 #align-left-button {
     position: absolute;
     order: 1;
-    opacity: 1;
     z-index: var(--two-options-picker-higher-index);
 }
 
 #justify-button {
     position: relative;
     order: 2;
-    opacity: 0;
     z-index: var(--two-options-picker-middle-index);
 }
 
@@ -1005,6 +1130,8 @@ button.two-options-picker-button {
 #slide-number-button {
     min-width: var(--button-diameter);
     min-height: var(--button-diameter);
+    margin-right: 0;
+    margin-left: 0;
     text-align: center;
     vertical-align: middle;
     background-color: var(--transparent-mid-grey);
@@ -1015,6 +1142,11 @@ button.two-options-picker-button {
     transition: margin-right calc(.75 * var(--general-long-transition-duration)) ease-in-out, margin-left var(--general-transition-duration) ease-in-out;
 }
 
+#slide-number-button.active-animation {
+    animation: enlarge var(--general-transition-duration) ease-in-out 1;
+}
+
+/* Slide number active animation */
 @keyframes enlarge {
     50% {
         transform: scale(var(--active-button-scale));
@@ -1023,6 +1155,14 @@ button.two-options-picker-button {
     100% {
         transform: scale(1);
     }
+}
+
+#slide-number-button.compressed-right-margin {
+    margin-right: calc(-1 * var(--options-gap));
+}
+
+#slide-number-button.extended-left-margin {
+    margin-left: calc(-1 * var(--options-small-gap));
 }
 
 #slide-number {
@@ -1227,6 +1367,11 @@ div.loading-container {
     transition: opacity 0.1s ease-in-out;
 }
 
+/* Sets the loading container opacity to 0 */
+.loading-container.transparent {
+    opacity: 0;
+}
+
 /* == 2.7 Input boxes and sliders == */
 
 /* -- 2.7.1 Input box -- */
@@ -1289,6 +1434,8 @@ div.slider-base {
     padding: 0;
     border-radius: var(--button-radius);
     background-color: var(--transparent-mid-grey);
+    visibility: visible;
+    opacity: 1;
     cursor: pointer;
     -webkit-transition: all var(--slider-general-transition-duration) ease-in-out;
     -moz-transition: all var(--slider-general-transition-duration) ease-in-out;
@@ -1297,14 +1444,31 @@ div.slider-base {
     transition: all var(--slider-general-transition-duration) ease-in-out;
 }
 
+/* Makes the slider base hidden */
+div.slider-base.hidden {
+    visibility: hidden;
+}
+
+/* Sets the slider base opacity to 0 */
+div.slider-base.transparent {
+    opacity: 0;
+}
+
+/* The cursor is set to pointer */
+div.slider-base.default-cursor {
+    cursor: default;
+}
+
 /* Slider base for the font size slider */
 #font-size-slider-base {
     width: var(--format-options-panel-slider-width);
+    cursor: pointer;
 }
 
 /* Slider base for the font line height slider */
 #line-height-slider-base {
     width: var(--format-options-panel-slider-width);
+    cursor: pointer;
 }
 
 /* Slider base for the page size slider */
@@ -1315,6 +1479,7 @@ div.slider-base {
 /* Slider base for the slide picker slider */
 #slideshow-slider-base {
     width: 100%;
+    cursor: pointer;
 }
 
 /* -- 2.7.2.2 Slider progress bar -- */
@@ -1326,7 +1491,7 @@ div.slider-progress {
     margin: 0;
     padding: 0;
     border-radius: var(--button-radius);
-    background-color: var(--light-grey);
+    background-color: var(--button-inactive-color);
     opacity: var(--button-inactive-opacity);
     cursor: inherit;
     -webkit-transition: all var(--slider-general-transition-duration) ease-in-out;
@@ -1355,6 +1520,30 @@ div.slider-progress {
 /* Slider progress bar for the slide picker slider */
 #slideshow-slider-progress {
     width: var(--button-diameter);
+}
+
+/* Style for when the slider is active */
+.slider-progress.active {
+    background-color: var(--button-active-color);
+    opacity: var(--button-active-opacity);
+}
+
+/* Style for when the slider is inactive */
+.slider-progress.inactive {
+    background-color: var(--button-inactive-color);
+    opacity: var(--button-inactive-opacity);
+}
+
+/* Style for when the mouse hovers on the slider */
+.slider-progress.hover {
+    background-color: var(--button-hover-color);
+    opacity: var(--button-hover-opacity);
+}
+
+/* Style for when the slider is locked */
+.slider-progress.locked {
+    background-color: var(--button-locked-color);
+    opacity: var(--button-locked-opacity);
 }
 
 /* -- 2.7.2.3 Slider -- */
@@ -1432,16 +1621,16 @@ svg.slider-icon {
     position: absolute;
     right: var(--slider-icon-margin);
     top: var(--slider-icon-margin);
+    color: var(--button-text-inactive-color);
     fill: currentColor;
-    color: var(--dark-grey);
 }
 
 span.slider-icon {
     position: absolute;
     right: calc(2 * var(--slider-icon-margin));
     top: var(--slider-icon-margin);
-    color: var(--dark-grey);
     font-size: calc(0.8 * var(--slider-icon-size));
+    color: var(--button-text-inactive-color);
 }
 
 /* Slider icon for the font size slider (moves slightly to the left) */
@@ -1452,6 +1641,30 @@ span.slider-icon {
 /* Slider icon for the page size slider (rotates by 90 degrees) */
 #page-size-slider-icon {
     transform: rotate(90deg);
+}
+
+/* Style for when the slider is active */
+.slider-icon.active {
+    color: var(--button-text-active-color);
+    fill: var(--button-text-active-color);
+}
+
+/* Style for when the slider is inactive */
+.slider-icon.inactive {
+    color: var(--button-text-inactive-color);
+    fill: var(--button-text-inactive-color);
+}
+
+/* Style for when the mouse hovers on the slider */
+.slider-icon.hover {
+    color: var(--button-text-hover-color);
+    fill: var(--button-text-hover-color);
+}
+
+/* Style for when the slider is locked */
+.slider-icon.locked {
+    color: var(--button-text-locked-color);
+    fill: var(--button-text-locked-color);
 }
 
 /* -- 2.8 Math Environments -- */
