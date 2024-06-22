@@ -26,6 +26,9 @@
           - 2.3.4 Plot controls buttons
             - 2.3.4.1 Plot controls buttons
             - 2.3.4.2 Plot controls icons
+            - 2.3.4.3 Plot sliders
+              -- 2.3.4.3.1 Slider thumb
+              -- 2.3.4.3.2 Slider track
         2.4 Slideshow
           - 2.4.1 Slides
           - 2.4.2 Options panel
@@ -84,9 +87,11 @@
     /* -- Colors -- */
     --background: #ffffff;
     --hidden: #ffffff;
-    --accent: #1484E6;
+    --accent: #1484e6;
     --light-accent: #54a3e8;
-    --very-transparent-accent: #1484e680;
+    --incredibly-light-accent: #d6e4ef;
+    --very-transparent-accent: #2d8cdf80;
+    --incredibly-transparent-accent: #298be037;
     --transparent-accent: #1484e6cc;
     --crimson-red: #B01A00;
     --primary: #000000;
@@ -191,6 +196,10 @@
     --slideshow-slider-width: calc(100% - 2 * var(--options-padding) - 2 * var(--options-gap) - var(--arrows-capsule-width) - var(--button-diameter));
     --slider-icon-size: calc(var(--button-diameter) * 2 / 3);
     --slider-icon-margin: calc((var(--button-diameter) - var(--slider-icon-size)) / 2);
+    /* Plot sliders */
+    --plot-slider-thumb-diameter: 16px;
+    --plot-slider-thumb-radius: calc(var(--plot-slider-thumb-diameter) / 2);
+    --plot-slider-track-height: 6px;
     /* -- Z-indexes -- */
     --options-index: 0;
     --slider-progress-index: 0;
@@ -639,7 +648,6 @@ canvas.plot {
     outline: none;
     background-color: transparent;
     border-radius: var(--button-radius);
-    z-index: 9;
     cursor: crosshair;
     overscroll-behavior: contain;
 }
@@ -659,6 +667,8 @@ canvas.plot.squared-border {
 
 /* -- 2.3.4 Plot controls -- */
 
+div.plot-options-panel {}
+
 /* -- 2.3.4.1 Plot controls buttons -- */
 
 /* General plot control button */
@@ -667,10 +677,9 @@ button.plot-control {
     display: grid;
     place-items: center;
     color: var(--mid-grey);
-    background-color: transparent;
+    background-color: var(--transparent-highlight);
     backdrop-filter: blur(5px);
     cursor: pointer;
-    z-index: 9;
 }
 
 button.plot-control.transparent {
@@ -738,6 +747,79 @@ span.bold-button {
 /* Decreases the size of the grid icon */
 span.grid-icon {
     font-size: 22px;
+}
+
+/* -- 2.3.4.3 Plot sliders -- */
+
+/* Slider */
+input[type=range].plot-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+}
+
+/* -- 2.3.4.3.1 Slider thumb -- */
+
+/* Slider thumb */
+input[type=range].plot-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: var(--plot-slider-thumb-diameter);
+    width: var(--plot-slider-thumb-diameter);
+    border-radius: var(--plot-slider-thumb-radius);
+    background: var(--light-accent);
+    opacity: 1;
+    cursor: pointer;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+/* Slider thumb on hover */
+input[type=range].plot-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 var(--plot-slider-thumb-radius) var(--incredibly-transparent-accent);
+}
+
+/* Slider thumb when active */
+input[type=range].plot-slider::-webkit-slider-thumb:active {
+    background-color: var(--accent);
+}
+
+/* Slider thumb for Firefox (?) */
+input[type=range]::-moz-range-thumb {
+    border: none;
+    height: var(--plot-slider-thumb-diameter);
+    width: var(--plot-slider-thumb-diameter);
+    border-radius: var(--plot-slider-thumb-radius);
+    background: var(--light-accent);
+    opacity: 1;
+    cursor: pointer;
+    -moz-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+/* Slider thumb on hover for Firefox (?) */
+input[type=range].plot-slider::-moz-range-thumb:hover {
+    box-shadow: 0 0 0 var(--plot-slider-thumb-radius) var(--incredibly-transparent-accent);
+}
+
+/* Slider thumb when active for Firefox (?) */
+input[type=range].plot-slider::-moz-range-thumb:active {
+    background-color: var(--accent);
+}
+
+/* -- 2.3.4.3.2 Slider track -- */
+
+input[type=range]::-webkit-slider-runnable-track {
+    background: linear-gradient(var(--incredibly-transparent-accent) 0 0) 50%/100% 5px no-repeat;
+    cursor: pointer;
+    border-radius: calc(var(--plot-slider-track-height) / 2);
+}
+
+input[type=range]::-moz-range-track {
+    background: linear-gradient(var(--incredibly-transparent-accent) 0 0) 50%/100% 5px no-repeat;
+    cursor: pointer;
+    border-radius: calc(var(--plot-slider-track-height) / 2);
 }
 
 /* === 2.4 slideshow === */

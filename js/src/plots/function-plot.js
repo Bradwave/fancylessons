@@ -85,6 +85,14 @@ let functionPlot = function (id, functions, options) {
     let isFullscreen = false;
 
     /*_______________________________________
+    |   Math
+    */
+
+    let params = [];
+
+    let epsilon;
+
+    /*_______________________________________
     |   Methods
     */
 
@@ -93,6 +101,8 @@ let functionPlot = function (id, functions, options) {
      */
     function init() {
         // Sets default parameters
+        if (functions == undefined) functions = [];
+        if (options.parameters == undefined) options.parameters = [];
         if (options.parameters == undefined) options.parameters = [];
         if (options.labelSize == undefined) options.labelSize = 15;
         if (options.backgroundColor == undefined) options.backgroundColor = "#ffffff";
@@ -107,6 +117,10 @@ let functionPlot = function (id, functions, options) {
         if (options.isTranslationActive == undefined) options.isTranslationActive = true;
         if (options.isZoomActive == undefined) options.isZoomActive = true;
         if (options.isFullscreenToggleActive == undefined) options.isFullscreenToggleActive = true;
+        if (options.epsilon == undefined) options.epsilon = 0.01;
+
+        // Sets the epsilon
+        epsilon = options.epsilon;
 
         // Sets the grid visibility
         isGridVisible = options.isGridVisible;
@@ -123,6 +137,11 @@ let functionPlot = function (id, functions, options) {
             if (f.lineWidth == undefined) f.lineWidth = 3;
         })
 
+        // Sets the initial value of the parameters
+        options.parameters.forEach((p) => {
+            params[p.id] = parseFloat(document.getElementById(id + "-param-" + p.id).value);
+        });
+
         // Updates width and heigh of the canvas
         updateCanvasDimension();
 
@@ -131,14 +150,14 @@ let functionPlot = function (id, functions, options) {
             { x: options.viewportCenter.x, y: options.viewportCenter.y }, options.initialPixelsPerUnit);
 
         // Adds event listeners
-        addEventListener();
+        addEventListeners();
     }
 
     /*_______________________________________
     |   Canvas and canvas dimension
     */
 
-    const axisPlot = new plotStructure(id, { alpha: false });
+    const axisPlot = new plotStructure(id, { alpha: true });
     const axisCtx = axisPlot.getCtx();
 
     /**
@@ -168,7 +187,7 @@ let functionPlot = function (id, functions, options) {
     |   Events and controls
     */
 
-    function addEventListener() {
+    function addEventListeners() {
 
         /* -- Axis translation -- */
 
@@ -423,6 +442,19 @@ let functionPlot = function (id, functions, options) {
                 }, 300);
             }
         }
+
+        // If some parameter is used
+        if (options.parameters.length > 0) {
+            options.parameters.forEach((p) => {
+                // Executes when the input changes
+                document.getElementById(id + "-param-" + p.id).oninput = () => {
+                    // Stores the value
+                    params[p.id] = parseFloat(document.getElementById(id + "-param-" + p.id).value);
+                    clearFunctions();
+                    drawFunctions();
+                }
+            })
+        }
     }
 
     /* -- Utils -- */
@@ -539,6 +571,7 @@ let functionPlot = function (id, functions, options) {
 
         // ------- STUFF HERE -------
         drawAxisPlot();
+
         drawFunctions();
     }
 
@@ -558,7 +591,7 @@ let functionPlot = function (id, functions, options) {
             // For each domain interval
             f.domain.forEach((interval) => {
                 // If the interval is at least partially framed
-                if (interval[0] <= cs.cartesianXMin || interval[1] >= cs.cartesianYMax) {
+                if (interval[0] <= cs.cartesianXMax || interval[1] >= cs.cartesianXMin) {
                     // Checks if the interval boundary are infinite (and constrains them if necessary)
                     const intervalStart = interval[0] == -Infinity ? cs.cartesianEdgeXMin : interval[0];
                     const intervalEnd = interval[1] == Infinity ? cs.cartesianEdgeXMax : interval[1];
@@ -568,10 +601,16 @@ let functionPlot = function (id, functions, options) {
 
                     // Draws the function
                     fCtx.beginPath();
-                    fCtx.moveTo(loopStart, cs.toScreenY(f.definition(cs.toCartesianX(loopStart))))
+
+                    fCtx.moveTo(loopStart, cs.toScreenY(f.definition(cs.toCartesianX(loopStart), params)))
+
                     for (i = loopStart + 1; i <= loopEnd; i++) {
                         // The function is evaluated using the definition
-                        fCtx.lineTo(i, cs.toScreenY(f.definition(cs.toCartesianX(i))));
+                        // fCtx.lineTo(i, cs.toScreenY(f.definition(cs.toCartesianX(i), params)));
+
+                        let fValue = f.definition(cs.toCartesianX(i), params);
+                        // fValue = constrain(fValue, cs.cartesianEdgeYMin, cs.cartesianEdgeYMax)
+                        fCtx.lineTo(i, cs.toScreenY(fValue));
                     }
                     fCtx.stroke();
                 }
@@ -638,7 +677,7 @@ let functionPlot = function (id, functions, options) {
     }
 
     /**
-     * Draws the axis of the plot.
+     * Draws the axis of the plot.alpha
      * @param {String} color Color of the axis.
      * @param {Number} lineWidth Line width of the axis.
      */
@@ -854,9 +893,16 @@ let functionPlot = function (id, functions, options) {
         axisCtx.fillStyle = options.backgroundColor;
 
         axisCtx.beginPath();
-        axisCtx.rect(0, 0, width, height);
+        axisCtx.rect(0, 0, width + 1, height + 1);
         axisCtx.fill();
 
+        clearFunctions();
+    }
+
+    /**
+     * Clears the function plots
+     */
+    function clearFunctions() {
         fCtxs.forEach((ctx) => {
             ctx.clearRect(0, 0, width + 1, height + 1);
         })

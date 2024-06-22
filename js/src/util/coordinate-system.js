@@ -78,7 +78,7 @@ class CoordinateSystem {
      */
     #grid = {
         screen: { xMin: undefined, yMin: undefined },
-        cartesian: { xMin: undefined, yMin: undefined }
+        cartesian: { xMin: undefined, yMax: undefined }
     }
 
     /**
@@ -86,7 +86,7 @@ class CoordinateSystem {
      */
     #secondaryGrid = {
         screen: { xMin: undefined, yMin: undefined },
-        cartesian: { xMin: undefined, yMin: undefined }
+        cartesian: { xMin: undefined, yMax: undefined }
     }
 
     /**
@@ -185,8 +185,8 @@ class CoordinateSystem {
         this.#viewport.cartesian = {
             xMin: Math.max(this.toCartesianX(this.#edges.screen.xMin), this.#edges.cartesian.xMin),
             xMax: Math.min(this.toCartesianX(this.#edges.screen.xMax), this.#edges.cartesian.xMax),
-            yMin: Math.max(this.toCartesianY(this.#edges.screen.yMin), this.#edges.cartesian.yMin),
-            yMax: Math.min(this.toCartesianY(this.#edges.screen.yMax), this.#edges.cartesian.yMax)
+            yMin: Math.max(this.toCartesianY(this.#edges.screen.yMax), this.#edges.cartesian.yMin),
+            yMax: Math.min(this.toCartesianY(this.#edges.screen.yMin), this.#edges.cartesian.yMax)
         };
 
         // Sets the edges in 
@@ -232,9 +232,10 @@ class CoordinateSystem {
         this.#grid.screen.xMin = this.toScreenX(this.#grid.cartesian.xMin);
 
         // Computes the main grid starting point on the y axes in cartesian coordinates
-        this.#grid.cartesian.yMin = this.#getGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.yMin, +1);
+        this.#grid.cartesian.yMax = this.#getGridMin(this.#gridStep.cartesian, this.#viewport.cartesian.yMax, +1);
+
         // Computes the main grid starting point on the y axes in screen coordinates
-        this.#grid.screen.yMin = this.toScreenY(this.#grid.cartesian.yMin);
+        this.#grid.screen.yMin = this.toScreenY(this.#grid.cartesian.yMax);
 
         /* -- Secondary grid -- */
 
@@ -245,10 +246,10 @@ class CoordinateSystem {
         this.#secondaryGrid.screen.xMin = this.toScreenX(this.#secondaryGrid.cartesian.xMin)
 
         // Computes the secondary grid starting point on the y axes in cartesian coordinates
-        this.#secondaryGrid.cartesian.yMin =
-            this.#getGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.yMin, +1);
+        this.#secondaryGrid.cartesian.yMax =
+            this.#getGridMin(this.#secondaryGridStep.cartesian, this.#viewport.cartesian.yMax, +1);
         // Computes the secondary grid starting point on the y axes in screen coordinates
-        this.#secondaryGrid.screen.yMin = this.toScreenY(this.#secondaryGrid.cartesian.yMin)
+        this.#secondaryGrid.screen.yMin = this.toScreenY(this.#secondaryGrid.cartesian.yMax)
     }
 
     /**
@@ -410,7 +411,7 @@ class CoordinateSystem {
     }
 
     /**
-     * Gets the rendering viewport maximum y value in cartesian coordinates.
+     * Gets the y value bottom edge of rendering viewport in cartesian coordinates.
      */
     get cartesianYMax() {
         return this.#viewport.cartesian.yMax;
@@ -428,6 +429,20 @@ class CoordinateSystem {
      */
     get cartesianEdgeXMax() {
         return this.#edges.cartesian.xMax;
+    }
+
+    /**
+     * Gets the cartesian coordinate of the bottom edge of the plot.
+     */
+    get cartesianEdgeYMin() {
+        return this.#edges.cartesian.yMin;
+    }
+
+    /**
+     * Gets the cartesian coordinate of the top edge of the plot.
+     */
+    get cartesianEdgeYMax() {
+        return this.#edges.cartesian.yMax;
     }
 
     /**

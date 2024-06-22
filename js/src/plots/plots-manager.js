@@ -28,8 +28,8 @@ let plotsManager = new function () {
         plots.set('test-function', new functionPlot("test-function", [
             {
                 id: "line",
-                definition: (x) => { return Math.sin(x) },
-                domain: [[-50, +50], [100, 150]],
+                definition: (x, params) => { return Math.sin(params["a"] * x) },
+                domain: [[-Infinity, +Infinity]],
                 color: getCssVariable("accent"),
                 lineWidth: 3
             }
@@ -37,10 +37,10 @@ let plotsManager = new function () {
             viewportCenter: { x: 0, y: 0 },
             initialPixelsPerUnit: 10,
             parameters: [
-                { id: "t", name: "t" }
+                { id: "a" }
             ],
             labelSize: 15,
-            backgroundColor: getCssVariable("very-light-grey"),
+            backgroundColor: getCssVariable("incredibly-light-accent"),
             axisColor: getCssVariable("highlight"),
             axisLineWidth: 3,
             gridColor: getCssVariable("highlight"),
