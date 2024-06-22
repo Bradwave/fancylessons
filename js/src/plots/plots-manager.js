@@ -28,7 +28,7 @@ let plotsManager = new function () {
         plots.set('test-function', new functionPlot("test-function", [
             {
                 id: "line",
-                definition: (x, params) => { return Math.sin(params["a"] * x) },
+                definition: (x, params) => { return params["a"] * (x ** 2) },
                 domain: [[-Infinity, +Infinity]],
                 color: getCssVariable("accent"),
                 lineWidth: 3

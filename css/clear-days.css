@@ -29,6 +29,7 @@
             - 2.3.4.3 Plot sliders
               -- 2.3.4.3.1 Slider thumb
               -- 2.3.4.3.2 Slider track
+              -- 2.3.4.3.3 Slider controls and options
         2.4 Slideshow
           - 2.4.1 Slides
           - 2.4.2 Options panel
@@ -89,7 +90,7 @@
     --hidden: #ffffff;
     --accent: #1484e6;
     --light-accent: #54a3e8;
-    --incredibly-light-accent: #d6e4ef;
+    --incredibly-light-accent: #d9e1e7;
     --very-transparent-accent: #2d8cdf80;
     --incredibly-transparent-accent: #298be037;
     --transparent-accent: #1484e6cc;
@@ -100,9 +101,10 @@
     --transparent-highlight: #ffffff6e;
     --very-light-grey: #e1e1e1;
     --light-grey: #c8c8c8;
+    --mildly-transparent-light-grey: #c8c8c85b;
     --transparent-light-grey: #ececec78;
     /* alternative transparent light-grey color: #f2f2f278 */
-    --light-mid-grey: #757575;
+    --light-mid-grey: #939393;
     --mid-grey: #555555;
     --transparent-mid-grey: #d7d7d778;
     --dark-grey: #222222;
@@ -196,6 +198,8 @@
     --slideshow-slider-width: calc(100% - 2 * var(--options-padding) - 2 * var(--options-gap) - var(--arrows-capsule-width) - var(--button-diameter));
     --slider-icon-size: calc(var(--button-diameter) * 2 / 3);
     --slider-icon-margin: calc((var(--button-diameter) - var(--slider-icon-size)) / 2);
+    /* Plot sliders panel */
+    --plot-sliders-panel-fullscreen-top: calc(2 * var(--options-margin) + var(--button-diameter));
     /* Plot sliders */
     --plot-slider-thumb-diameter: 16px;
     --plot-slider-thumb-radius: calc(var(--plot-slider-thumb-diameter) / 2);
@@ -667,12 +671,10 @@ canvas.plot.squared-border {
 
 /* -- 2.3.4 Plot controls -- */
 
-div.plot-options-panel {}
-
 /* -- 2.3.4.1 Plot controls buttons -- */
 
 /* General plot control button */
-button.plot-control {
+button.round-button.plot-control {
     position: absolute;
     display: grid;
     place-items: center;
@@ -682,19 +684,19 @@ button.plot-control {
     cursor: pointer;
 }
 
-button.plot-control.transparent {
+button.round-button.plot-control.transparent {
     opacity: 0.4;
 }
 
-button.plot-control:hover {
+button.round-button.plot-control:hover {
     color: var(--dark-grey);
 }
 
-button.plot-control:active {
+button.round-button.plot-control:active {
     background-color: var(--accent);
     color: var(--highlight);
     user-select: none;
-    opacity: 1 !important;
+    opacity: 1;
     transform: scale(var(--active-button-scale));
     -webkit-transition: transform var(--button-active-transition-duration) ease-in-out;
     -moz-transition: transform var(--button-active-transition-duration) ease-in-out;
@@ -756,7 +758,13 @@ input[type=range].plot-slider {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
+    margin: 0;
+    border-radius: var(--plot-slider-thumb-radius);
     background: transparent;
+    cursor: pointer;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
 }
 
 /* -- 2.3.4.3.1 Slider thumb -- */
@@ -764,62 +772,178 @@ input[type=range].plot-slider {
 /* Slider thumb */
 input[type=range].plot-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    border: none;
+    appearance: none;
     height: var(--plot-slider-thumb-diameter);
     width: var(--plot-slider-thumb-diameter);
+    border: none;
     border-radius: var(--plot-slider-thumb-radius);
-    background: var(--light-accent);
-    opacity: 1;
-    cursor: pointer;
+    background-color: var(--light-mid-grey);
     -webkit-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;
 }
 
 /* Slider thumb on hover */
 input[type=range].plot-slider::-webkit-slider-thumb:hover {
+    background: var(--accent);
     box-shadow: 0 0 0 var(--plot-slider-thumb-radius) var(--incredibly-transparent-accent);
 }
 
 /* Slider thumb when active */
 input[type=range].plot-slider::-webkit-slider-thumb:active {
-    background-color: var(--accent);
+    transform: scale(var(--active-button-scale));
 }
 
-/* Slider thumb for Firefox (?) */
+/* Slider thumb in focus */
+input[type=range].plot-slider::-webkit-slider-thumb:focus {
+    background-color: var(--accent);
+    box-shadow: 0 0 0 var(--plot-slider-thumb-radius) var(--incredibly-transparent-accent);
+}
+
+/* Firefox */
+
+/* Slider thumb for Firefox */
 input[type=range]::-moz-range-thumb {
     border: none;
     height: var(--plot-slider-thumb-diameter);
     width: var(--plot-slider-thumb-diameter);
     border-radius: var(--plot-slider-thumb-radius);
-    background: var(--light-accent);
-    opacity: 1;
-    cursor: pointer;
+    background: var(--light-mid-grey);
     -moz-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;
 }
 
-/* Slider thumb on hover for Firefox (?) */
+/* Slider thumb on hover for Firefox */
 input[type=range].plot-slider::-moz-range-thumb:hover {
+    background-color: var(--light-accent);
     box-shadow: 0 0 0 var(--plot-slider-thumb-radius) var(--incredibly-transparent-accent);
 }
 
-/* Slider thumb when active for Firefox (?) */
+/* Slider thumb when active for Firefox */
 input[type=range].plot-slider::-moz-range-thumb:active {
     background-color: var(--accent);
 }
 
-/* -- 2.3.4.3.2 Slider track -- */
-
-input[type=range]::-webkit-slider-runnable-track {
-    background: linear-gradient(var(--incredibly-transparent-accent) 0 0) 50%/100% 5px no-repeat;
-    cursor: pointer;
-    border-radius: calc(var(--plot-slider-track-height) / 2);
+/* Slider thumb in focus for Firefox */
+input[type=range].plot-slider::-moz-range-thumb:hover {
+    background-color: var(--accent);
+    box-shadow: 0 0 0 var(--plot-slider-thumb-radius) var(--incredibly-transparent-accent);
 }
 
-input[type=range]::-moz-range-track {
-    background: linear-gradient(var(--incredibly-transparent-accent) 0 0) 50%/100% 5px no-repeat;
+/* -- 2.3.4.3.2 Slider track -- */
+
+/* Slider thumb */
+input[type=range].plot-slider::-webkit-slider-runnable-track {
+    height: var(--plot-slider-thumb-diameter);
+    border-radius: var(--plot-slider-thumb-radius);
+    background-color: var(--light-grey);
+    opacity: var(--button-inactive-opacity);
     cursor: pointer;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+/* Changes the color when active */
+input[type=range].plot-slider::-webkit-slider-runnable-track:active {
+    background: var(--very-transparent-accent);
+    opacity: var(--button-active-opacity);
+}
+
+/* Firefox */
+
+/* Slider track on Firefox */
+input[type=range].plot-slider::-moz-range-track {
+    height: var(--plot-slider-thumb-diameter);
     border-radius: calc(var(--plot-slider-track-height) / 2);
+    background-color: var(--light-grey);
+    opacity: var(--button-inactive-opacity);
+    cursor: pointer;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+/* Changes the color when active on Firefox */
+input[type=range].plot-slider::-moz-range-track:active {
+    background: var(--very-transparent-accent);
+    opacity: var(--button-active-opacity);
+}
+
+/* -- 2.3.4.3.3 Slider controls and options -- */
+
+/* Panel containing the sliders */
+div.vertical-options-panel-group.plot-sliders-panel {
+    margin: var(--options-margin);
+    padding: calc(1.5 * var(--options-padding));
+    background-color: var(--transparent-light-grey);
+}
+
+/* Centers the sliders */
+div.sliders-container.centered {
+    display: grid;
+    place-items: center;
+}
+
+/* Midsize panel (?) */
+div.vertical-options-panel-group.plot-sliders-panel.midsize {
+    width: 200px;
+}
+
+/* Fullscreen mode for the panel */
+div.vertical-options-panel-group.plot-sliders-panel.fullscreen {
+    position: fixed;
+    top: var(--plot-sliders-panel-fullscreen-top);
+    left: var(--options-margin);
+    margin: 0;
+    background-color: var(--transparent-highlight);
+    backdrop-filter: blur(var(--backdrop-blur));
+    z-index: 999;
+    /* aah... why?! */
+}
+
+/* Group containing a single slider and its controls */
+div.plot-slider-group {
+    display: flex;
+    flex-flow: column nowrap;
+    align-content: space-between;
+    justify-content: center;
+    gap: var(--options-small-gap);
+    width: 100%;
+    padding: 0;
+}
+
+/* Group containing the sliders controls and its value */
+div.plot-slider-controls-group {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    gap: var(--options-small-gap);
+}
+
+/* It contains the slider value span */
+div.plot-slider-value-container {
+    display: grid;
+    place-items: center;
+    min-height: var(--button-diameter);
+    max-height: var(--button-diameter);
+    height: var(--button-diameter);
+    padding-left: calc(0.75 * var(--button-radius));
+    padding-right: calc(0.75 * var(--button-radius));
+    border-radius: var(--button-radius);
+    background-color: var(--mildly-transparent-light-grey);
+    color: var(--mid-grey);
+    font-size: calc(0.5 * var(--button-diameter));
+}
+
+button.round-button.slider-control:active {
+    background-color: var(--accent);
+    color: var(--highlight);
+    user-select: none;
+    opacity: 1;
+    transform: scale(var(--active-button-scale));
+    -webkit-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -moz-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -ms-transition: transform var(--button-active-transition-duration) ease-in-out;
+    -o-transition: transform var(--button-active-transition-duration) ease-in-out;
+    transition: transform var(--button-active-transition-duration) ease-in-out;
 }
 
 /* === 2.4 slideshow === */
@@ -1006,6 +1130,8 @@ div.vertical-options-panel-group {
 /* -- 2.4.3.1 Round button -- */
 
 button.round-button {
+    display: grid;
+    place-items: center;
     width: var(--button-diameter);
     height: var(--button-diameter);
     vertical-align: middle;

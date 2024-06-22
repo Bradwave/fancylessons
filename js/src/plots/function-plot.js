@@ -392,7 +392,9 @@ let functionPlot = function (id, functions, options) {
 
                 // Stores the fullscreen and original container
                 let fullscreenContainer = document.getElementById("fullscreen-container");
-                let originalContainer = document.getElementById(id + "-plot-container");
+                let fullscreenSlidersContainer = document.getElementById("fullscreen-sliders-container");
+                let originalPlotContainer = document.getElementById(id + "-plot-container");
+                let originalSlidersContainer = document.getElementById(id + "-plot-sliders-container");
 
                 // Sets the body opacity to zero
                 document.body.classList.add("transparent");
@@ -402,25 +404,35 @@ let functionPlot = function (id, functions, options) {
                     if (isFullscreen) {
                         // Makes the container for fullscreen content visible
                         fullscreenContainer.classList.add("visible");
+                        fullscreenSlidersContainer.classList.add("visible")
                         // Hides the scrollbar
                         document.body.classList.add("hidden-overflow");
                         // Moves the plot into the full screen container
-                        moveHTML(originalContainer, fullscreenContainer);
+                        moveHTML(originalPlotContainer, fullscreenContainer);
+                        // Moves the slider panel into the full screen container
+                        moveHTML(originalSlidersContainer, fullscreenSlidersContainer);
                         // Styles the plot as fullscreen
                         document.getElementById(id + "-plot").classList.add("fullscreen");
                         // Makes the plot canvas borders squared
                         document.getElementById(id + "-canvas").classList.add("squared-border");
+                        // Moves the sliders panel in the top-left corner
+                        document.getElementById(id + "-plot-sliders-panel").classList.add("fullscreen");
                     } else {
                         // Hides the container for fullscreen content
-                        fullscreenContainer.classList.add("visible");
+                        fullscreenContainer.classList.remove("visible");
+                        fullscreenSlidersContainer.classList.remove("visible");
                         // Displays the scrollbar
                         document.body.classList.remove("hidden-overflow");
                         // Moves the plot into its original container
-                        moveHTML(fullscreenContainer, originalContainer)
+                        moveHTML(fullscreenContainer, originalPlotContainer)
+                        // Moves the sliders back where they belong
+                        moveHTML(fullscreenSlidersContainer, originalSlidersContainer);
                         // Removes the fullscreen class and style
                         document.getElementById(id + "-plot").classList.remove("fullscreen");
                         // Makes the plot canvas borders rounded
                         document.getElementById(id + "-canvas").classList.remove("squared-border")
+                        // Moves back the sliders panel where it was before
+                        document.getElementById(id + "-plot-sliders-panel").classList.remove("fullscreen");
                     }
 
                     // Changes the border radius of every function canvas
@@ -450,6 +462,20 @@ let functionPlot = function (id, functions, options) {
                 document.getElementById(id + "-param-" + p.id).oninput = () => {
                     // Stores the value
                     params[p.id] = parseFloat(document.getElementById(id + "-param-" + p.id).value);
+
+                    // Gets the span with the slider value
+                    const sliderValueSpan = document.getElementById(id + "-param-" + p.id + "-value");
+                    // MathJax will forget about the math inside said span
+                    MathJax.typesetClear([sliderValueSpan]);
+                    // The inner text of the span is edited
+                    sliderValueSpan.innerText =
+                        "$" + p.id + "=" + roundNumberDigit(params[p.id], 2) + "$";
+                    // MathJax does its things and re-renders the formula
+                    MathJax.typesetPromise([sliderValueSpan]).then(() => {
+                        // the new content is has been typeset
+                    });
+
+                    // Clears the functions and draws them
                     clearFunctions();
                     drawFunctions();
                 }
@@ -599,19 +625,44 @@ let functionPlot = function (id, functions, options) {
                     const loopStart = Math.max(cs.toScreenX(intervalStart), cs.screenXMin);
                     const loopEnd = Math.min(cs.toScreenX(intervalEnd), cs.screenXMax);
 
-                    // Draws the function
-                    fCtx.beginPath();
+                    let isOutOfBound = true;
 
+                    // Draws the function, by first opening a path
+                    fCtx.beginPath();
+                    // Moves to the first graph point
                     fCtx.moveTo(loopStart, cs.toScreenY(f.definition(cs.toCartesianX(loopStart), params)))
 
-                    for (i = loopStart + 1; i <= loopEnd; i++) {
-                        // The function is evaluated using the definition
-                        // fCtx.lineTo(i, cs.toScreenY(f.definition(cs.toCartesianX(i), params)));
-
+                    // Sets the loop index (which is equal to the pixel position in screen coordinates)
+                    let i = loopStart;
+                    // While the index is less the
+                    while (i < loopEnd) {
+                        // Evaluates the function
                         let fValue = f.definition(cs.toCartesianX(i), params);
-                        // fValue = constrain(fValue, cs.cartesianEdgeYMin, cs.cartesianEdgeYMax)
-                        fCtx.lineTo(i, cs.toScreenY(fValue));
+
+                        // If the value is greater then max allowed...
+                        if (fValue > cs.cartesianEdgeYMax) {
+                            // ...it draws the line only if previous value was in bounds
+                            if (!isOutOfBound) fCtx.lineTo(i, cs.screenYMin);
+                            // Otherwise it just moves
+                            else fCtx.moveTo(i, cs.screenYMin)
+                            isOutOfBound = true;
+                        } else if (fValue < cs.cartesianEdgeYMin) {
+                            // If the value is less the min allowed...
+                            // ...same as before, it draws the line ony if previous was in bounds
+                            if (!isOutOfBound) fCtx.lineTo(i, cs.screenYMax)
+                            // Otherwise it just moves
+                            else fCtx.moveTo(i, cs.screenYMax)
+                            isOutOfBound = true;
+                        } else {
+                            // If the value is between min and max allowed, it draws the line
+                            fCtx.lineTo(i, cs.toScreenY(fValue));
+                            isOutOfBound = false;
+                        }
+
+                        // Updates the index
+                        i = i + 1 > loopEnd ? loopEnd : i + 1;
                     }
+                    // Closes the path and draws the line
                     fCtx.stroke();
                 }
             });
@@ -732,7 +783,7 @@ let functionPlot = function (id, functions, options) {
             axisCtx.lineTo(cs.screenXMin, cs.screenYMax);
         }
         // Draws the left border
-        if (cs.screenXMin < width) {
+        if (cs.screenXMax < width) {
             axisCtx.moveTo(cs.screenXMax, cs.screenYMin);
             axisCtx.lineTo(cs.screenXMax, cs.screenYMax);
         }

@@ -124,9 +124,25 @@
                         <!-- Plot loader -->
                         <div id="test-function-loader" name="plot-loader" class="plot loader"></div>
                     </div>
-                    <div class="plot-options-panel">
-                        <input id="test-function-param-a" class="plot-slider" type="range" min="-2" max="2" value="1"
-                            step="0.05">
+                </div>
+                <div id="test-function-plot-sliders-container" class="sliders-container centered">
+                    <div id="test-function-plot-sliders-panel"
+                        class="vertical-options-panel-group plot-sliders-panel midsize">
+                        <div class="plot-slider-group">
+                            <div class="plot-slider-controls-group">
+                                <button class="round-button glass-grey slider-control ">
+                                    <span id="test-function-plot-toggle-fullscreen-icon"
+                                        class="material-symbols-rounded">
+                                        play_arrow
+                                    </span>
+                                </button>
+                                <div class="plot-slider-value-container">
+                                    <span id="test-function-param-a-value" class="plot-slider-value">$a = 1$</span>
+                                </div>
+                            </div>
+                            <input id="test-function-param-a" class="plot-slider" type="range" min="-2" max="2"
+                                value="1" step="0.05">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,7 +176,7 @@
 
             <!-- Options toggle -->
 
-            <div id="options-toggle" class="options-panel-group-item">
+            <div id="options-toggle">
                 <button id="options-toggle-button" class="toggle-button round-button glass-grey">
                     <!-- SVG "Tune" icon -->
                     <svg id="options-toggle-icon" class="toggle-icon button-icon" xmlns="http://www.w3.org/2000/svg"
@@ -173,7 +189,7 @@
 
             <!-- Slideshow toggle -->
 
-            <div id="slideshow-toggle" class="options-panel-group-item">
+            <div id="slideshow-toggle">
                 <button id="slideshow-toggle-button" class="toggle-button round-button glass-grey">
                     <!-- SVG "Present To All" icon -->
                     <svg id="slideshow-toggle-icon" class="toggle-icon button-icon" xmlns="http://www.w3.org/2000/svg"
@@ -196,7 +212,7 @@
                 <!-- Serif/sans-serif picker (capsule, selection circle and 2 buttons) -->
 
                 <!-- Capsule -->
-                <div id="serif-picker-capsule" class="two-options-picker-capsule options-panel-group-item">
+                <div id="serif-picker-capsule" class="two-options-picker-capsule">
                     <!-- Selection circle -->
                     <span id="serif-picker-selection-circle" class="two-options-picker-selection-circle"></span>
                     <!-- Button for the second options (serif) -->
@@ -236,7 +252,7 @@
                 <!-- Alignment picker (capsule, selection circle and 2 buttons) -->
 
                 <!-- Capsule -->
-                <div id="text-alignment-picker-capsule" class="two-options-picker-capsule options-panel-group item">
+                <div id="text-alignment-picker-capsule" class="two-options-picker-capsule">
                     <!-- Selection circle -->
                     <span id="text-alignment-picker-selection-circle"
                         class="two-options-picker-selection-circle"></span>
@@ -262,7 +278,7 @@
 
                 <!-- Line height slider -->
 
-                <div id="line-height-picker" class="options-panel-group-item">
+                <div id="line-height-picker">
                     <!-- Slider base -->
                     <div id="line-height-slider-base" class="slider-base">
                         <!-- Progress bar -->
@@ -286,7 +302,7 @@
 
                 <!-- Portrait mode toggle button -->
 
-                <div id="portrait-toggle" class="options-panel-group-item">
+                <div id="portrait-toggle">
                     <button id="portrait-toggle-button" class="toggle-button round-button glass-grey">
                         <!-- SVG "Screenshot Frame" icon (rotates by 90 deg on click) -->
                         <svg id="portrait-toggle-icon"
@@ -300,7 +316,7 @@
 
                 <!-- Fractional size for the page content slider -->
 
-                <div id="page-size-picker" class="options-panel-group-item">
+                <div id="page-size-picker">
                     <!-- Slider base -->
                     <div id="page-size-slider-base" class="slider-base pointer-cursor">
                         <!-- Progress bar -->
@@ -327,13 +343,13 @@
 
             <!-- Slide number (displays/hides the slideshow progress when pressed) -->
 
-            <button id="slide-number-button" class="round-button glass-grey options-panel-group-item">
+            <button id="slide-number-button" class="round-button glass-grey">
                 <span id="slide-number"></span>
             </button>
 
             <!-- Slideshow progress bar and slide picker slider -->
 
-            <div id="slide-picker" class="options-panel-group-item">
+            <div id="slide-picker">
                 <!-- Slider base -->
                 <div id="slideshow-slider-base" class="slider-base">
                     <!-- Progress bar -->
@@ -348,11 +364,11 @@
 
             <!-- Arrow controls (moves to next/previous slide when clicked) -->
 
-            <div id="arrows" class="options-panel-group-item">
+            <div id="arrows">
                 <!-- Previous slide arrow -->
                 <button id="previous" class="arrow-button round-button glass-grey">
                     <!-- SVG "Chevron Left" (with modified view box) -->
-                    <svg class="arrow-icon button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="190 -850 650 650">
+                    <svg class="arrow-icon button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="190 -850 650 750">
                         <path
                             d="m432-480 156 156q11 11 11 28t-11 28q-11 11-28 11t-28-11L348-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 28-11t28 11q11 11 11 28t-11 28L432-480Z" />
                     </svg>
@@ -360,7 +376,7 @@
                 <!-- Next slide arrow -->
                 <button id="next" class="arrow-button round-button glass-grey">
                     <!-- SVG "Chevron RIght" (with modified view box) -->
-                    <svg class="arrow-icon button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="120 -850 650 650">
+                    <svg class="arrow-icon button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="120 -850 650 750">
                         <path
                             d="M504-480 348-636q-11-11-11-28t11-28q11-11 28-11t28 11l184 184q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13L404-268q-11 11-28 11t-28-11q-11-11-11-28t11-28l156-156Z" />
                     </svg>
@@ -370,6 +386,7 @@
     </div>
 
     <div id="fullscreen-container" class="fullscreen-container"></div>
+    <div id="fullscreen-sliders-container" class="fullscreen-container"></div>
 
     <!-- Spinning loader -->
 
