@@ -351,6 +351,9 @@ let functionPlot = function (id, functions, options) {
 
             // Executes when the mouse wheel is scrolled
             axisPlot.getCanvas().addEventListener("wheel", (e) => {
+                // Stops running animations
+                isRunning = false;
+
                 // Prevents page scrolling
                 e.preventDefault();
 

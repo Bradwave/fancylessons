@@ -32,6 +32,13 @@ let plotsManager = new function () {
                 domain: [[-Infinity, +Infinity]],
                 color: getCssVariable("accent"),
                 lineWidth: 3
+            },
+            {
+                id: "line",
+                definition: (x, params) => { return params["a"] * Math.sin(params["b"] * x + params["c"]) },
+                domain: [[-Infinity, +Infinity]],
+                color: "green",
+                lineWidth: 3
             }
         ], {
             viewportCenter: { x: 0, y: 0 },
