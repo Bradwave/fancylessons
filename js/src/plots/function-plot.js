@@ -748,7 +748,7 @@ let functionPlot = function (id, functions, options) {
         // ------- STUFF HERE -------
         drawAxisPlot();
 
-        if (!isFunctionRunning) drawFunctions();
+        drawFunctions();
         drawPoints();
     }
 
