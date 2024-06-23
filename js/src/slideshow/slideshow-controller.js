@@ -11,6 +11,11 @@ let dpi = window.devicePixelRatio;
  */
 let slideshowController = new function () {
 
+    /**
+     * Public methods.
+     */
+    let publicAPIs = {};
+
     /*_______________________________________
     |   slideshow config
     */
@@ -265,7 +270,7 @@ let slideshowController = new function () {
             // Sets the font size
             setFontSize(fontSize);
             // After a certain interval, Scrolls the current slide into view if necessary
-            if (isSlideshowMode) centerSlide(1000);
+            if (isSlideshowMode) publicAPIs.centerSlide(1000);
             // Stores the font size in the local storage
             localStorage.setItem("fontSize", fontSize);
         });
@@ -278,7 +283,7 @@ let slideshowController = new function () {
             // Sets the line spacing
             setLineHeight(lineHeights[lineHeightIndex]);
             // After a certain interval, Scrolls the current slide into view if necessary
-            if (isSlideshowMode) centerSlide(500);
+            if (isSlideshowMode) publicAPIs.centerSlide(500);
             // Stores the line spacing in the local storage
             localStorage.setItem("lineHeight", lineHeights[lineHeightIndex]);
         });
@@ -292,7 +297,7 @@ let slideshowController = new function () {
                 // Sets the fractional page size
                 setPageSize(fractionalPageSizes[pageSizeIndex]);
                 // After a certain interval, Scrolls the current slide into view if necessary
-                if (isSlideshowMode) centerSlide(500);
+                if (isSlideshowMode) publicAPIs.centerSlide(500);
                 // Stores the font size in the local storage
                 localStorage.setItem("pageSize", fractionalPageSizes[pageSizeIndex]);
             }
@@ -311,7 +316,7 @@ let slideshowController = new function () {
             localStorage.setItem("isPortraitMode", isPortrait ? "true" : "false");
             setPortraitMode(isPortrait);
             // Centers the slide
-            centerSlide(500);
+            publicAPIs.centerSlide(500);
         })
 
         sliders.get("slideshow").slider.oninput = () => {
@@ -804,7 +809,7 @@ let slideshowController = new function () {
             // Stores the font style
             localStorage.setItem("fontStyle", isSerifClicked ? "serif" : "sans-serif");
             // After a certain interval, Scrolls the current slide into view if necessary
-            if (isSlideshowMode) centerSlide(500);
+            if (isSlideshowMode) publicAPIs.centerSlide(500);
         }
     }
 
@@ -826,7 +831,7 @@ let slideshowController = new function () {
             // Stores the alignment
             localStorage.setItem("textAlignment", isAlignLeftClicked ? "align-left" : "justify");
             // After a certain interval, Scrolls the current slide into view if necessary
-            if (isSlideshowMode) centerSlide(500);
+            if (isSlideshowMode) publicAPIs.centerSlide(500);
         }
     }
 
@@ -1158,21 +1163,21 @@ let slideshowController = new function () {
         updateSlideNumber();
 
         // Scrolls to the correct slide position
-        centerSlide(timeout)
+        publicAPIs.centerSlide(timeout)
     }
 
     /**
      * Scrolls to the correct slide position, centering the slide.
      * @param {Number} timeout Time in ms to wait before scrolling.
      */
-    function centerSlide(timeout = 0) {
+    publicAPIs.centerSlide = (timeout = 0) => {
         setTimeout(() => {
             slides[currentSlideIndex].scrollIntoView({
                 behavior: 'smooth',
                 block: 'center'
             });
         }, timeout);
-
     }
 
+    return publicAPIs;
 }

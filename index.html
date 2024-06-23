@@ -91,6 +91,9 @@
                         <!-- Function canvas -->
                         <canvas id="line-test-function-canvas" name="plot" class="plot stacked">
                         </canvas>
+                        <!-- Points canvas -->
+                        <canvas id="points-test-function-canvas" name="plot" class="plot stacked">
+                        </canvas>
                         <!-- Zoom out button -->
                         <button id="test-function-plot-zoom-out" class="plot-control round-button zoom-in">
                             <span class="material-symbols-rounded bold-button">
@@ -150,7 +153,7 @@
                             <input id="test-function-param-a" class="plot-slider" type="range" min="-2" max="2"
                                 value="1" step="0.05">
                         </div>
-                        <!-- Sliders panel group for param "a" -->
+                        <!-- Sliders panel group for param "b" -->
                         <div id="test-function-param-b-group" class="plot-slider-group">
                             <!-- Group comprised of play/pause button and param value -->
                             <div class="plot-slider-controls-group">
@@ -169,6 +172,26 @@
                             <!-- Actual slider -->
                             <input id="test-function-param-b" class="plot-slider" type="range" min="-2" max="2"
                                 value="1" step="0.05">
+                        </div>
+                        <!-- Sliders panel group for param "c" -->
+                        <div id="test-function-param-c-group" class="plot-slider-group">
+                            <!-- Group comprised of play/pause button and param value -->
+                            <div class="plot-slider-controls-group">
+                                <!-- Play/pause button -->
+                                <button id="test-function-param-c-play-button"
+                                    class="round-button glass-grey slider-control ">
+                                    <span id="test-function-param-c-play-icon" class="material-symbols-rounded">
+                                        play_arrow
+                                    </span>
+                                </button>
+                                <!-- Param value -->
+                                <div class="plot-slider-value-container">
+                                    <span id="test-function-param-c-value" class="plot-slider-value">$c = 0$</span>
+                                </div>
+                            </div>
+                            <!-- Actual slider -->
+                            <input id="test-function-param-c" class="plot-slider" type="range" min="-5" max="5"
+                                value="0" step="0.05">
                         </div>
                     </div>
                 </div>

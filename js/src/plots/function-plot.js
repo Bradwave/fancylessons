@@ -36,14 +36,28 @@ let functionPlot = function (id, functions, options) {
     */
 
     /**
-     * Functions plots map.
+     * Map of functions plots.
      */
     let fPlots = new Map();
 
     /**
-     * Functions contexts map.
+     * Map of contexts of functions plots.
      */
     let fCtxs = new Map();
+
+    /*_______________________________________
+    |   Plots of functions
+    */
+
+    /**
+     * Plot of points.
+     */
+    let pPlot;
+
+    /**
+     * Context of the points plot.
+     */
+    let pCtx;
 
     /*_______________________________________
     |   General variables
@@ -109,6 +123,7 @@ let functionPlot = function (id, functions, options) {
         // Sets default parameters
         if (functions == undefined) functions = [];
         if (options.parameters == undefined) options.parameters = [];
+        if (options.points == undefined) options.points = [];
         if (options.labelSize == undefined) options.labelSize = 15;
         if (options.backgroundColor == undefined) options.backgroundColor = "#ffffff";
         if (options.axisColor == undefined) options.axisColor = "#3c3c3c";
@@ -154,6 +169,21 @@ let functionPlot = function (id, functions, options) {
             if (p.animationSpeed == undefined) p.animationSpeed = 0.5;
         });
 
+        // If points are present...
+        if (options.parameters.length > 0) {
+            // Creates the plot structure
+            pPlot = new plotStructure("points" + "-" + id, { alpha: true });
+            // And stores the context
+            pCtx = pPlot.getCtx();
+        }
+
+        // Sets default options for points
+        options.points.forEach(p => {
+            if (p.color) p.color = "#1484e6";
+            if (p.size) p.size = 2;
+            if (p.outline) p.outline = true;
+        });
+
         // Updates width and heigh of the canvas
         updateCanvasDimension();
 
@@ -176,10 +206,15 @@ let functionPlot = function (id, functions, options) {
      * Updates width and heigh of the canvas.
      */
     function updateCanvasDimension() {
+        // Resizes the axis/grid canvas
         axisPlot.resizeCanvas();
+        // Resizes the functions canvases
         fPlots.forEach((plot) => {
             plot.resizeCanvas();
         })
+        // Resizes the points canvas
+        if (options.points.length > 0) pPlot.resizeCanvas();
+        // Stores the new dimensions
         width = Math.ceil(axisPlot.getWidth());
         height = Math.ceil(axisPlot.getHeight());
     }
@@ -445,6 +480,9 @@ let functionPlot = function (id, functions, options) {
                         document.getElementById(id + "-canvas").classList.remove("squared-border")
                         // Moves back the sliders panel where it was before
                         document.getElementById(id + "-plot-sliders-panel").classList.remove("fullscreen");
+
+                        // Centers the slide
+                        slideshowController.centerSlide(250);
                     }
 
                     // Changes the border radius of every function canvas
@@ -478,9 +516,11 @@ let functionPlot = function (id, functions, options) {
                     // Updates the slider value
                     updateSliderValue(p.id);
 
-                    // Clears the functions and draws them
+                    // Clears the functions and points and redraws them
                     clearFunctions();
+                    clearPoints();
                     drawFunctions();
+                    drawPoints();
                 }
 
                 // Executes when the play/pause button for the parameter slider is pressed
@@ -528,6 +568,40 @@ let functionPlot = function (id, functions, options) {
         MathJax.typesetPromise([sliderValueSpan]).then(() => {
             // the new content is has been typeset
         });
+    }
+
+    /* -- Utils -- */
+
+    /**
+     * Moves an HTML element and its children to a new parent.
+     * @param {HTMLElement} oldParent Old parent HTML element.
+     * @param {HTMLElement} newParent New parent HTML element.
+     */
+    function moveHTML(oldParent, newParent) {
+        while (oldParent.childNodes.length > 0) {
+            newParent.appendChild(oldParent.childNodes[0]);
+        }
+    }
+
+    /*_______________________________________
+    |   Animations
+    */
+
+    /**
+     * A (probably poor) implementation of the pause-able loop.
+     * @param {Function} action Function to be executed every frame.
+     * @returns Early return if not playing.
+     */
+    function animate(action) {
+        if (!isRunning) {
+            return;
+        }
+        // Executes action to be performed every frame
+        action();
+        // Draws the plot
+        publicAPIs.drawPlot();
+        // Keeps executing this function
+        requestAnimationFrame(() => { animate(action); });
     }
 
     /**
@@ -580,46 +654,14 @@ let functionPlot = function (id, functions, options) {
             }
         })
 
-        // Clears and draws the functions
+        // Clears and redraws the functions and points
         clearFunctions();
+        clearPoints();
         drawFunctions();
+        drawPoints();
 
         // Keeps executing this function
         requestAnimationFrame(() => { animateFunctions(); });
-    }
-
-    /* -- Utils -- */
-
-    /**
-     * Moves an HTML element and its children to a new parent.
-     * @param {HTMLElement} oldParent Old parent HTML element.
-     * @param {HTMLElement} newParent New parent HTML element.
-     */
-    function moveHTML(oldParent, newParent) {
-        while (oldParent.childNodes.length > 0) {
-            newParent.appendChild(oldParent.childNodes[0]);
-        }
-    }
-
-    /*_______________________________________
-    |   Animations
-    */
-
-    /**
-     * A (probably poor) implementation of the pause-able loop.
-     * @param {Function} action Function to be executed every frame.
-     * @returns Early return if not playing.
-     */
-    function animate(action) {
-        if (!isRunning) {
-            return;
-        }
-        // Executes action to be performed every frame
-        action();
-        // Draws the plot
-        publicAPIs.drawPlot();
-        // Keeps executing this function
-        requestAnimationFrame(() => { animate(action); });
     }
 
     /**
@@ -703,7 +745,8 @@ let functionPlot = function (id, functions, options) {
         // ------- STUFF HERE -------
         drawAxisPlot();
 
-        drawFunctions();
+        if (!isFunctionRunning) drawFunctions();
+        drawPoints();
     }
 
     /**
@@ -774,6 +817,39 @@ let functionPlot = function (id, functions, options) {
         })
     }
 
+    /**
+     * Draws the points.
+     */
+    function drawPoints() {
+        options.points.forEach(p => {
+            /* Point outline */
+
+            // Draws the point outline, by drawing a larger circle with the same color as the background
+            if (p.outline) {
+                // Sets the style
+                pCtx.fillStyle = options.backgroundColor;
+
+                // Draws the outline
+                pCtx.beginPath();
+                pCtx.arc(cs.toScreenX(p.x(params)), cs.toScreenY(p.y(params)), p.size + 3, 0, 2 * Math.PI);
+                pCtx.fill();
+            }
+
+            /* Point dot/circle */
+
+            // Sets the style
+            pCtx.fillStyle = p.color;
+
+            // Draws the dot/circle
+            pCtx.beginPath();
+            pCtx.arc(cs.toScreenX(p.x(params)), cs.toScreenY(p.y(params)), p.size, 0, 2 * Math.PI);
+            pCtx.fill();
+        });
+    }
+
+    /**
+     * Draws the axis/grid plot.
+     */
     function drawAxisPlot() {
         if (isGridVisible) {
             /* -- Secondary grid  -- */
@@ -1044,24 +1120,35 @@ let functionPlot = function (id, functions, options) {
      * Clears the plots.
      */
     publicAPIs.clearPlot = () => {
+        // Clears the axis/grid plot
         axisCtx.clearRect(0, 0, width + 1, height + 1)
 
+        // Draws the background
         axisCtx.fillStyle = options.backgroundColor;
 
         axisCtx.beginPath();
         axisCtx.rect(0, 0, width + 1, height + 1);
         axisCtx.fill();
 
+        // Clears the functions and points
         clearFunctions();
+        clearPoints();
     }
 
     /**
-     * Clears the function plots
+     * Clears the functions plots.
      */
     function clearFunctions() {
         fCtxs.forEach((ctx) => {
             ctx.clearRect(0, 0, width + 1, height + 1);
         })
+    }
+
+    /**
+     * Clears the points plot.
+     */
+    function clearPoints() {
+        pCtx.clearRect(0, 0, width + 1, height + 1);
     }
 
     init();

@@ -28,7 +28,7 @@ let plotsManager = new function () {
         plots.set('test-function', new functionPlot("test-function", [
             {
                 id: "line",
-                definition: (x, params) => { return params["a"] * (x ** 2) + params["b"] * x },
+                definition: (x, params) => { return params["a"] * (x ** 2) + params["b"] * x + params["c"] },
                 domain: [[-Infinity, +Infinity]],
                 color: getCssVariable("accent"),
                 lineWidth: 3
@@ -38,7 +38,15 @@ let plotsManager = new function () {
             initialPixelsPerUnit: 10,
             parameters: [
                 { id: "a" },
-                { id: "b", animationSpeed: 1 }
+                { id: "b", animationSpeed: 1 },
+                { id: "c" }
+            ],
+            points: [
+                {
+                    x: (params) => { return 0 },
+                    y: (params) => { return params["c"] },
+                    color: getCssVariable("highlight"), size: 3, outline: true
+                }
             ],
             labelSize: 15,
             backgroundColor: getCssVariable("incredibly-light-accent"),
