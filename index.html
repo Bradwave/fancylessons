@@ -125,48 +125,76 @@
                         <div id="test-function-loader" name="plot-loader" class="plot loader"></div>
                     </div>
                 </div>
+                <!-- A parameter sliders container -->
                 <div id="test-function-plot-sliders-container" class="sliders-container centered">
+                    <!-- Sliders panel, it puts the slider in column -->
                     <div id="test-function-plot-sliders-panel"
                         class="vertical-options-panel-group plot-sliders-panel midsize">
-                        <div class="plot-slider-group">
+                        <!-- Sliders panel group for param "a" -->
+                        <div id="test-function-param-a-group" class="plot-slider-group">
+                            <!-- Group comprised of play/pause button and param value -->
                             <div class="plot-slider-controls-group">
-                                <button class="round-button glass-grey slider-control ">
-                                    <span id="test-function-plot-toggle-fullscreen-icon"
-                                        class="material-symbols-rounded">
+                                <!-- Play/pause button -->
+                                <button id="test-function-param-a-play-button"
+                                    class="round-button glass-grey slider-control ">
+                                    <span id="test-function-param-a-play-icon" class="material-symbols-rounded">
                                         play_arrow
                                     </span>
                                 </button>
+                                <!-- Param value -->
                                 <div class="plot-slider-value-container">
                                     <span id="test-function-param-a-value" class="plot-slider-value">$a = 1$</span>
                                 </div>
                             </div>
+                            <!-- Actual slider -->
                             <input id="test-function-param-a" class="plot-slider" type="range" min="-2" max="2"
+                                value="1" step="0.05">
+                        </div>
+                        <!-- Sliders panel group for param "a" -->
+                        <div id="test-function-param-b-group" class="plot-slider-group">
+                            <!-- Group comprised of play/pause button and param value -->
+                            <div class="plot-slider-controls-group">
+                                <!-- Play/pause button -->
+                                <button id="test-function-param-b-play-button"
+                                    class="round-button glass-grey slider-control ">
+                                    <span id="test-function-param-b-play-icon" class="material-symbols-rounded">
+                                        play_arrow
+                                    </span>
+                                </button>
+                                <!-- Param value -->
+                                <div class="plot-slider-value-container">
+                                    <span id="test-function-param-b-value" class="plot-slider-value">$b = 1$</span>
+                                </div>
+                            </div>
+                            <!-- Actual slider -->
+                            <input id="test-function-param-b" class="plot-slider" type="range" min="-2" max="2"
                                 value="1" step="0.05">
                         </div>
                     </div>
                 </div>
             </div>
+    </div>
 
-            <div class="slide">
-                <h2>Second section</h2>
+    <div class="slide">
+        <h2>Second section</h2>
 
-                <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore doloribus quia repudiandae
-                    perferendis
-                    quaerat omnis eveniet rerum eos, est voluptas? Delectus, laudantium quidem reprehenderit doloremque
-                    laboriosam praesentium dignissimos placeat enim.
-                </p>
+        <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore doloribus quia repudiandae
+            perferendis
+            quaerat omnis eveniet rerum eos, est voluptas? Delectus, laudantium quidem reprehenderit doloremque
+            laboriosam praesentium dignissimos placeat enim.
+        </p>
 
-                <p>
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Explicabo, debitis aliquam qui autem
-                    tempore
-                    fuga repellat, vel odit ut optio atque ipsa modi vitae veritatis? Velit molestias eos ipsa ipsum!
-                </p>
-            </div>
+        <p>
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Explicabo, debitis aliquam qui autem
+            tempore
+            fuga repellat, vel odit ut optio atque ipsa modi vitae veritatis? Velit molestias eos ipsa ipsum!
+        </p>
+    </div>
 
-            <div class="large-separator"></div>
+    <div class="large-separator"></div>
 
-        </main>
+    </main>
     </div>
 
     <!-- Format options and slideshow toggle -->

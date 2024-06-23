@@ -55,6 +55,11 @@ let functionPlot = function (id, functions, options) {
     let isRunning = true;
 
     /**
+     * True if the function renderer is running, false otherwise.
+     */
+    let isFunctionRunning = false;
+
+    /**
      * True if the plot is being translated along a certain axes, false otherwise.
      */
     let isTranslating = { x: false, y: false };
@@ -88,9 +93,10 @@ let functionPlot = function (id, functions, options) {
     |   Math
     */
 
+    /**
+     * Parameters.
+     */
     let params = [];
-
-    let epsilon;
 
     /*_______________________________________
     |   Methods
@@ -102,7 +108,6 @@ let functionPlot = function (id, functions, options) {
     function init() {
         // Sets default parameters
         if (functions == undefined) functions = [];
-        if (options.parameters == undefined) options.parameters = [];
         if (options.parameters == undefined) options.parameters = [];
         if (options.labelSize == undefined) options.labelSize = 15;
         if (options.backgroundColor == undefined) options.backgroundColor = "#ffffff";
@@ -139,7 +144,14 @@ let functionPlot = function (id, functions, options) {
 
         // Sets the initial value of the parameters
         options.parameters.forEach((p) => {
+            // Gets the starting value of the parameter from the corresponding input slider
             params[p.id] = parseFloat(document.getElementById(id + "-param-" + p.id).value);
+            // Sets the slider animation status to false
+            p.isPlaying = false;
+            // When animated, it starts increasing by default
+            p.isIncreasing = true;
+            // Sets the default animation speed if undefined
+            if (p.animationSpeed == undefined) p.animationSpeed = 0.5;
         });
 
         // Updates width and heigh of the canvas
@@ -463,24 +475,117 @@ let functionPlot = function (id, functions, options) {
                     // Stores the value
                     params[p.id] = parseFloat(document.getElementById(id + "-param-" + p.id).value);
 
-                    // Gets the span with the slider value
-                    const sliderValueSpan = document.getElementById(id + "-param-" + p.id + "-value");
-                    // MathJax will forget about the math inside said span
-                    MathJax.typesetClear([sliderValueSpan]);
-                    // The inner text of the span is edited
-                    sliderValueSpan.innerText =
-                        "$" + p.id + "=" + roundNumberDigit(params[p.id], 2) + "$";
-                    // MathJax does its things and re-renders the formula
-                    MathJax.typesetPromise([sliderValueSpan]).then(() => {
-                        // the new content is has been typeset
-                    });
+                    // Updates the slider value
+                    updateSliderValue(p.id);
 
                     // Clears the functions and draws them
                     clearFunctions();
                     drawFunctions();
                 }
-            })
+
+                // Executes when the play/pause button for the parameter slider is pressed
+                document.getElementById(id + "-param-" + p.id + "-play-button").onclick = () => {
+                    // Sets the status
+                    p.isPlaying = !p.isPlaying;
+
+                    // Changes the icon of the play/pause button
+                    document.getElementById(id + "-param-" + p.id + "-play-icon").innerText =
+                        p.isPlaying ? "pause" : "play_arrow";
+
+                    // Checks if some parameter is animated
+                    let isParameterPlaying = false;
+                    options.parameters.forEach(parameter => {
+                        if (parameter.isPlaying) isParameterPlaying = true;
+                    })
+
+                    // If no parameter was previously animated, but at least one now is...
+                    if (!isFunctionRunning && isParameterPlaying) {
+                        // It starts animating the functions
+                        isFunctionRunning = true;
+                        animateFunctions();
+                    } else if (!isParameterPlaying) {
+                        // Otherwise, if no parameter is animated, it stops the functions animation
+                        isFunctionRunning = false;
+                    }
+                }
+            });
         }
+    }
+
+    /**
+     * Updates the value of the parameter in the corresponding slider value span.
+     * @param {String} paramId Id of the parameter.
+     */
+    function updateSliderValue(paramId) {
+        // Gets the span with the slider value
+        const sliderValueSpan = document.getElementById(id + "-param-" + paramId + "-value");
+        // MathJax will forget about the math inside said span
+        MathJax.typesetClear([sliderValueSpan]);
+        // The inner text of the span is edited
+        sliderValueSpan.innerText =
+            "$" + paramId + "=" + roundNumberDigit(params[paramId], 2) + "$";
+        // MathJax does its things and re-renders the formula
+        MathJax.typesetPromise([sliderValueSpan]).then(() => {
+            // the new content is has been typeset
+        });
+    }
+
+    /**
+     * It animates the functions
+     * @returns Early return if not playing.
+     */
+    function animateFunctions() {
+        // When no parameter is animated, it stops
+        if (!isFunctionRunning) {
+            return;
+        }
+        // Executes action to be performed every frame
+        options.parameters.forEach(p => {
+            // If a specific parameter is playing...
+            if (p.isPlaying) {
+                // ...it stores the parameter input slider
+                const paramInput = document.getElementById(id + "-param-" + p.id);
+                // It stores the current parameter value
+                let paramValue = params[p.id];
+
+                // If the parameter should increase...
+                if (p.isIncreasing) {
+                    // ...it increases its value, according to step and speed
+                    paramValue += parseFloat(paramInput.step) * parseFloat(p.animationSpeed);
+                    // If it's larger than the max allowed value...
+                    if (paramValue >= parseFloat(paramInput.max)) {
+                        //...it constrains its value
+                        paramValue = parseFloat(paramInput.max)
+                        // And switches the animation direction
+                        p.isIncreasing = false;
+                    }
+                } else {
+                    // Otherwise, if it should decrease, it decreases its value
+                    paramValue -= parseFloat(paramInput.step) * parseFloat(p.animationSpeed);
+                    // If it's smaller than the min allowed value...
+                    if (paramValue <= parseFloat(paramInput.min)) {
+                        // ...it constrains its value
+                        paramValue = parseFloat(paramInput.min);
+                        // And switches the animation direction
+                        p.isIncreasing = true;
+                    }
+                }
+
+                // Sets the value in the slider
+                paramInput.value = paramValue;
+                // Stores the updated parameter value
+                params[p.id] = paramValue;
+                // Updates the displayed value (a bit spastically)
+                updateSliderValue(p.id);
+            }
+        })
+
+        // Clears and draws the functions
+        clearFunctions();
+        drawFunctions();
+
+        // Keeps executing this function
+        requestAnimationFrame(() => { animateFunctions(); });
     }
 
     /* -- Utils -- */
@@ -511,7 +616,7 @@ let functionPlot = function (id, functions, options) {
         }
         // Executes action to be performed every frame
         action();
-        // Draws the ring
+        // Draws the plot
         publicAPIs.drawPlot();
         // Keeps executing this function
         requestAnimationFrame(() => { animate(action); });
