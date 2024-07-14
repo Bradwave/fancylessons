@@ -19,7 +19,11 @@
           - 2.2.2 Images
           - 2.2.3 Separators
           - 2.2.4 Bubble containers
-          - 2.2.5 Various stuff
+          - 2.2.5 Boxes
+            - 2.2.5.1 Box header
+            - 2.2.5.2 Box content
+          - 2.2.6 Custom lists
+          - 2.2.7 Custom text elements 
         2.3 Canvas
           - 2.3.1 Plot container
           - 2.3.2 Plot
@@ -28,9 +32,9 @@
             - 2.3.4.1 Plot controls buttons
             - 2.3.4.2 Plot controls icons
             - 2.3.4.3 Plot sliders
-              -- 2.3.4.3.1 Slider thumb
-              -- 2.3.4.3.2 Slider track
-              -- 2.3.4.3.3 Slider controls and options
+              - 2.3.4.3.1 Slider thumb
+              - 2.3.4.3.2 Slider track
+              - 2.3.4.3.3 Slider controls and options
         2.4 Slideshow
           - 2.4.1 Slides
           - 2.4.2 Options panel
@@ -575,7 +579,7 @@ div.large-separator {
 }
 
 div.huge-separator {
-    margin-top: 2000px;
+    margin-top: 500px;
 }
 
 /* -- 2.2.4 Bubble containers -- */
@@ -594,14 +598,16 @@ div.huge-separator {
     place-items: center;
 }
 
-/* -- 2.2.5 Various stuff -- */
+/* -- 2.2.5 Boxes -- */
 
+/* Regular box */
 div.box {
     margin: 0;
     padding: var(--button-diameter);
     border-radius: var(--button-diameter);
 }
 
+/* Callout box */
 div.box.callout {
     display: grid;
     grid-template-columns: 0 1fr;
@@ -609,6 +615,7 @@ div.box.callout {
     align-items: start;
 }
 
+/* Regular box icon */
 div.box.callout::before {
     padding-left: 5px;
     content: attr(icon);
@@ -619,64 +626,73 @@ div.box.callout::before {
     vertical-align: bottom;
 }
 
+/* Box with centered content */
 div.box.center {
     display: grid;
     place-items: center;
     text-align: center;
 }
 
+/* Box with small padding and border radius */
 div.box.small {
     padding: var(--button-radius) calc(1.1 * var(--button-radius));
     border-radius: var(--button-radius);
 }
 
+/* Clear box (with no padding) */
 div.box.clear {
     padding-top: 0;
     padding-bottom: 0;
 }
 
-div.box.accent {
-    background-color: var(--very-light-accent);
-}
-
+/* Light grey box */
 div.box.light-grey {
     background-color: var(--very-light-grey);
 }
 
+/* -- 2.2.5.1 Box header -- */
+
+/* Regular box header */
 div.box-header {
     font-size: 120%;
     font-weight: var(--bold-weight);
 }
 
+/* Centered box header */
 div.box-header.centered {
     text-align: center;
 }
 
+/* -- 2.2.5.2 Box content -- */
+
+/* Regular box content */
 div.box-content {
     margin-top: 20px;
 }
 
+/* Centered box content */
 div.box-content.centered {
     text-align: center;
 }
 
+/* Box content with small margin */
 div.box-content.small-margin {
     margin-top: 10px;
 }
 
+/* Box content with no margin */
 div.box-content.no-margin {
     margin-top: 0px;
 }
 
+/* Box content with smaller sized text */
 div.box-content.small-text {
     font-size: 80%;
 }
 
-span.material-symbols-rounded.text {
-    margin-right: 5px;
-    vertical-align: middle;
-}
+/* -- 2.2.6 Custom lists -- */
 
+/* List with chevron as bullet */
 ul.chevron {
     margin: 0;
     margin-left: .25rem;
@@ -686,15 +702,18 @@ ul.chevron {
     gap: .5rem;
 }
 
+/* Compact version of the list with chevron as bullet */
 ul.chevron.compact {
     margin-top: 5px;
     gap: 0
 }
 
+/* Multicolumn list */
 ul.multicolumn {
     grid-template-columns: repeat(auto-fill, minmax(22ch, 1fr));
 }
 
+/* List element with the chevron */
 ul.chevron li {
     margin: 0;
     display: grid;
@@ -703,6 +722,7 @@ ul.chevron li {
     align-items: start;
 }
 
+/* Chevron icon */
 ul.chevron li::before {
     content: "chevron_right";
     font-family: 'Material Symbols Rounded';
@@ -712,6 +732,9 @@ ul.chevron li::before {
     vertical-align: bottom;
 }
 
+/* -- 2.2.7 Custom text elements -- */
+
+/* Div with symbol in front */
 div.icon-text {
     margin: 0;
     display: grid;
@@ -720,6 +743,7 @@ div.icon-text {
     align-items: start;
 }
 
+/* Icon in front of text */
 p.icon::before, div.icon::before {
     margin: 0;
     padding: 0;
@@ -730,6 +754,12 @@ p.icon::before, div.icon::before {
     font-style: normal;
     font-size: 120%;
     vertical-align: text-bottom;
+}
+
+/* Material symbol in text */
+span.material-symbols-rounded.text {
+    margin-right: 5px;
+    vertical-align: middle;
 }
 
 /* === 2.3 Canvas === */
@@ -1125,7 +1155,7 @@ div.slide.hidden {
 
 /* Blurs the slide and lowers its opacity when not selected */
 div.slide.non-selected {
-    opacity: 0.5;
+    opacity: 0.25;
     filter: blur(4px);
 }
 
