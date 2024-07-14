@@ -19,6 +19,7 @@
           - 2.2.2 Images
           - 2.2.3 Separators
           - 2.2.4 Bubble containers
+          - 2.2.5 Various stuff
         2.3 Canvas
           - 2.3.1 Plot container
           - 2.3.2 Plot
@@ -90,6 +91,7 @@
     --hidden: #ffffff;
     --accent: #1484e6;
     --light-accent: #54a3e8;
+    --very-light-accent: #94c2ea;
     --incredibly-light-accent: #d9e1e7;
     --very-transparent-accent: #2d8cdf80;
     --incredibly-transparent-accent: #298be037;
@@ -391,15 +393,20 @@ h1 {
 /* Part */
 
 h2 {
+    display: grid;
+    grid-template-columns: 0 1fr;
+    gap: 1.5em;
     margin-top: 0;
     margin-bottom: 30px;
+    align-items: start;
     font-size: 175%;
     font-weight: var(--bold-weight);
     counter-set: section subsection;
 }
 
 h2::before {
-    margin-right: 40px;
+    background-color: var(--accent);
+    border-radius: var(--button-radius);
     counter-increment: chapter;
     content: counter(chapter);
 }
@@ -407,14 +414,17 @@ h2::before {
 /* Section */
 
 h3 {
+    display: grid;
+    grid-template-columns: 0 1fr;
+    gap: 2em;
     margin-top: 0;
     margin-bottom: 30px;
+    align-items: start;
     font-size: 150%;
     counter-set: subsection definition theorem;
 }
 
 h3::before {
-    margin-right: 20px;
     counter-increment: section;
     content: counter(chapter) "."counter(section);
 }
@@ -422,6 +432,10 @@ h3::before {
 /* Subsection */
 
 h4 {
+    display: grid;
+    grid-template-columns: 0 1fr;
+    gap: 1.5em;
+    align-items: start;
     font-size: 125%;
 }
 
@@ -471,8 +485,8 @@ a {
 
 .grid-2 {
     display: grid;
-    gap: 10px;
-    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
 .grid-2.right {
@@ -491,8 +505,8 @@ a {
 
 .grid-3 {
     display: grid;
-    gap: 10px;
-    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .grid-3.small-center {
@@ -548,12 +562,20 @@ div.separator {
     margin-top: 5%;
 }
 
+div.small-separator {
+    margin-top: 10px;
+}
+
 div.medium-separator {
     margin-top: 2%;
 }
 
 div.large-separator {
     margin-top: 10%;
+}
+
+div.huge-separator {
+    margin-top: 2000px;
 }
 
 /* -- 2.2.4 Bubble containers -- */
@@ -570,6 +592,144 @@ div.large-separator {
 
 .bubble-container.text {
     place-items: center;
+}
+
+/* -- 2.2.5 Various stuff -- */
+
+div.box {
+    margin: 0;
+    padding: var(--button-diameter);
+    border-radius: var(--button-diameter);
+}
+
+div.box.callout {
+    display: grid;
+    grid-template-columns: 0 1fr;
+    gap: 2.5em;
+    align-items: start;
+}
+
+div.box.callout::before {
+    padding-left: 5px;
+    content: attr(icon);
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    vertical-align: bottom;
+}
+
+div.box.center {
+    display: grid;
+    place-items: center;
+    text-align: center;
+}
+
+div.box.small {
+    padding: var(--button-radius) calc(1.1 * var(--button-radius));
+    border-radius: var(--button-radius);
+}
+
+div.box.clear {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+div.box.accent {
+    background-color: var(--very-light-accent);
+}
+
+div.box.light-grey {
+    background-color: var(--very-light-grey);
+}
+
+div.box-header {
+    font-size: 120%;
+    font-weight: var(--bold-weight);
+}
+
+div.box-header.centered {
+    text-align: center;
+}
+
+div.box-content {
+    margin-top: 20px;
+}
+
+div.box-content.centered {
+    text-align: center;
+}
+
+div.box-content.small-margin {
+    margin-top: 10px;
+}
+
+div.box-content.no-margin {
+    margin-top: 0px;
+}
+
+div.box-content.small-text {
+    font-size: 80%;
+}
+
+span.material-symbols-rounded.text {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+ul.chevron {
+    margin: 0;
+    margin-left: .25rem;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: .5rem;
+}
+
+ul.chevron.compact {
+    margin-top: 5px;
+    gap: 0
+}
+
+ul.multicolumn {
+    grid-template-columns: repeat(auto-fill, minmax(22ch, 1fr));
+}
+
+ul.chevron li {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 0 1fr;
+    gap: 1.5em;
+    align-items: start;
+}
+
+ul.chevron li::before {
+    content: "chevron_right";
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 120%;
+    vertical-align: bottom;
+}
+
+div.icon-text {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 0 1fr;
+    gap: 1.5em;
+    align-items: start;
+}
+
+p.icon::before, div.icon::before {
+    margin: 0;
+    padding: 0;
+    padding-right: .25em;
+    content: attr(icon);
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 120%;
+    vertical-align: text-bottom;
 }
 
 /* === 2.3 Canvas === */

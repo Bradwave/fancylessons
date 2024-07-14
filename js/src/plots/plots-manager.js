@@ -24,46 +24,7 @@ let plotsManager = new function () {
     let canvases = [...document.getElementsByName("plot")];
 
     function init() {
-        // Test function plot
-        plots.set('test-function', new functionPlot("test-function", [
-            {
-                id: "line",
-                definition: (x, params) => { return params["a"] * (x ** 2) + params["b"] * x + params["c"] },
-                domain: [[-Infinity, +Infinity]],
-                color: getCssVariable("accent"),
-                lineWidth: 3
-            },
-            {
-                id: "line",
-                definition: (x, params) => { return params["a"] * Math.sin(params["b"] * x + params["c"]) },
-                domain: [[-Infinity, +Infinity]],
-                color: "green",
-                lineWidth: 3
-            }
-        ], {
-            viewportCenter: { x: 0, y: 0 },
-            initialPixelsPerUnit: 10,
-            parameters: [
-                { id: "a" },
-                { id: "b", animationSpeed: 1 },
-                { id: "c" }
-            ],
-            points: [
-                {
-                    x: (params) => { return 0 },
-                    y: (params) => { return params["c"] },
-                    color: getCssVariable("highlight"), size: 3, outline: true
-                }
-            ],
-            labelSize: 15,
-            backgroundColor: getCssVariable("incredibly-light-accent"),
-            axisColor: getCssVariable("highlight"),
-            axisLineWidth: 3,
-            gridColor: getCssVariable("highlight"),
-            gridLineWidth: 1,
-            secondaryGridColor: getCssVariable("transparent-highlight"),
-            secondaryGridLineWidth: 1
-        }));
+        // Init plots here
 
         plots.forEach((plot) => {
             plot.drawPlot();
