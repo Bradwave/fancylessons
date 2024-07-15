@@ -398,8 +398,8 @@ h1 {
 
 h2 {
     display: grid;
-    grid-template-columns: 0 1fr;
-    gap: 1.5em;
+    grid-template-columns: auto 1fr;
+    gap: 1em;
     margin-top: 0;
     margin-bottom: 30px;
     align-items: start;
@@ -409,18 +409,29 @@ h2 {
 }
 
 h2::before {
-    background-color: var(--accent);
-    border-radius: var(--button-radius);
     counter-increment: chapter;
     content: counter(chapter);
+}
+
+/* Unnumbered h2 */
+h2.unnumbered {
+    gap: 0;
+    font-size: 175%;
+    font-weight: var(--bold-weight);
+    counter-set: section subsection;
+}
+
+h2.unnumbered::before {
+    counter-increment: none;
+    content: "";
 }
 
 /* Section */
 
 h3 {
     display: grid;
-    grid-template-columns: 0 1fr;
-    gap: 2em;
+    grid-template-columns: auto 1fr;
+    gap: 1em;
     margin-top: 0;
     margin-bottom: 30px;
     align-items: start;
@@ -437,8 +448,8 @@ h3::before {
 
 h4 {
     display: grid;
-    grid-template-columns: 0 1fr;
-    gap: 1.5em;
+    gap: 1em;
+    grid-template-columns: auto 1fr;
     align-items: start;
     font-size: 125%;
 }
@@ -446,7 +457,6 @@ h4 {
 h4::before {
     counter-increment: subsection;
     content: counter(chapter) "."counter(section) "."counter(subsection);
-    margin-right: 18px;
 }
 
 h5 {
@@ -622,7 +632,7 @@ div.box.callout::before {
     font-family: 'Material Symbols Rounded';
     font-weight: normal;
     font-style: normal;
-    font-size: 24px;
+    font-size: 125%;
     vertical-align: bottom;
 }
 
@@ -648,6 +658,44 @@ div.box.clear {
 /* Light grey box */
 div.box.light-grey {
     background-color: var(--very-light-grey);
+}
+
+/* Box with a light background */
+div.box.highlight {
+    background-color: var(--transparent-highlight);
+}
+
+/* Box for an answer to a question */
+div.box.question-option {
+    display: grid;
+    grid-template-columns: 0 1fr;
+    gap: 2em;
+    align-items: start;
+}
+
+/* Label of the answer */
+div.box.question-option::before {
+    padding-left: 5px;
+    content: attr(label);
+    font-weight: var(--bold-weight);
+}
+
+/* Box to display duration */
+div.box.time {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    font-weight: var(--bold-weight);
+}
+
+/* Timer icon before the time box */
+div.box.time::before {
+    content: "timer";
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 120%;
+    vertical-align: bottom;
 }
 
 /* -- 2.2.5.1 Box header -- */
@@ -708,6 +756,11 @@ ul.chevron.compact {
     gap: 0
 }
 
+/* List with chevron and top margin */
+ul.chevron.with-margin {
+    margin-top: 10px;
+}
+
 /* Multicolumn list */
 ul.multicolumn {
     grid-template-columns: repeat(auto-fill, minmax(22ch, 1fr));
@@ -735,11 +788,11 @@ ul.chevron li::before {
 /* -- 2.2.7 Custom text elements -- */
 
 /* Div with symbol in front */
-div.icon-text {
+div.icon {
     margin: 0;
     display: grid;
     grid-template-columns: 0 1fr;
-    gap: 1.5em;
+    gap: 2em;
     align-items: start;
 }
 
@@ -759,7 +812,12 @@ p.icon::before, div.icon::before {
 /* Material symbol in text */
 span.material-symbols-rounded.text {
     margin-right: 5px;
-    vertical-align: middle;
+    vertical-align: text-bottom;
+}
+
+/* Material symbol in text */
+span.material-symbols-rounded.big {
+    font-size: 140%;
 }
 
 /* === 2.3 Canvas === */
