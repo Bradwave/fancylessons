@@ -678,6 +678,7 @@ div.box.question-option::before {
     padding-left: 5px;
     content: attr(label);
     font-weight: var(--bold-weight);
+    vertical-align: text-bottom;
 }
 
 /* Box to display duration */

@@ -1086,11 +1086,21 @@
                         <div class="box small center">
                             <div class="box-header">
                                 <span class="material-symbols-rounded big">
-                                    partner_exchange
+                                    handshake
                                 </span>
                             </div>
                             <div class="box-content small-margin small-text">
                                 Favorisce la collaborazione
+                            </div>
+                        </div>
+                        <div class="box small center">
+                            <div class="box-header">
+                                <span class="material-symbols-rounded big">
+                                    diversity_3
+                                </span>
+                            </div>
+                            <div class="box-content small-margin small-text">
+                                Favorisce l'inclusione
                             </div>
                         </div>
                     </div>
@@ -1277,15 +1287,13 @@
 
                 <div id="hooke-plot-sliders-container" class="sliders-container centered">
                     <!-- Sliders panel, it puts the slider in column -->
-                    <div id="hooke-plot-sliders-panel"
-                        class="vertical-options-panel-group plot-sliders-panel midsize">
+                    <div id="hooke-plot-sliders-panel" class="vertical-options-panel-group plot-sliders-panel midsize">
                         <!-- Sliders panel group for param "a" -->
                         <div id="hooke-param-k-group" class="plot-slider-group">
                             <!-- Group comprised of play/pause button and param value -->
                             <div class="plot-slider-controls-group">
                                 <!-- Play/pause button -->
-                                <button id="hooke-param-k-play-button"
-                                    class="round-button glass-grey slider-control ">
+                                <button id="hooke-param-k-play-button" class="round-button glass-grey slider-control ">
                                     <span id="hooke-param-k-play-icon" class="material-symbols-rounded">
                                         play_arrow
                                     </span>
@@ -1296,8 +1304,8 @@
                                 </div>
                             </div>
                             <!-- Actual slider -->
-                            <input id="hooke-param-k" class="plot-slider" type="range" min="0.01" max="10"
-                                value="5" step="0.01">
+                            <input id="hooke-param-k" class="plot-slider" type="range" min="0.01" max="10" value="5"
+                                step="0.01">
                         </div>
                     </div>
                 </div>
@@ -1388,6 +1396,85 @@
                 </div>
             </div>
 
+            <!-- Esercizi vari -->
+            <div class="slide">
+                <div class="box small clear">
+                    <div class="box-header">
+                        Esercizio 1
+                    </div>
+                    <div class="box-content">
+                        Durante un salto con il <em>bungee jumping</em> l'elastico si allunga si allunga del $200 \%$,
+                        la sua costante elastica è di $100 \, \text{N} \cdot \text{m}^{-1}$ e il salto in totale è stato
+                        di $30 \: \text{m}$.
+                    </div>
+                    <ul class="chevron compact">
+                        <li>
+                            <span>
+                                Quanto vale la forza che agisce sul saltatore nel punto più basso.
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="box small clear">
+                    <div class="box-header">
+                        Esercizio 2
+                    </div>
+                    <div class="box-content">
+                        La costante elastica di una molla è $k = 0,\!150 \, \text{kN}/\text{m}$.
+                    </div>
+                    <ul class="chevron compact">
+                        <li>
+                            <span>
+                                Di quanto si allunga la
+                                molla se ad essa è applicata una forza di intensità $6,\!24 \, \text{N}$?
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Esercizi vari -->
+            <div class="slide">
+                <div class="box small clear">
+                    <div class="box-header">
+                        Esercizio 3
+                    </div>
+                    <div class="box-content">
+                        Un <em>roller coaster</em> di massa $400 \, \text{kg}$ è appoggiato su una sezione di binario
+                        inclinato e comprime un respingente a molla di costante elastica $2,\!00 \, \text{kN}/\text{m}$.
+                        Il binario è inclinato di $20^\circ$ rispetto all'orizzonte.
+                    </div>
+                    <ul class="chevron compact">
+                        <li>
+                            <span>
+                                Di quanto si comprime la molla?
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="box small clear">
+                    <div class="box-header">
+                        Esercizio 2
+                    </div>
+                    <div class="box-content">
+                        Due molle identiche sono attaccate al soffitto e sorreggono un lampadario di massa $1,\!3 \,
+                        \text{kg}$, che sta fermo. L'angolo tra ogni molla e il soffitto è di $50^\circ$ e la costante
+                        elastica è $k = 3,\!5 \cdot 10^2 \, \text{N} \cdot \text{m}^{-1}$.
+                    </div>
+                    <ul class="chevron compact">
+                        <li>
+                            Calcola l'allungamento di ogni singola molla.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="separator"></div>
 
             <!-- <> Lezione frontale e partecipata <> -->
@@ -1401,8 +1488,30 @@
 
                 <p>
                     La lezione frontale è incentrata sull'esplorazione della <b>combinazione di molle</b>, <b>in
-                        serie</b> e <b>in parallelo</b>.
+                        serie</b> e <b>in parallelo</b>. Per i dettagli, fare riferimento al file allegato.
                 </p>
+                <div class="box light-grey">
+                    <div class="box-header">
+                        Molle in serie
+                    </div>
+                    <div class="box-content">
+                        Per una molla equivalente a due molle collegate in serie, di constante elastica rispettivamente
+                        $k_1$ e $k_2$, si verifica
+                        \[
+                        \frac{1}{k} = \frac{1}{k_1} + \frac{1}{k_2} \, .
+                        \]
+                    </div>
+                    <div class="box-header">
+                        Molle in parallelo
+                    </div>
+                    <div class="box-content">
+                        Per una molla equivalente a due molle collegate in parallelo, di costante elastica
+                        rispettivamente $k_1$ e $k_2$, si verifica
+                        \[
+                        k = k_1 + k_2 \, .
+                        \]
+                    </div>
+                </div>
             </div>
 
             <div class="separator"></div>
@@ -1570,6 +1679,11 @@
                 <div class="box time small light-grey">
                     ~1 h
                 </div>
+
+                <p>
+                    È assegnata la stesura della <b>relazione</b> dell'esperienza di laboratorio e la risoluzione di
+                    <b>esercizi</b> tratti dal libro di testo in adozione. Gli esercizi hanno difficoltà varia.
+                </p>
             </div>
 
             <div class="separator"></div>
@@ -1975,6 +2089,22 @@
                 </ul>
             </div>
 
+            <div class="slide">
+                <p>
+                    Come attività di approfondimento è proposta la formulazione della <b>costante elastica</b> in funzione di
+                    <b>lunghezza iniziale</b> e <b>sezione</b> della molla.
+                </p>
+                <div class="box light-grey">
+                    <p>
+                        Detta $l_0$ la lunghezza iniziale della molla ed $S$ la sua sezione, si verifica
+                        \[
+                        k = E \frac{S}{l_0} \, ,
+                        \]
+                        dove $E$ è detto <b>modulo di Young</b> o modulo elastico.
+                    </p>
+                </div>
+            </div>
+
             <div class="separator"></div>
 
             <!-- <> Autovalutazione <> -->
@@ -2182,7 +2312,22 @@
                 <ul class="chevron">
                     <li>
                         <span>
-                            Tal dei tali, <em>Libro</em>, Garzantemo, Milano, 2099.
+                            C. Romeni, <em>Fisica e realtà</em>, Zanichelli, 2016.
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            G. Vannini, W. E. Gettys, <em>Gettys Fisica 1</em>, Mc Grawn Hill, 2017.
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            D. Halliday, R. Resnick, J. Walker, <em>La fisica di Halliday</em>, Zanichelli, 2023.
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            A. Caforio, A. Ferilli, <em>Nuova fisica sperimentale</em>, Le Monnier, 2005.
                         </span>
                     </li>
                 </ul>
