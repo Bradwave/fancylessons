@@ -504,7 +504,8 @@
                             </li>
                             <li>
                                 <span>
-                                    Associare la <b>costante elastica</b> alle caratteristiche fisiche e geometriche di una
+                                    Associare la <b>costante elastica</b> alle caratteristiche fisiche e geometriche di
+                                    una
                                     molla.
                                 </span>
                             </li>
@@ -1221,9 +1222,15 @@
             </div>
 
             <div class="slide">
+                <div class="box center">
+                    <p>
+                        Grafico di $F = kx$ (legge di Hooke in forma scalare).
+                    </p>
+                </div>
+
                 <div id="hooke-plot-container" class="plot-container">
                     <!-- Plot -->
-                    <div id="hooke-plot" class="plot" style="width: 400px; height: 300px;">
+                    <div id="hooke-plot" class="plot" style="width: 600px; height: 400px;">
                         <!-- Axis canvas -->
                         <canvas id="hooke-canvas" name="plot" class="plot main">
                         </canvas>
@@ -1265,6 +1272,33 @@
                         </button>
                         <!-- Plot loader -->
                         <div id="hooke-loader" name="plot-loader" class="plot loader"></div>
+                    </div>
+                </div>
+
+                <div id="hooke-plot-sliders-container" class="sliders-container centered">
+                    <!-- Sliders panel, it puts the slider in column -->
+                    <div id="hooke-plot-sliders-panel"
+                        class="vertical-options-panel-group plot-sliders-panel midsize">
+                        <!-- Sliders panel group for param "a" -->
+                        <div id="hooke-param-k-group" class="plot-slider-group">
+                            <!-- Group comprised of play/pause button and param value -->
+                            <div class="plot-slider-controls-group">
+                                <!-- Play/pause button -->
+                                <button id="hooke-param-k-play-button"
+                                    class="round-button glass-grey slider-control ">
+                                    <span id="hooke-param-k-play-icon" class="material-symbols-rounded">
+                                        play_arrow
+                                    </span>
+                                </button>
+                                <!-- Param value -->
+                                <div class="plot-slider-value-container">
+                                    <span id="hooke-param-k-value" class="plot-slider-value">$k = 5$</span>
+                                </div>
+                            </div>
+                            <!-- Actual slider -->
+                            <input id="hooke-param-k" class="plot-slider" type="range" min="0.01" max="10"
+                                value="5" step="0.01">
+                        </div>
                     </div>
                 </div>
             </div>
