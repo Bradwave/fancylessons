@@ -1220,6 +1220,55 @@
                 </div>
             </div>
 
+            <div class="slide">
+                <div id="hooke-plot-container" class="plot-container">
+                    <!-- Plot -->
+                    <div id="hooke-plot" class="plot" style="width: 400px; height: 300px;">
+                        <!-- Axis canvas -->
+                        <canvas id="hooke-canvas" name="plot" class="plot main">
+                        </canvas>
+                        <!-- Function canvas -->
+                        <canvas id="line-hooke-canvas" name="plot" class="plot stacked">
+                        </canvas>
+                        <!-- Points canvas -->
+                        <canvas id="points-hooke-canvas" name="plot" class="plot stacked">
+                        </canvas>
+                        <!-- Zoom out button -->
+                        <button id="hooke-plot-zoom-out" class="plot-control round-button zoom-in">
+                            <span class="material-symbols-rounded bold-button">
+                                remove
+                            </span>
+                        </button>
+                        <!-- Zoom in button -->
+                        <button id="hooke-plot-zoom-in" class="plot-control round-button zoom-out">
+                            <span class="material-symbols-rounded bold-button">
+                                add
+                            </span>
+                        </button>
+                        <!-- Plot refresh button -->
+                        <button id="hooke-plot-refresh" class="plot-control round-button plot-refresh">
+                            <span class="material-symbols-rounded">
+                                refresh
+                            </span>
+                        </button>
+                        <!-- Toggle grid button -->
+                        <button id="hooke-plot-toggle-grid" class="plot-control round-button toggle-grid">
+                            <span class="material-symbols-rounded grid-icon">
+                                grid_4x4
+                            </span>
+                        </button>
+                        <!-- Toggle full screen button -->
+                        <button id="hooke-plot-toggle-fullscreen" class="plot-control round-button fullscreen">
+                            <span id="hooke-plot-toggle-fullscreen-icon" class="material-symbols-rounded">
+                                fullscreen
+                            </span>
+                        </button>
+                        <!-- Plot loader -->
+                        <div id="hooke-loader" name="plot-loader" class="plot loader"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="separator"></div>
 
             <!-- <> Esercizi in classe <> -->
